@@ -16,6 +16,7 @@ var cmd, skill, top_menu, msg_menu;	/* command keystroke, skill level
 					   (novice, xpert, sysop), top lvl
 					   menu string, msg menu string */
 var top_prompt, msg_prompt;
+var curbase = new MsgBase(0);	//change this to reflect saved room l8r
 
 //a few easier hooks for the ctrl-a codes
 const ctrl_a = "\1";
@@ -73,6 +74,9 @@ bbs.ddoc.do_main_prompt = function {
 
 bbs.ddoc.do_main_function = function {
 	switch (cmd) {
+	  case '?':  //main menu
+		cmd = console.ddoc.main_menu();
+		break;
 	  case 'B':  //toggle xpress beeps
 		if (xpress_beeps) {
 			xpress_beeps = false;
@@ -92,10 +96,90 @@ bbs.ddoc.do_main_function = function {
 		break;
 	  case '\5': //Enter message with header
 		console.print(excuse_string); */
-	  case 'e':  //Enter message normally
-		
+	  //case 'e':  //Enter message normally
+	  case 'E':  //upload message (text upload)
+		bbs.ddoc.do_msg_upload();
+		break;
 
-bbs.ddoc.main_menu = function {
+}
+
+//menu methods
+bbs.ddoc.do_top_menu = function {
 	console.print(top_menu);
-	do_main_prompt();
+	cmd = do_main_prompt();
+	return cmd;
+}
 
+bbs.ddoc.do_msg_menu = function {
+	console.print(msg_menu);
+	cmd = do_msg_prompt();
+	return cmd;
+}
+
+//DOC only message methods
+bbs.ddoc.do_msg_upload = function {
+	console.print(green + high_intensity +
+		"Hit Y to upload a message or N to enter a " +
+		"message normally (Y/N) -> ";
+
+	cmd = console.inkey();
+	if (cmd != 'Y') {
+		return -1;
+	} else {
+		var msg_buf, tmp;
+
+		//all of this is going to have to be determined at the 
+		//start of the message entry, not ad libbed on the fly
+		console.print("(Use control-D to end!)\n\n" +
+			magenta + high_intensity +
+			system.datestr() + " " + system.timestr() +
+			green + high_intensity +
+			" from " + cyan + high_intensity +
+			user.alias() + "\n" + green + high_intensity);
+
+		tmp = console.inkey();
+		while (tmp != '\4') {
+			msg_buf += tmp;
+			//add echoing if needed, of course
+		}
+
+		console.print(yellow + high_intensity + "<A>" +
+			cyan + high_intensity + "bort " + yellow +
+			high_intensity + "<C>" + cyan + high_intensity +
+			"ontinue " + yellow + high_intensity + "<P>" +
+			cyan + high_intensity + "rint " + yellow +
+			high_intensity + "<S>" + cyan + high_intensity +
+			"save " + yellow + high_intensity + "<X>" +
+			cyan + high_intensity + "press -> ";
+
+		cmd = console.inkey();
+		//durrrrrr switch case to all caps for most of this
+		switch (cmd) {
+			case 'a':
+			case 'A':
+				console.print(red + high_intensity +
+				  "Abort: " + green + high_intensity +
+				  "are you sure? ";
+
+				cmd = console.inkey();
+				if ((cmd == 'y') || (cmd = 'Y')) {
+				  return -1;
+				} else {
+				  //return to message
+				  //hint: need to modularize
+				  console.print(excuse_string);
+				  return -1;
+				}
+				break;
+			case 'c':
+			case 'C':
+				console.print(green + high_intensity +
+				  "Continue...\n");
+				//return to modular text input again
+				console.print(excuse_string);
+				break;
+			case 'p':
+			case 'P':  //modularize
+				console.print(green + high_intensity +
+				  "Print formatted\n\n");
+				
