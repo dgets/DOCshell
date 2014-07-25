@@ -154,12 +154,11 @@ bbs.ddoc.do_msg_upload = function {
 
 		cmd = console.inkey();
 		//durrrrrr switch case to all caps for most of this
-		switch (cmd) {
-			case 'a':
+		switch (cmd.toUpperCase()) {
 			case 'A':
 				console.print(red + high_intensity +
 				  "Abort: " + green + high_intensity +
-				  "are you sure? ";
+				  "are you sure? ");
 
 				cmd = console.inkey();
 				if ((cmd == 'y') || (cmd = 'Y')) {
@@ -171,15 +170,33 @@ bbs.ddoc.do_msg_upload = function {
 				  return -1;
 				}
 				break;
-			case 'c':
 			case 'C':
 				console.print(green + high_intensity +
 				  "Continue...\n");
 				//return to modular text input again
 				console.print(excuse_string);
 				break;
-			case 'p':
 			case 'P':  //modularize
 				console.print(green + high_intensity +
 				  "Print formatted\n\n");
-				
+
+		}
+	}
+}
+
+bbs.ddoc.init = function {
+	var cmd, skill, top_menu,      // command keystroke, skill level
+		msg_menu;              // (novice, xpert, sysop), top lvl
+	                               // menu string, msg menu string 
+	var top_prompt, msg_prompt;
+
+	var curbase = new MsgBase(0);   //change this to reflect saved room
+
+	//a few easier hooks for the ctrl-a codes
+	const ctrl_a = "\1";
+	const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + 
+		"b", white = ctrl_a + "w", red = ctrl_a + "r", cyan = 
+		ctrl_a + "c", magenta = ctrl_a + "m", high_intensity =
+		ctrl_a + "h";
+
+
