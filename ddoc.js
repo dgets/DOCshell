@@ -58,7 +58,11 @@ if (skill == 0) {
 	   "<y>\tyell\n<z>\tzaproom\n<0-9>\tquickX\n<#>\tReadroom by " +
 	   "number\n<->\tread last n messages\n<%>\ttoggle guideflag " +
 	   "status\n<@>\taidelist\n<\">\tquote Xes to Sysop\n\n";
-	msg_menu = 
+	msg_menu = green + high_intensity + "<?> help\t\t" +
+	   "<a>gain\t\t<A>gain (no More prompt)\n<b>ack\t\t<D>" +
+	   "elete msg\t<e>nter msg\n<E>nter (upload)\t<h>elp\t\t\t" +
+	   "<i>nfo (forum)\n<n>ext\t\t<p>rofile author\t<s>top\n" +
+	   "<w>ho's online\t<x>press msg\t<X>press on/off\n\n";
 
 } else {
 	console.print("\n\nHouston we got a fahkin' problem\n\n");
@@ -68,8 +72,7 @@ bbs.ddoc.do_main_prompt = function {
 	top_prompt = yellow + high_intensity +
 		user.cursub + "> ";
 
-	cmd = console.inkey();
-	return cmd;
+	return console.inkey();
 }
 
 bbs.ddoc.do_main_function = function {
@@ -114,6 +117,18 @@ bbs.ddoc.do_msg_menu = function {
 	console.print(msg_menu);
 	cmd = do_msg_prompt();
 	return cmd;
+}
+
+bbs.ddoc.do_msg_prompt = function {
+	console.print(yellow + high_intensity + user.cursub + "> msg #" +
+		msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr + 
+		" (" +
+		(msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
+		msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
+		+ " remaining)] " + green + high_intensity + 
+		"Read cmd -> ";
+
+	return console.inkey();
 }
 
 //DOC only message methods
@@ -199,4 +214,5 @@ bbs.ddoc.init = function {
 		ctrl_a + "c", magenta = ctrl_a + "m", high_intensity =
 		ctrl_a + "h";
 
+}
 
