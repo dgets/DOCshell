@@ -24,11 +24,11 @@ docIface = {
   //menu properties
   menu :  green + high_intensity +
        //$ctrl_a + "g" + "\n" + "<A>\tSysop commands\n" +
-       "<B>\tChange eXpress beeps\n<b>\tRead forum backward\n" +
+       "\n\n<B>\tChange eXpress beeps\n<b>\tRead forum backward\n" +
        "<C>\tConfig menu\n<D>\tchange Doing field\n" +
        "<^E>\tEnter message with header\n<e>\tenter message normally" +
        "\n<E>\tenter (upload)\n<f>\tread forum forward\n" +
-       "<F>\tshow Fortune\n<G>\nGoto next room\n" +
+       "<F>\tshow Fortune\n<G>\tGoto next room\n" +
        "<Q>\tAsk a question of a guide\n<i>\tforum information\n" +
        "<j>\tjump to a room name/number\n<k>\tknown rooms list\n" +
        "<l>\tlogout\n<n>\tread new msgs\n<o>\tread old msgs reverse" +
@@ -40,22 +40,27 @@ docIface = {
        "<y>\tyell\n<z>\tzaproom\n<0-9>\tquickX\n<#>\tReadroom by " +
        "number\n<->\tread last n messages\n<%>\ttoggle guideflag " +
        "status\n<@>\taidelist\n<\">\tquote Xes to Sysop\n\n",
-  dprompt : yellow + high_intensity + user.cursub + "> ",
+  dprompt : yellow + high_intensity + 
+	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].description
+ 	+ "> ",
 
   //menu methods
   getChoice : function() {
 	return (console.getkey());
   },
   doMainMenu : function() {
-	console.putmsg(menu);
+	console.putmsg(this.menu);
   },
 
-
+  //list known (subscribed) rooms/echoes/sub-boards
+  /* listKnown : function() {
+	
+  } */
 
   //message base menu
   msg_base : {
     //properties
-    menu : green + high_intensity + "<?> help\t\t" +
+    menu : green + high_intensity + "\n\n<?> help\t\t" +
          "<a>gain\t\t<A>gain (no More prompt)\n<b>ack\t\t<D>" +
          "elete msg\t<e>nter msg\n<E>nter (upload)\t<h>elp\t\t\t" +
          "<i>nfo (forum)\n<n>ext\t\t<p>rofile author\t<s>top\n" +
@@ -98,9 +103,11 @@ while (stillAlive) {
 
 	uchoice = docIface.getChoice();
 	switch (uchoice) {
+		//top menu
 		case '?' :
 		  docIface.doMainMenu();
 		  break;
+		//message base entry commands
 		case 'b':
 		case 'e':
 		case 'E':
@@ -110,8 +117,13 @@ while (stillAlive) {
 		case '-':
 		  docIface.msg_base.handler(uchoice);
 		  break;
+		//other msg base shit
+		//list known
+		case 'k':
+		  docIface.listKnown();
+		  break;
+		//logout
 		case 'l':
-		case 'L':
 		  if (debugging)
 		    console.putmsg("\n\nExiting: " + excuse);
 		  stillAlive = false;
