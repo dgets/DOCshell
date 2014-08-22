@@ -20,8 +20,6 @@ const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
 var stillAlive = true;
 
 docIface = {
-  var choice;
-
   //top level menu
   //menu properties
   menu :  green + high_intensity +
@@ -46,11 +44,11 @@ docIface = {
 
   //menu methods
   getChoice : function() {
-	return (console.inkey());
-  }
-  do_menu : function() {
-	console.print(menu);
-  }
+	return (console.getkey());
+  },
+  doMainMenu : function() {
+	console.putmsg(menu);
+  },
 
 
 
@@ -74,10 +72,21 @@ docIface = {
     handler : function(choice) {
 	//which way do we go with this?
 	if (debugging) {
-	  console.print("\n\nMade it in the handler\n\n");
+	  console.putmsg("\n\nMade it in the handler\n\n");
 	}
+
+	switch (choice) {
+	  case 'n':	//read new
+	    console.putmsg(excuse);
+	    break;
+	  default:
+	    if (debugging)
+	      console.putmsg("\nNot handled yet . . .\n\n");
+	    break;
+	}
+	    
     }
-  },
+  }
 
 }
 
@@ -85,15 +94,31 @@ var uchoice;
 
 /* to the main program loop */
 while (stillAlive) {
-	console.print(docIface.dprompt());
+	console.putmsg(docIface.dprompt);
 
 	uchoice = docIface.getChoice();
 	switch (uchoice) {
 		case '?' :
-		  console.print(docIface.menu);
+		  docIface.doMainMenu();
 		  break;
-		case 'b', 'e', 'E', 'r', 'n', 'o', '-':
+		case 'b':
+		case 'e':
+		case 'E':
+		case 'r':
+		case 'n':
+		case 'o':
+		case '-':
 		  docIface.msg_base.handler(uchoice);
 		  break;
+		case 'l':
+		case 'L':
+		  if (debugging)
+		    console.putmsg("\n\nExiting: " + excuse);
+		  stillAlive = false;
+		  break;
 		default:
-		  
+		  console.putmsg(excuse);
+		  break;
+	}
+}
+
