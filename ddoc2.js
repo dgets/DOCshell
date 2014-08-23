@@ -52,11 +52,6 @@ docIface = {
 	console.putmsg(this.menu);
   },
 
-  //list known (subscribed) rooms/echoes/sub-boards
-  listKnown : function() {
-	
-  }
-
   //message base menu
   msg_base : {
     //properties
@@ -82,17 +77,12 @@ docIface = {
 				 * be re-implemented assuming no
 				 * easy strings replacement per
 				 * command shell */
-
-	    for each (uGrp in msg_area.grp_list) {
-	      for (var subNdx = 0; subNdx++; 
-		   subNdx < msg_area.grp_list.length) {
-
-	      }
-
-	    }
-
+	    this.newScan();
 	    console.putmsg("\n\nJust give me a sign . . .");
 	    console.getkey();
+	    break;
+	  case 'k':	//list scanned bases
+	    this.listKnown();
 	    break;
 	  default:
 	    if (debugging)
@@ -100,6 +90,66 @@ docIface = {
 	    break;
 	}
 	    
+    },
+    listKnown : function() {
+	console.putmsg("\n\n" + green + high_intensity);
+
+	//we can fuck with multi-columns later
+	for each (uMsgGrp in msg_area.grp_list) {
+	  console.putmsg(uMsgGrp.description + "\n\n");
+	  for each (uGrpSub in uMsgGrp.sub_list) {
+		console.putmsg("\t" + uMsgGrp.name + ": " +
+		  uGrpSub.description + "\n");
+	  }
+	}
+
+	console.putmsg("\n");
+    },
+    newScan : function() {
+	console.putmsg(yellow + high_intensity + " Goto ");
+	//don't forget to finish off this vestigial functionality
+
+	//let us reinvent the fucking wheel
+	for each (uMsgGrp in msg_area.grp_list) {
+	  for each (uGrpSub in uMsgGrp.sub_list) {
+	    /*
+	     * read the new and on to the fuggin' next
+	     * what does need to still be implemented, after basic
+	     * functionality is done, is starting at the current
+	     * location (grp & sub), instead of always starting at
+	     * the beginning as per proper vdoc emulation
+	     */
+	    var mBase = new MsgBase(uGrpSub.code);
+
+	    if (debugging) console.putmsg("Opening " +
+		uGrpSub.name + "\n");
+
+	    try {
+		mBase.open();
+	    } catch (e) {
+		console.putmsg("\nUnable to open " +
+		  uGrpSub.name + ": " + e.message + "\n");
+		//we really need to find the appropriate way to fail
+		//here
+		return -1;
+	    }
+
+	    if (uGrpSub.lead_read < mBase.last_msg) {
+		//commence the jigglin'
+		if (debugging) console.putmsg("Found new?\n");
+	    }
+
+	    try { 
+		mBase.close();
+	    } catch (e) {
+		console.putmsg("\nUnable to close " + uGrpSub.name +
+		  ": " + e.message + "\n");
+		//again, make this not yuck
+		return -2;
+	    }
+	  }
+
+	}
     }
   }
 
@@ -133,7 +183,7 @@ while (stillAlive) {
 		//other msg base shit
 		//list known
 		case 'k':
-		  docIface.listKnown();
+		  docIface.msg_base.listKnown();
 		  break;
 		//logout
 		case 'l':
