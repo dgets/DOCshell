@@ -53,9 +53,9 @@ docIface = {
   },
 
   //list known (subscribed) rooms/echoes/sub-boards
-  /* listKnown : function() {
+  listKnown : function() {
 	
-  } */
+  }
 
   //message base menu
   msg_base : {
@@ -76,13 +76,23 @@ docIface = {
     //methods
     handler : function(choice) {
 	//which way do we go with this?
-	if (debugging) {
-	  console.putmsg("\n\nMade it in the handler\n\n");
-	}
-
 	switch (choice) {
 	  case 'n':	//read new
-	    console.putmsg(excuse);
+	    /* bbs.scan_subs();	 * wut?  this is going to have to
+				 * be re-implemented assuming no
+				 * easy strings replacement per
+				 * command shell */
+
+	    for each (uGrp in msg_area.grp_list) {
+	      for (var subNdx = 0; subNdx++; 
+		   subNdx < msg_area.grp_list.length) {
+
+	      }
+
+	    }
+
+	    console.putmsg("\n\nJust give me a sign . . .");
+	    console.getkey();
 	    break;
 	  default:
 	    if (debugging)
@@ -102,6 +112,9 @@ while (stillAlive) {
 	console.putmsg(docIface.dprompt);
 
 	uchoice = docIface.getChoice();
+	//poor aliasing
+	if (uchoice == ' ') uchoice = 'n';
+
 	switch (uchoice) {
 		//top menu
 		case '?' :
