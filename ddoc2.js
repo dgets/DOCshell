@@ -134,9 +134,29 @@ docIface = {
 		return -1;
 	    }
 
-	    if (uGrpSub.lead_read < mBase.last_msg) {
+	    if (debugging)
+		console.putmsg("scan_ptr: " + uGrpSub.scan_ptr +
+		  "\t\tlast: " + mBase.last_msg + "\n");
+
+	    while (uGrpSub.scan_ptr < mBase.last_msg) {
 		//commence the jigglin'
-		if (debugging) console.putmsg("Found new?\n");
+		var tmpPtr = uGrpSub.scan_ptr;
+		//try/catch this
+		var mHdr = mBase.get_msg_header(tmpPtr);
+		var mBody = mBase.get_msg_body(tmpPtr);
+
+		console.putmsg(magenta + high_intensity + mHdr.date +
+			green + " from " + cyan + mHdr.from + "\n\n" +
+			green);
+		console.putmsg(mBody);	//this may need to have formatting
+					//fixes for vdoc emulation
+		console.putmsg(yellow + high_intensity + "\n" +
+			"[" + uGrpSub.name + "> msg #" + tmpPtr +
+			" (" + (mBase.last_msg - tmpPtr) + " remaining)] " +
+			cyan + "Read cmd - > ");
+
+		
+			
 	    }
 
 	    try { 
@@ -150,7 +170,26 @@ docIface = {
 	  }
 
 	}
-    }
+    },
+    read_cmd : {
+	rcMenu : "\n" + green + high_intensity +
+	  "<?> help         <a>gain           <A>gain (no More prompt)\n" +
+	  "<b>ack           <D>elete msg      <e>nter msg\n" +
+	  "<E>nter (upload) <h>elp            <i>nfo (forum)\n" +
+	  "<n>ext           <p>rofile author  <s>top\n" +
+	  "<w>ho's online   <x>press msg      <X>press on/off\n\n",
+
+	rcChoice : function() {
+	  var uchoice = console.getkey();
+	  var valid = false;
+
+	  while (!valid) {
+	    switch (choice) {
+		case '?' : 
+		  console.putmsg(rcMenu);
+		  break;
+		case 'a' :
+		  //we need a display message modularized :P
   }
 
 }
