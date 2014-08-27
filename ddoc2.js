@@ -105,6 +105,34 @@ docIface = {
 
 	console.putmsg("\n");
     },
+    dispMsg : function(base, ptr, breaks) {
+	if (breaks != false) breaks = true;
+
+	//try/catch this
+        var mHdr = base.get_msg_header(ptr);
+        var mBody = base.get_msg_body(ptr);
+
+	if (breaks) {
+          console.putmsg(magenta + high_intensity + mHdr.date +
+                green + " from " + cyan + mHdr.from + "\n\n" +
+                green);
+          console.putmsg(mBody);  //this may need to have formatting
+                                  //fixes for vdoc emulation
+          console.putmsg(yellow + high_intensity + "\n" +
+                "[" + uGrpSub.name + "> msg #" + ptr +
+                " (" + (base.last_msg - ptr) + " remaining)]" +
+                cyan + "Read cmd - > ");
+	}
+    },
+    addMsg : function(base, upload) {
+	if (!upload) {
+	  if (debugging) console.putmsg("\nentered addMsg()\n");
+
+	} else {
+	  console.putmsg("\nUnable to handle message upload yet\n");
+	  return -1;
+	}
+    },
     newScan : function() {
 	console.putmsg(yellow + high_intensity + " Goto ");
 	//don't forget to finish off this vestigial functionality
@@ -141,7 +169,8 @@ docIface = {
 	    while (uGrpSub.scan_ptr < mBase.last_msg) {
 		//commence the jigglin'
 		var tmpPtr = uGrpSub.scan_ptr;
-		//try/catch this
+
+		/*
 		var mHdr = mBase.get_msg_header(tmpPtr);
 		var mBody = mBase.get_msg_body(tmpPtr);
 
@@ -154,9 +183,17 @@ docIface = {
 			"[" + uGrpSub.name + "> msg #" + tmpPtr +
 			" (" + (mBase.last_msg - tmpPtr) + " remaining)] " +
 			cyan + "Read cmd - > ");
+		*/
+		this.dispMsg(mBase, tmpPtr, true);
+		switch (this.read_cmd.rcChoice(mBase, tmpPtr)) {
+		  case '1':
+		    tmpPtr++;
+		    break;
+		  default:
+		    if (debugging) console.putmsg("\nNot implemented\n");
+		    break;
+		}
 
-		
-			
 	    }
 
 	    try { 
@@ -179,19 +216,53 @@ docIface = {
 	  "<n>ext           <p>rofile author  <s>top\n" +
 	  "<w>ho's online   <x>press msg      <X>press on/off\n\n",
 
-	rcChoice : function() {
+	rcChoice : function(base, ndx) {
 	  var uchoice = console.getkey();
 	  var valid = false;
+	  var hollaBack = 0;	//can be used to switch dir, etc
 
 	  while (!valid) {
 	    switch (choice) {
-		case '?' : 
+		case '?':
+		case 'h':
 		  console.putmsg(rcMenu);
 		  break;
-		case 'a' :
-		  //we need a display message modularized :P
-  }
+		case 'a':
+		case 'A':
+		case 'b':
+		case 'D':
+		case 'i':
+		case 'p':
+		case 'w':
+		case 'x':
+		case 'X':
+		case 'E':
+		  //dispMsg();	//how to pass parameters?
+		  console.putmsg("\nI'm too dumb yet, just wait\n");
+		  break;
+		case 's':
+		  valid = true; hollaBack = 1;
+		  console.putmsg("Stop\n");
+		  break;
+		case 'e':
+		  valid = true;
+		  console.putmsg(green + high_intensity +
+			"Enter message\n\n");
+		  addMsg(base, false);	//not an upload
+		  break;
+		default:
+		  if (debugging) console.putmsg("wtF-f-f\n");
+		  break;
+	    }
 
+	  //write the prompt again here, durrr; other flow control
+	  //issues, as well, here probably
+	  }
+
+	return hollaBack;
+	}
+    }
+  }
 }
 
 var uchoice;
