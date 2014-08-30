@@ -96,7 +96,7 @@ docIface = {
 
 	//we can fuck with multi-columns later
 	for each (uMsgGrp in msg_area.grp_list) {
-	  console.putmsg(uMsgGrp.description + "\n\n");
+	  if (debugging) console.putmsg(uMsgGrp.description + "\n\n");
 	  for each (uGrpSub in uMsgGrp.sub_list) {
 		console.putmsg("\t" + uMsgGrp.name + ": " +
 		  uGrpSub.description + "\n");
@@ -120,13 +120,27 @@ docIface = {
                                   //fixes for vdoc emulation
           console.putmsg(yellow + high_intensity + "\n" +
                 "[" + uGrpSub.name + "> msg #" + ptr +
-                " (" + (base.last_msg - ptr) + " remaining)]" +
-                cyan + "Read cmd - > ");
+                " (" + (base.last_msg - ptr) + " remaining)] " +
+                cyan + "Read cmd -> ");
 	}
     },
     addMsg : function(base, upload) {
 	if (!upload) {
 	  if (debugging) console.putmsg("\nentered addMsg()\n");
+
+	  var nao = new Date();
+	  var mTxt, ndx = 0, lNdx = 1;
+
+	  console.putmsg(magenta + high_intensity + nao.getDate() +
+		green + " from " + cyan + User.alias + "\n\n" +
+		green);
+
+	  do {
+	    mTxt[ndx++] = console.getkey();
+	    if (((lNdx % 80) == 0) && ((mTxt[ndx] != ' ') &&
+		 (mTxt[ndx] != '\t') && (mTxt[ndx] != '\n')) {
+		//wordwrap time
+		
 
 	} else {
 	  console.putmsg("\nUnable to handle message upload yet\n");
@@ -222,7 +236,7 @@ docIface = {
 	  var hollaBack = 0;	//can be used to switch dir, etc
 
 	  while (!valid) {
-	    switch (choice) {
+	    switch (uchoice) {
 		case '?':
 		case 'h':
 		  console.putmsg(rcMenu);
