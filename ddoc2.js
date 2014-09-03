@@ -129,23 +129,59 @@ docIface = {
 	  if (debugging) console.putmsg("\nentered addMsg()\n");
 
 	  var nao = new Date();
-	  var mTxt, ndx = 0, lNdx = 1;
+	  var mTxt[][], ndx = 0, lNdx = 0;
 
 	  console.putmsg(magenta + high_intensity + nao.getDate() +
 		green + " from " + cyan + User.alias + "\n\n" +
 		green);
 
+	  //should we include a subject in the DOC clone?
+
 	  do {
-	    mTxt[ndx++] = console.getkey();
-	    if (((lNdx % 80) == 0) && ((mTxt[ndx] != ' ') &&
+	    mTxt[ndx][lNdx] = console.getkey():
+	    if (mTxt[ndx++] == '\t') {
+		//handle this w/5 spaces l8r, for now cheat and use 1
+		mTxt[ndx - 1] = ' ';
+	    }
+	    if (((ndx % 80) == 0) && ((mTxt[ndx] != ' ') &&
 		 (mTxt[ndx] != '\t') && (mTxt[ndx] != '\n')) {
 		//wordwrap time
-		
+		/*var tmpCntr = 1;
+		var tmpWrd;
+		while ((mTxt[ndx - tmpCntr] != ' ') &&
+			(mTxt[ndx - tmpCntr] != '\t')) {	//any others?
+		  tmpCntr++;
+		  console.putmsg('\b');
+		}
+		tmpWrd = mTxt.substring((ndx - tmpCntr), ndx); */
+		//looks like there's functionality that'll avoid  all
+		//of that scheibe
+		var lastWS = mTxt[][lNdx].lastIndexOf(' ');
+		var tmpStr;
 
+		tmpStr = mTxt[][lNdx].substring(lastWS, 
+						(mTxt[][lNdx].length -
+						 1));
+		for (var x = 0; x < (mTxt[][lNdx].length - lastWS), x++)
+		  console.putmsg('\b');
+		
+		//for lines of gibberish there will have to be a check &
+		//handler regarding proper shit, etc etc etc
+                mTxt[][lNdx] = mTxt[][lNdx].substring(0, lastWS);
+		mTxt[][++lNdx] = tmpStr;
+		ndx = tmpStr.length - 1;
+	    }
+	  } while (!((mTxt[0][lNdx] == '\n') && 
+		   (mTxt[0][lNdx - 1] == '\n')));
+	  //lol there will be debugging here
 	} else {
 	  console.putmsg("\nUnable to handle message upload yet\n");
 	  return -1;
 	}
+
+	//entry completion menu
+	console.putmsg("\nMessage entry completed\nFalling through, " +
+		       "Not Implemented Yet\n");
     },
     newScan : function() {
 	console.putmsg(yellow + high_intensity + " Goto ");
