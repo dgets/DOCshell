@@ -129,7 +129,8 @@ docIface = {
 	  if (debugging) console.putmsg("\nentered addMsg()\n");
 
 	  var nao = new Date();
-	  var mTxt[][], ndx = 0, lNdx = 0;
+	  var ndx = 0, lNdx = 0;
+	  var mTxt = new Array(), mLn = new Array();
 
 	  console.putmsg(magenta + high_intensity + nao.getDate() +
 		green + " from " + cyan + User.alias + "\n\n" +
@@ -138,13 +139,65 @@ docIface = {
 	  //should we include a subject in the DOC clone?
 
 	  do {
-	    mTxt[ndx][lNdx] = console.getkey():
+	    if ((mLn[ndx] = console.getkey()) == '\t') {
+		if ((ndx + 5) >= 79) {
+		  ndx = 0;
+		  //modularize linecopy into array?
+		  mTxt[lNdx++] = mLn; 
+		  console.putmsg("\n");
+		} else {
+		  mLn += "     ";	//not sure about this
+		  ndx += 5;
+		  console.putmsg("     ");
+		}
+	    } else if (mLn[ndx] == '\n') {
+		ndx = 0;
+		mTxt[lNdx++] = mLn;
+		console.putMsg("\n");
+	    } else {	//other conditions for ctrl keys should be here
+		if (((ndx % 79) == 0) && (mLn[ndx] != ' ')) {
+		  //werdwrap - the following blocked out commented code
+		  //was an incorrect choice in rewriting the shit I'd
+		  //written and blocked out before.  losing track of the
+		  //recursive comments heah :|
+		  /*var tmpCntr = 1;
+		  var tmpWrd;
+
+		  while (mLn[ndx - tmpCntr] != ' ') {
+		    tmpCntr++;
+		    console.putmsg('\b');
+		  }
+
+		  tmpWrd = mLn.substring((ndx - tmpCntr), ndx);*/
+
+		  var lastWS = mLn.lastIndexOf(' ');
+			//does this need some sort of 2string?
+		  var tmpStr;
+
+		  tmpStr = mLn.substring(lastWS, (mLn.length - 1));
+		  for (var ouah = 0; ouah < (mLn.length - lastWS);
+		       ouah++) 
+			console.putmsg('\b');
+		  //note there still needs to be a check for nonbroken
+		  //line entries; not sure what that'll do heah
+
+                  mLn.length = lastWS;
+		  ndx = 0;
+		  mTxt[lNdx++] = mLn;
+		  mTxt[lNdx] = tmpStr;
+		}
+	    //} <-- is actually down below commented out shite here
+	    //the following block-commented code is removed due to
+	    //inaccurate array-processing algorithm/methodology for
+	    //what I was trying to accomplish; better to get this shit
+	    //out in hobby than in professional work, amirite?
+	    /*mTxt[ndx][lNdx] = console.getkey():
 	    if (mTxt[ndx++] == '\t') {
 		//handle this w/5 spaces l8r, for now cheat and use 1
 		mTxt[ndx - 1] = ' ';
 	    }
 	    if (((ndx % 80) == 0) && ((mTxt[ndx] != ' ') &&
-		 (mTxt[ndx] != '\t') && (mTxt[ndx] != '\n')) {
+		 (mTxt[ndx] != '\t') && (mTxt[ndx] != '\n')) { /*
 		//wordwrap time
 		/*var tmpCntr = 1;
 		var tmpWrd;
@@ -156,7 +209,9 @@ docIface = {
 		tmpWrd = mTxt.substring((ndx - tmpCntr), ndx); */
 		//looks like there's functionality that'll avoid  all
 		//of that scheibe
-		var lastWS = mTxt[][lNdx].lastIndexOf(' ');
+		//again, following block comment due to needing to rework the
+		//algorithm in a CORRECT manner instead of a dumb one
+		/*var lastWS = mTxt[][lNdx].lastIndexOf(' ');
 		var tmpStr;
 
 		tmpStr = mTxt[][lNdx].substring(lastWS, 
@@ -169,11 +224,18 @@ docIface = {
 		//handler regarding proper shit, etc etc etc
                 mTxt[][lNdx] = mTxt[][lNdx].substring(0, lastWS);
 		mTxt[][++lNdx] = tmpStr;
-		ndx = tmpStr.length - 1;
+		ndx = tmpStr.length - 1;*/
 	    }
-	  } while (!((mTxt[0][lNdx] == '\n') && 
-		   (mTxt[0][lNdx - 1] == '\n')));
+	  } while (!((mTxt[lNdx] == '\n') && 
+		   (mTxt[lNdx - 1] == '\n')));
 	  //lol there will be debugging here
+	  if (debugging) {
+	    console.putmsg(normal + red + "\nDebugging\n" + green);
+	    for (var ouah = 0; ouah < mTxt.length; ouah++) 
+		console.putmsg(mTxt[ouah]);
+	    console.putmsg(red + "\nThat's what we've got, suh . . .\n"
+		+ normal);
+	  }
 	} else {
 	  console.putmsg("\nUnable to handle message upload yet\n");
 	  return -1;
