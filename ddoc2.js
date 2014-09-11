@@ -15,7 +15,8 @@ const debugging = true, excuse = "\n\nNot so fast . . .\n\n";
 const ctrl_a = "\1";
 const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
         white = ctrl_a + "w", red = ctrl_a + "r", cyan = ctrl_a + "c",
-        magenta = ctrl_a + "m", high_intensity = ctrl_a + "h";
+        magenta = ctrl_a + "m", high_intensity = ctrl_a + "h",
+	normal = ctrl_a + "n";
 
 var stillAlive = true;
 
@@ -84,6 +85,9 @@ docIface = {
 	  case 'k':	//list scanned bases
 	    this.listKnown();
 	    break;
+	  case 'e':	//enter a normal message
+	    this.addMsg();
+	    break;
 	  default:
 	    if (debugging)
 	      console.putmsg("\nNot handled yet . . .\n\n");
@@ -126,14 +130,15 @@ docIface = {
     },
     addMsg : function(base, upload) {
 	if (!upload) {
-	  if (debugging) console.putmsg("\nentered addMsg()\n");
-
 	  var nao = new Date();
 	  var ndx = 0, lNdx = 0;
-	  var mTxt = new Array(), mLn = new Array();
+	  var mTxt = new Array(String), mLn = new Array();
+	  var cUsr = new User();
+	  var done = false;
 
-	  console.putmsg(magenta + high_intensity + nao.getDate() +
-		green + " from " + cyan + User.alias + "\n\n" +
+	  console.putmsg(magenta + high_intensity + 
+		nao.getDate().toString() +
+		green + " from " + cyan + cUsr.alias + "\n\n" +
 		green);
 
 	  //should we include a subject in the DOC clone?
@@ -142,97 +147,63 @@ docIface = {
 	    if ((mLn[ndx] = console.getkey()) == '\t') {
 		if ((ndx + 5) >= 79) {
 		  ndx = 0;
-		  //modularize linecopy into array?
-		  mTxt[lNdx++] = mLn; 
+		  mTxt[lNdx++] = mLn.toString(); 
 		  console.putmsg("\n");
 		} else {
 		  mLn += "     ";	//not sure about this
 		  ndx += 5;
 		  console.putmsg("     ");
 		}
-	    } else if (mLn[ndx] == '\n') {
+	    } else if (mLn[ndx] == '\r') {
+		if (ndx == 0) {
+		  if (debugging) console.putmsg(red + "done" + green);
+		  done = true;
+		  break;
+		}
+
 		ndx = 0;
-		mTxt[lNdx++] = mLn;
-		console.putMsg("\n");
+		mTxt[lNdx] = mLn.toString();
+		console.putmsg("\n");
+		lNdx++;
+
+		if (debugging) {
+		  console.putmsg(red + "lNdx: " + lNdx + normal + "\n");	
+			if (done) {
+		  	  console.putmsg(red + "Debugging output:\n");
+		  	  console.putmsg(mTxt.toString());
+			}
+		}
 	    } else {	//other conditions for ctrl keys should be here
 		if (((ndx % 79) == 0) && (mLn[ndx] != ' ')) {
-		  //werdwrap - the following blocked out commented code
-		  //was an incorrect choice in rewriting the shit I'd
-		  //written and blocked out before.  losing track of the
-		  //recursive comments heah :|
-		  /*var tmpCntr = 1;
-		  var tmpWrd;
-
-		  while (mLn[ndx - tmpCntr] != ' ') {
-		    tmpCntr++;
-		    console.putmsg('\b');
-		  }
-
-		  tmpWrd = mLn.substring((ndx - tmpCntr), ndx);*/
-
-		  var lastWS = mLn.lastIndexOf(' ');
+		  var lastWS = mLn.toString().lastIndexOf(' ');
 			//does this need some sort of 2string?
 		  var tmpStr;
 
-		  tmpStr = mLn.substring(lastWS, (mLn.length - 1));
+		  tmpStr = mLn.toString().substring(lastWS, (mLn.length - 1));
 		  for (var ouah = 0; ouah < (mLn.length - lastWS);
 		       ouah++) 
 			console.putmsg('\b');
 		  //note there still needs to be a check for nonbroken
 		  //line entries; not sure what that'll do heah
 
-                  mLn.length = lastWS;
+                  mLn.toString().length = lastWS;
 		  ndx = 0;
-		  mTxt[lNdx++] = mLn;
+		  mTxt[lNdx++] = mLn.toString();
 		  mTxt[lNdx] = tmpStr;
 		}
-	    //} <-- is actually down below commented out shite here
-	    //the following block-commented code is removed due to
-	    //inaccurate array-processing algorithm/methodology for
-	    //what I was trying to accomplish; better to get this shit
-	    //out in hobby than in professional work, amirite?
-	    /*mTxt[ndx][lNdx] = console.getkey():
-	    if (mTxt[ndx++] == '\t') {
-		//handle this w/5 spaces l8r, for now cheat and use 1
-		mTxt[ndx - 1] = ' ';
-	    }
-	    if (((ndx % 80) == 0) && ((mTxt[ndx] != ' ') &&
-		 (mTxt[ndx] != '\t') && (mTxt[ndx] != '\n')) { /*
-		//wordwrap time
-		/*var tmpCntr = 1;
-		var tmpWrd;
-		while ((mTxt[ndx - tmpCntr] != ' ') &&
-			(mTxt[ndx - tmpCntr] != '\t')) {	//any others?
-		  tmpCntr++;
-		  console.putmsg('\b');
-		}
-		tmpWrd = mTxt.substring((ndx - tmpCntr), ndx); */
-		//looks like there's functionality that'll avoid  all
-		//of that scheibe
-		//again, following block comment due to needing to rework the
-		//algorithm in a CORRECT manner instead of a dumb one
-		/*var lastWS = mTxt[][lNdx].lastIndexOf(' ');
-		var tmpStr;
 
-		tmpStr = mTxt[][lNdx].substring(lastWS, 
-						(mTxt[][lNdx].length -
-						 1));
-		for (var x = 0; x < (mTxt[][lNdx].length - lastWS), x++)
-		  console.putmsg('\b');
-		
-		//for lines of gibberish there will have to be a check &
-		//handler regarding proper shit, etc etc etc
-                mTxt[][lNdx] = mTxt[][lNdx].substring(0, lastWS);
-		mTxt[][++lNdx] = tmpStr;
-		ndx = tmpStr.length - 1;*/
+		console.putmsg(mLn[ndx++]);
 	    }
-	  } while (!((mTxt[lNdx] == '\n') && 
-		   (mTxt[lNdx - 1] == '\n')));
+	  } while (done != true);
+
 	  //lol there will be debugging here
 	  if (debugging) {
-	    console.putmsg(normal + red + "\nDebugging\n" + green);
-	    for (var ouah = 0; ouah < mTxt.length; ouah++) 
+	    console.putmsg(normal + red + "\nDebugging\n" + green
+		+ high_intensity);
+	    for (var ouah = 0; ouah < mTxt.length; ouah++) {
+		console.putmsg("mTxt index: " + ouah + "; content: ");
 		console.putmsg(mTxt[ouah]);
+	    }
 	    console.putmsg(red + "\nThat's what we've got, suh . . .\n"
 		+ normal);
 	  }
