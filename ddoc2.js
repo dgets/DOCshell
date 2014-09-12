@@ -18,8 +18,42 @@ const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
         magenta = ctrl_a + "m", high_intensity = ctrl_a + "h",
 	normal = ctrl_a + "n";
 
-var stillAlive = true;
+var stillAlive = true;	//ask for advice on the 'right' way to do this
 
+headsUpDbg = {
+  //my debugging code has proven to be inadequate; might as well do
+  //something that'll work a little better and not clutter my shiyit
+  //properties
+  reqX : 2,
+  reqY : 2,
+  //methods
+  init : function(dDat) {
+	var reqX = 2, reqY = 2; //borders, duh (not starting @ 0)
+
+	console.pushxy();
+	//determine the size of the box we need based on dDat's
+	//properties, build it, and display the crapola
+	for (var p in dDat.getOwnPropertyNames()) {
+	  reqY++;
+	  if ((p.length + 1 + dDat.keys(p).length) > reqX)
+		reqX = 3 + p.length + dDat.keys(p).length;
+	}
+
+	//build box
+	//can we save the content in the box we're going to create to
+	//restore afterwards?
+	console.putmsg(red);
+	for (var cX = (console.screen_columns - (reqX + 1)), 
+	     cX < console.screen_columns, cX++) {
+		for (var cY = (console.screen_rows - (reqY + 1)),
+		     cY < console.screen_rows, cY++) {
+			console.gotoxy(cX, cY);
+			console.putmsg("#");
+		}
+	}
+  },
+
+},
 docIface = {
   //top level menu
   //menu properties
@@ -44,7 +78,6 @@ docIface = {
   dprompt : yellow + high_intensity + 
 	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].description
  	+ "> ",
-
   //menu methods
   getChoice : function() {
 	return (console.getkey());
@@ -52,10 +85,9 @@ docIface = {
   doMainMenu : function() {
 	console.putmsg(this.menu);
   },
-
   //message base menu
   msg_base : {
-    //properties
+    //msg_base properties
     menu : green + high_intensity + "\n\n<?> help\t\t" +
          "<a>gain\t\t<A>gain (no More prompt)\n<b>ack\t\t<D>" +
          "elete msg\t<e>nter msg\n<E>nter (upload)\t<h>elp\t\t\t" +
@@ -68,8 +100,7 @@ docIface = {
          msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
          + " remaining)] " + green + high_intensity +
          "Read cmd -> ",
-
-    //methods
+    //msg_base methods
     handler : function(choice) {
 	//which way do we go with this?
 	switch (choice) {
@@ -133,12 +164,12 @@ docIface = {
 	  var nao = new Date();
 	  var ndx = 0, lNdx = 0;
 	  var mTxt = new Array(String), mLn = new Array();
-	  var cUsr = new User();
+	  //var cUsr = new User();
 	  var done = false;
 
 	  console.putmsg(magenta + high_intensity + 
 		nao.getDate().toString() +
-		green + " from " + cyan + cUsr.alias + "\n\n" +
+		green + " from " + cyan + user.alias + "\n\n" +
 		green);
 
 	  //should we include a subject in the DOC clone?
