@@ -28,7 +28,9 @@ headsUpDbg = {
   reqY : 2,
   //methods
   init : function(dDat) {
-	var reqX = 2, reqY = 2; //borders, duh (not starting @ 0)
+	var stX, stY,
+	    reqX = 2, reqY = 2; //borders, duh (not starting @ 0)
+	var cT = 1;
 
 	console.pushxy();
 	//determine the size of the box we need based on dDat's
@@ -37,11 +39,23 @@ headsUpDbg = {
 	  reqY++;
 	  if ((p.length + 1 + dDat.keys(p).length) > reqX)
 		reqX = 3 + p.length + dDat.keys(p).length;
+	  //find out 'tabstop' for the data column
+	  if (cT < dDat.keys(p).length) cT = dDat.keys(p).length;
 	}
+
+	stX = console.screen_columns - reqX;
+	stY = console.screen_rows - reqY;
 
 	//build box
 	//can we save the content in the box we're going to create to
 	//restore afterwards?
+	/*
+	 * according to echicken, frame.js provides an almost ncurses
+	 * ported to javascript for node.js; however to provide an
+	 * emulated vDOC environment as close to original as possible
+	 * I'm only going to break this ANSI dump to current cursor
+	 * position standard enough to insert my debugging window
+	 */
 	console.putmsg(red);
 	for (var cX = (console.screen_columns - (reqX + 1)), 
 	     cX < console.screen_columns, cX++) {
@@ -51,8 +65,19 @@ headsUpDbg = {
 			console.putmsg("#");
 		}
 	}
-  },
 
+	var cY = 1;
+
+	for (var p in dDat.getOwnPropertyNames()) {
+	  cY++; cX = 1;
+
+	  console.gotoxy((stX + cX), (stY + cY));
+	  console.putmsg(green + p);
+	  console.gotoxy((cX + stX + cT), (stY + cY));
+	  console.putmsg(yellow + dDat.keys(p));
+	}
+
+	console.popxy();
 },
 docIface = {
   //top level menu
