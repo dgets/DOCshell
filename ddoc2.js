@@ -47,8 +47,6 @@ headsUpDbg = {
 	stY = console.screen_rows - reqY;
 
 	//build box
-	//can we save the content in the box we're going to create to
-	//restore afterwards?
 	/*
 	 * according to echicken, frame.js provides an almost ncurses
 	 * ported to javascript for node.js; however to provide an
@@ -57,10 +55,10 @@ headsUpDbg = {
 	 * position standard enough to insert my debugging window
 	 */
 	console.putmsg(red);
-	for (var cX = (console.screen_columns - (reqX + 1)), 
-	     cX < console.screen_columns, cX++) {
-		for (var cY = (console.screen_rows - (reqY + 1)),
-		     cY < console.screen_rows, cY++) {
+	for (var cX = (console.screen_columns - (reqX + 1)); 
+	     cX < console.screen_columns; cX++) {
+		for (var cY = (console.screen_rows - (reqY + 1));
+		     (cY < console.screen_rows); cY++) {
 			console.gotoxy(cX, cY);
 			console.putmsg("#");
 		}
@@ -77,7 +75,7 @@ headsUpDbg = {
 	  console.putmsg(yellow + dDat.keys(p));
 	}
 
-	console.popxy();
+  }
 },
 docIface = {
   //top level menu
@@ -155,7 +153,7 @@ docIface = {
 	console.putmsg("\n\n" + green + high_intensity);
 
 	//we can fuck with multi-columns later
-	for each (uMsgGrp in msg_area.grp_list) {
+	for (uMsgGrp in msg_area.grp_list) {
 	  if (debugging) console.putmsg(uMsgGrp.description + "\n\n");
 	  for each (uGrpSub in uMsgGrp.sub_list) {
 		console.putmsg("\t" + uMsgGrp.name + ": " +
