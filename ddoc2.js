@@ -35,12 +35,12 @@ headsUpDbg = {
 	console.pushxy();
 	//determine the size of the box we need based on dDat's
 	//properties, build it, and display the crapola
-	for (var p in dDat.getOwnPropertyNames()) {
+	for (var p in Object.keys(dDat)) {
 	  reqY++;
-	  if ((p.length + 1 + dDat.keys(p).length) > reqX)
-		reqX = 3 + p.length + dDat.keys(p).length;
+	  if ((p.toString().length + 1 + dDat[p].length) > reqX)
+		reqX = 3 + p.toString().length + dDat[p].length;
 	  //find out 'tabstop' for the data column
-	  if (cT < dDat.keys(p).length) cT = dDat.keys(p).length;
+	  if (cT < dDat[p].length) cT = dDat[p].length;
 	}
 
 	stX = console.screen_columns - reqX;
@@ -66,13 +66,13 @@ headsUpDbg = {
 
 	var cY = 1;
 
-	for (var p in dDat.getOwnPropertyNames()) {
+	for (var p in Object.keys(dDat)) {
 	  cY++; cX = 1;
 
 	  console.gotoxy((stX + cX), (stY + cY));
 	  console.putmsg(green + p);
 	  console.gotoxy((cX + stX + cT), (stY + cY));
-	  console.putmsg(yellow + dDat.keys(p));
+	  console.putmsg(yellow + dDat[p]);
 	}
 
   }
@@ -438,6 +438,11 @@ while (stillAlive) {
 		    console.putmsg("\n\nExiting: " + excuse);
 		  stillAlive = false;
 		  break;
+          	case 'T':       //just for my testing
+            	  console.putmsg(red + "Entering testing...\n\n");
+            	  headsUpDbg.init({ ouah : "nakk", fuck : "tard" });
+            	  console.putmsg(green + "\n\nEnding test.\n");
+            	  break;
 		default:
 		  console.putmsg(excuse);
 		  break;
