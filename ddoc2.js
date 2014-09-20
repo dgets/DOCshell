@@ -8,6 +8,9 @@
  * within Synchronet's SSJS libraries and functionality
  */
 
+//includes
+load("ddebug.js");
+
 //pseudo-globals
 const debugging = true, excuse = "\n\nNot so fast . . .\n\n";
 
@@ -20,63 +23,7 @@ const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
-headsUpDbg = {
-  //my debugging code has proven to be inadequate; might as well do
-  //something that'll work a little better and not clutter my shiyit
-  //properties
-  reqX : 2,
-  reqY : 2,
-  //methods
-  init : function(dDat) {
-	var stX, stY,
-	    reqX = 2, reqY = 2; //borders, duh (not starting @ 0)
-	var cT = 1;
-
-	console.pushxy();
-	//determine the size of the box we need based on dDat's
-	//properties, build it, and display the crapola
-	for (var p in Object.keys(dDat)) {
-	  reqY++;
-	  if ((p.toString().length + 1 + dDat[p].length) > reqX)
-		reqX = 3 + p.toString().length + dDat[p].length;
-	  //find out 'tabstop' for the data column
-	  if (cT < dDat[p].length) cT = dDat[p].length;
-	}
-
-	stX = console.screen_columns - reqX;
-	stY = console.screen_rows - reqY;
-
-	//build box
-	/*
-	 * according to echicken, frame.js provides an almost ncurses
-	 * ported to javascript for node.js; however to provide an
-	 * emulated vDOC environment as close to original as possible
-	 * I'm only going to break this ANSI dump to current cursor
-	 * position standard enough to insert my debugging window
-	 */
-	console.putmsg(red);
-	for (var cX = (console.screen_columns - (reqX + 1)); 
-	     cX < console.screen_columns; cX++) {
-		for (var cY = (console.screen_rows - (reqY + 1));
-		     (cY < console.screen_rows); cY++) {
-			console.gotoxy(cX, cY);
-			console.putmsg("#");
-		}
-	}
-
-	var cY = 1;
-
-	for (var p in Object.keys(dDat)) {
-	  cY++; cX = 1;
-
-	  console.gotoxy((stX + cX), (stY + cY));
-	  console.putmsg(green + p);
-	  console.gotoxy((cX + stX + cT), (stY + cY));
-	  console.putmsg(yellow + dDat[p]);
-	}
-
-  }
-},
+//cut out the new debugging routine from here to move to ddebug.js
 docIface = {
   //top level menu
   //menu properties
