@@ -10,6 +10,7 @@
 
 //includes
 load("ddebug.js");
+load("dmbase.js");
 
 //pseudo-globals
 const debugging = true, excuse = "\n\nNot so fast . . .\n\n";
@@ -55,6 +56,7 @@ docIface = {
   doMainMenu : function() {
 	console.putmsg(this.menu);
   },
+  /* moving to separate source file
   //message base menu
   msg_base : {
     //msg_base properties
@@ -79,7 +81,7 @@ docIface = {
 				 * be re-implemented assuming no
 				 * easy strings replacement per
 				 * command shell */
-	    this.newScan();
+	    /* this.newScan();
 	    console.putmsg("\n\nJust give me a sign . . .");
 	    console.getkey();
 	    break;
@@ -119,7 +121,7 @@ docIface = {
 
 	if (breaks) {
           console.putmsg(magenta + high_intensity + mHdr.date +
-                green + " from " + cyan + mHdr.from + "\n\n" +
+                green + " from " + cyan + mHdr.from + "\n" +
                 green);
           console.putmsg(mBody);  //this may need to have formatting
                                   //fixes for vdoc emulation
@@ -131,54 +133,80 @@ docIface = {
     },
     addMsg : function(base, upload) {
 	if (!upload) {
-	  var nao = new Date();
+	  var nao = new Date(), mTxt = new Array(String),
+	      mLn = new Array();
+
 	  var ndx = 0, lNdx = 0;
-	  var mTxt = new Array(String), mLn = new Array();
-	  //var cUsr = new User();
+
 	  var done = false;
 
+	  //obviously date is only showing the day # [fix]
 	  console.putmsg(magenta + high_intensity + 
 		nao.getDate().toString() +
-		green + " from " + cyan + user.alias + "\n\n" +
+		green + " from " + cyan + user.alias + "\n" +
 		green);
 
 	  //should we include a subject in the DOC clone?
 
 	  do {
-	    if ((mLn[ndx] = console.getkey()) == '\t') {
+	    if ((mLn[ndx] = console.getkey()) == '\t') {	//tab
 		if ((ndx + 5) >= 79) {
+		  if (debugging)
+		    console.putmsg(red + "entry dbg1" + normal);
 		  ndx = 0;
-		  mTxt[lNdx++] = mLn.toString(); 
+
+		  //mTxt[lNdx++] = mLn;
+		  //to be done all at once, we need to parse individual
+		  //array elements (weak)
+		  for (var x = 0; x < mLn.length; x++)
+		    mTxt[lNdx] += mLn[x];
+		  lNdx++;
+
 		  console.putmsg("\n");
+		  break;
 		} else {
 		  mLn += "     ";	//not sure about this
 		  ndx += 5;
 		  console.putmsg("     ");
 		}
-	    } else if (mLn[ndx] == '\r') {
+	    } else if (mLn[ndx] == '\r') {	//newline
 		if (ndx == 0) {
-		  if (debugging) console.putmsg(red + "done" + green);
+		  if (debugging) console.putmsg(red + "entry dbg2" + green);
 		  done = true;
-		  break;
 		}
 
 		ndx = 0;
-		mTxt[lNdx] = mLn.toString();
-		console.putmsg("\n");
+
+		//same as above; set w/loop
+		//mTxt[lNdx] = mLn.toString();
+		for (var x = 0; x < mLn.length; x++)
+		  mTxt[lNdx] += mLn[x];
 		lNdx++;
 
+		console.putmsg("\n");
+
 		if (debugging) {
-		  console.putmsg(red + "lNdx: " + lNdx + normal + "\n");	
+		  console.putmsg(red + "entry dbg3:\t")
+		  console.putmsg("lNdx: " + lNdx + normal + "\n");	
 			if (done) {
 		  	  console.putmsg(red + "Debugging output:\n");
-		  	  console.putmsg(mTxt.toString());
+		  	  console.putmsg(mTxt);
 			}
 		}
+	    } else if (mLn[ndx] == '\b') {	//backspace
+		if (ndx == 0) break;
+
+		ndx--;
+		console.putmsg("\b");
 	    } else {	//other conditions for ctrl keys should be here
-		if (((ndx % 79) == 0) && (mLn[ndx] != ' ')) {
+		if ((ndx != 0) && ((ndx % 79) == 0) && (mLn[ndx] != ' ')) {
+		  //this is broken --DEBUG--
 		  var lastWS = mLn.toString().lastIndexOf(' ');
 			//does this need some sort of 2string?
 		  var tmpStr;
+
+		  if (debugging)
+		    console.putmsg(red + "entry dbg4" + normal);
 
 		  tmpStr = mLn.toString().substring(lastWS, (mLn.length - 1));
 		  for (var ouah = 0; ouah < (mLn.length - lastWS);
@@ -187,9 +215,9 @@ docIface = {
 		  //note there still needs to be a check for nonbroken
 		  //line entries; not sure what that'll do heah
 
-                  mLn.toString().length = lastWS;
+                  mLn.length = lastWS;
 		  ndx = 0;
-		  mTxt[lNdx++] = mLn.toString();
+		  mTxt[lNdx++] = mLn;
 		  mTxt[lNdx] = tmpStr;
 		}
 
@@ -231,7 +259,7 @@ docIface = {
 	     * location (grp & sub), instead of always starting at
 	     * the beginning as per proper vdoc emulation
 	     */
-	    var mBase = new MsgBase(uGrpSub.code);
+	    /* var mBase = new MsgBase(uGrpSub.code);
 
 	    if (debugging) console.putmsg("Opening " +
 		uGrpSub.name + "\n");
@@ -268,7 +296,7 @@ docIface = {
 			" (" + (mBase.last_msg - tmpPtr) + " remaining)] " +
 			cyan + "Read cmd - > ");
 		*/
-		this.dispMsg(mBase, tmpPtr, true);
+		/* this.dispMsg(mBase, tmpPtr, true);
 		switch (this.read_cmd.rcChoice(mBase, tmpPtr)) {
 		  case '1':
 		    tmpPtr++;
@@ -346,7 +374,7 @@ docIface = {
 	return hollaBack;
 	}
     }
-  }
+  } */
 }
 
 var uchoice;
