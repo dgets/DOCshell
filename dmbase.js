@@ -5,8 +5,8 @@
  * finished:
  */
 
-  //message base menu
-  msg_base : {
+//message base menu
+msg_base = {
     //msg_base properties
     menu : green + high_intensity + "\n\n<?> help\t\t" +
          "<a>gain\t\t<A>gain (no More prompt)\n<b>ack\t\t<D>" +
@@ -329,4 +329,4 @@
         return hollaBack;
         }
     }
-  }
+}
