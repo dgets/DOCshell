@@ -3,6 +3,14 @@
  *
  * started: 21sept14
  * finished:
+ * 
+ * Moving this to its own file as it's started becoming one hell of a
+ * monolith.  It looks like I might've overlooked some functionality in
+ * the Synchronet ssjs libraries that might be able to fix up some code
+ * that'll now be redundant, like the word-wrap bit.  Need to look
+ * through that a bit more.  Other than that, this is just a very
+ * lobotomized text entry system, and the much simpler subsystems like a
+ * newscan and shit.
  */
 
 //message base menu
@@ -25,10 +33,6 @@ msg_base = {
         //which way do we go with this?
         switch (choice) {
           case 'n':     //read new
-            /* bbs.scan_subs();  * wut?  this is going to have to
-                                 * be re-implemented assuming no
-                                 * easy strings replacement per
-                                 * command shell */
             this.newScan();
             console.putmsg("\n\nJust give me a sign . . .");
             console.getkey();
@@ -100,7 +104,7 @@ msg_base = {
             if ((mLn[ndx] = console.getkey()) == '\t') {        //tab
                 if ((ndx + 5) >= 79) {
                   if (debugging)
-                    console.putmsg(red + "entry dbg1" + normal);
+                    console.putmsg(red + "entry dbg1:" + normal);
                   ndx = 0;
 
                   //mTxt[lNdx++] = mLn;
@@ -119,7 +123,7 @@ msg_base = {
                 }
             } else if (mLn[ndx] == '\r') {      //newline
                 if (ndx == 0) {
-                  if (debugging) console.putmsg(red + "entry dbg2" +
+                  if (debugging) console.putmsg(red + "entry dbg2:" +
 						green);
                   done = true;
                 }
@@ -130,34 +134,36 @@ msg_base = {
                 //mTxt[lNdx] = mLn.toString();
                 for (var x = 0; x < mLn.length; x++)
                   mTxt[lNdx] += mLn[x];
-                lNdx++;
-
+		mTxt[lNdx++] += '\n';
 
                 console.putmsg("\n");
 
-                if (debugging) {
+                if (debugging) {	//why is this duplicated below?
                   console.putmsg(red + "entry dbg3:\t")
                   console.putmsg("lNdx: " + lNdx + normal + "\n");
                         if (done) {
                           console.putmsg(red + "Debugging output:\n");
-                          console.putmsg(mTxt);
+			  for (var x = 0; x < lNdx; x++) 
+                            console.putmsg(mTxt[x]);
                         }
                 }
             } else if (mLn[ndx] == '\b') {      //backspace
                 if (ndx == 0) break;
 
-                ndx--;
+		ndx--;
                 console.putmsg("\b");
             } else {    //other conditions for ctrl keys should be here
                 if ((ndx != 0) && ((ndx % 79) == 0) && 
 		    (mLn[ndx] != ' ')) {
                   //this is broken --DEBUG--
-                  var lastWS = mLn.toString().lastIndexOf(' ');
-                        //does this need some sort of 2string?
-                  var tmpStr;
+                  var lastWS, tmpStr;		//= mLn.lastIndexOf(' ');
+
+		  //this might require array initialization before reuse
+		  //for the next line of input at main message loop
+		  for (var x = 79; mLn[x] != ' '; x--) ;
 
                   if (debugging)
-                    console.putmsg(red + "entry dbg4" + normal);
+                    console.putmsg(red + "entry dbg4:" + normal);
 
                   tmpStr = mLn.toString().substring(lastWS, 
 						    (mLn.length - 1));
