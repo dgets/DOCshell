@@ -1,6 +1,7 @@
 /*
  * dmbase.js
  *
+ * by: Damon Getsman
  * started: 21sept14
  * finished:
  * 
@@ -107,9 +108,6 @@ msg_base = {
                     console.putmsg(red + "entry dbg1:" + normal);
                   ndx = 0;
 
-                  //mTxt[lNdx++] = mLn;
-                  //to be done all at once, we need to parse individual
-                  //array elements (weak)
                   for (var x = 0; x < mLn.length; x++)
                     mTxt[lNdx] += mLn[x];
                   lNdx++;
@@ -123,8 +121,8 @@ msg_base = {
                 }
             } else if (mLn[ndx] == '\r') {      //newline
                 if (ndx == 0) {
-                  if (debugging) console.putmsg(red + "entry dbg2:" +
-						green);
+                  /*if (debugging) console.putmsg(red + "entry dbg2:" +
+						green);*/
                   done = true;
                 }
 
@@ -144,7 +142,7 @@ msg_base = {
                         if (done) {
                           console.putmsg(red + "Debugging output:\n");
 			  for (var x = 0; x < lNdx; x++) 
-                            console.putmsg(mTxt[x]);
+			    console.putmsg(x + ": " + mTxt[x] + "\n");
                         }
                 }
             } else if (mLn[ndx] == '\b') {      //backspace
@@ -155,12 +153,13 @@ msg_base = {
             } else {    //other conditions for ctrl keys should be here
                 if ((ndx != 0) && ((ndx % 79) == 0) && 
 		    (mLn[ndx] != ' ')) {
-                  //this is broken --DEBUG--
-                  var lastWS, tmpStr;		//= mLn.lastIndexOf(' ');
+                  //this is broken --DEBUG-- (fixed nao?)
+                  var lastWS, tmpStr;
 
 		  //this might require array initialization before reuse
 		  //for the next line of input at main message loop
-		  for (var x = 79; mLn[x] != ' '; x--) ;
+		  for (var x = 79; mLn[x] != ' '; x--) 
+		    lastWS = x;
 
                   if (debugging)
                     console.putmsg(red + "entry dbg4:" + normal);
@@ -184,6 +183,7 @@ msg_base = {
           } while (done != true);
 
           //lol there will be debugging here
+	  /*
           if (debugging) {
             console.putmsg(normal + red + "\nDebugging\n" + green
                 + high_intensity);
@@ -194,6 +194,7 @@ msg_base = {
             console.putmsg(red + "\nThat's what we've got, suh . . .\n"
                 + normal);
           }
+	  */
         } else {
           console.putmsg("\nUnable to handle message upload yet\n");
           return -1;

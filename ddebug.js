@@ -81,3 +81,56 @@ headsUpDbg = {
   }
 }
 
+dMBTesting = {
+  //let's limit testing to this area (re: message entry, etc,
+  //functionality being worked with in dmbase.js)
+
+  tGrpName : "DystopianUtopia",
+  tGrpCode : "TOPEGRP",
+  tGrpNo : 7,
+  tSubName : "Lobby",
+  tSubCode : "TOPEGRPLOBBY",
+  tSubNo : 1,
+  dbgMod : true,
+
+  init = function() {
+    console.putmsg(red + "\n\nDebug Module; entering message" +
+	" base testing\n");
+
+    var tMB = new MsgBase(tSubCode);
+
+    try {
+	tMB.open();
+    } catch (e) {
+	console.putmsg("Unable to open " + tGrpName + 
+		": " + tSubName + "\nError: " + e.message +
+		"\n" + normal);
+	tMB.close();
+	return -1;
+    }
+
+    //create header
+    var tMHeader = {
+	subject		:	"Testing vDOC",
+	to		:	"Khelair",
+	to_net_type	:	0,	//local net
+	from		:	User.number
+    }
+
+    try {
+	tMB.save_msg(tMHeader, 
+	  "Testing out\nvDOC message\rfunctionality\n\r\n\r");
+    } catch (e) {
+	console.putmsg("Error w/save_msg(): " + e.message +
+	  "\n" + normal);
+	tMB.close();
+	return -2;
+    }
+ 
+    tMB.close();
+    console.putmsg(green + "Things appear to have worked!\n" +
+	normal);
+    return 0;
+  }
+}
+ 
