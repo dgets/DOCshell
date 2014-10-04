@@ -87,23 +87,23 @@ dMBTesting = {
 
   tGrpName : "DystopianUtopia",
   tGrpCode : "TOPEGRP",
-  tGrpNo : 7,
-  tSubName : "Lobby",
-  tSubCode : "TOPEGRPLOBBY",
-  tSubNo : 1,
+  //tGrpName : "Main",
+  tSubName : "Neutron Star",
+  tSubCode : "TOPEGRPNEUTRONS",
+  //tSubCode : "RANDOM",
   dbgMod : true,
 
-  init = function() {
+  init : function() {
     console.putmsg(red + "\n\nDebug Module; entering message" +
 	" base testing\n");
 
-    var tMB = new MsgBase(tSubCode);
+    var tMB = new MsgBase(this.tSubCode);
 
     try {
 	tMB.open();
     } catch (e) {
-	console.putmsg("Unable to open " + tGrpName + 
-		": " + tSubName + "\nError: " + e.message +
+	console.putmsg("Unable to open " + this.tGrpName + 
+		": " + this.tSubName + "\nError: " + e.message +
 		"\n" + normal);
 	tMB.close();
 	return -1;
@@ -111,15 +111,15 @@ dMBTesting = {
 
     //create header
     var tMHeader = {
-	subject		:	"Testing vDOC",
-	to		:	"Khelair",
-	to_net_type	:	0,	//local net
-	from		:	User.number
+	'subject'	:	"Testing vDOC",
+	'to'		:	"All",
+	//to_net_type	:	0,	//local net
+	'from'		:	"Khelair"
     }
 
     try {
-	tMB.save_msg(tMHeader, 
-	  "Testing out\nvDOC message\rfunctionality\n\r\n\r");
+	tMB.save_msg(tMHeader, //body_text=
+	  "Testing out\ndDOC message\rfunctionality\n\r\n\r");
     } catch (e) {
 	console.putmsg("Error w/save_msg(): " + e.message +
 	  "\n" + normal);

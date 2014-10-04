@@ -13,7 +13,8 @@ load("ddebug.js");
 load("dmbase.js");
 
 //pseudo-globals
-const debugging = true, excuse = "\n\nNot so fast . . .\n\n";
+const debugging = true, excuse = "\n\nNot so fast . . .\n\n",
+	debugOnly = false;
 
 //a few easier hooks for the ctrl-a codes
 const ctrl_a = "\1";
@@ -60,8 +61,9 @@ docIface = {
 
 var uchoice;
 
-/* to the main program loop */
-while (stillAlive) {
+if (!debugOnly) {
+ /* to the main program loop */
+ while (stillAlive) {
 	console.putmsg(docIface.dprompt);
 
 	uchoice = docIface.getChoice();
@@ -103,5 +105,14 @@ while (stillAlive) {
 		  console.putmsg(excuse);
 		  break;
 	}
+ }
+} else {
+ if (dMBTesting.init() != 0) {
+	console.putmsg(red + "\n\nFUCK\n\n" + normal);
+ } else {
+	console.putmsg(yellow + "\nCzech and see if it's where it " +
+		       "should be theyah, budday\n\n" + normal);
+ }
 }
 
+	
