@@ -27,8 +27,7 @@ msg_base = {
          " (" +
          (msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
          msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
-         + " remaining)] " + green + high_intensity +
-         "Read cmd -> ",
+         + " remaining)] " + green + high_intensity + "Read cmd -> ",
     //msg_base methods
     handler : function(choice) {
         //which way do we go with this?
@@ -56,7 +55,9 @@ msg_base = {
 
         //we can fuck with multi-columns later
         for (uMsgGrp in msg_area.grp_list) {
-          if (debugging) console.putmsg(uMsgGrp.description + "\n\n");
+          if (debugging) {
+		console.putmsg(uMsgGrp.description + "\n\n");
+	  }
           for each (uGrpSub in uMsgGrp.sub_list) {
                 console.putmsg("\t" + uMsgGrp.name + ": " +
                   uGrpSub.description + "\n");
@@ -66,7 +67,9 @@ msg_base = {
         console.putmsg("\n");
     },
     dispMsg : function(base, ptr, breaks) {
-        if (breaks != false) breaks = true;
+        if (breaks != false) { 
+	  breaks = true;
+	}
 
         //try/catch this
         var mHdr = base.get_msg_header(ptr);
@@ -78,9 +81,9 @@ msg_base = {
                 green);
           console.putmsg(mBody);  //this may need to have formatting
                                   //fixes for vdoc emulation
-          console.putmsg(yellow + high_intensity + "\n" +
-                "[" + uGrpSub.name + "> msg #" + ptr +
-                " (" + (base.last_msg - ptr) + " remaining)] " +
+          console.putmsg(yellow + high_intensity + "\n[" +
+                uGrpSub.name + "> msg #" + ptr + " (" +
+                (base.last_msg - ptr) + " remaining)] " +
                 cyan + "Read cmd -> ");
         }
     },
@@ -95,21 +98,22 @@ msg_base = {
 
           //obviously date is only showing the day # [fix]
           console.putmsg(magenta + high_intensity +
-                nao.getDate().toString() +
-                green + " from " + cyan + user.alias + "\n" +
-                green);
+                nao.getDate().toString() + green + " from " +
+                cyan + user.alias + "\n" + green);
 
           //should we include a subject in the DOC clone?
 
           do {
             if ((mLn[ndx] = console.getkey()) == '\t') {        //tab
                 if ((ndx + 5) >= 79) {
-                  if (debugging)
+                  if (debugging) {
                     console.putmsg(red + "entry dbg1:" + normal);
+		  }
                   ndx = 0;
 
-                  for (var x = 0; x < mLn.length; x++)
+                  for (var x = 0; x < mLn.length; x++) {
                     mTxt[lNdx] += mLn[x];
+		  }
                   lNdx++;
 
                   console.putmsg("\n");
@@ -130,8 +134,9 @@ msg_base = {
 
                 //same as above; set w/loop
                 //mTxt[lNdx] = mLn.toString();
-                for (var x = 0; x < mLn.length; x++)
+                for (var x = 0; x < mLn.length; x++) {
                   mTxt[lNdx] += mLn[x];
+		}
 		mTxt[lNdx++] += '\n';
 
                 console.putmsg("\n");
@@ -146,7 +151,9 @@ msg_base = {
                         }
                 }
             } else if (mLn[ndx] == '\b') {      //backspace
-                if (ndx == 0) break;
+                if (ndx == 0) {
+			break;
+		}
 
 		ndx--;
                 console.putmsg("\b");
@@ -158,17 +165,20 @@ msg_base = {
 
 		  //this might require array initialization before reuse
 		  //for the next line of input at main message loop
-		  for (var x = 79; mLn[x] != ' '; x--) 
+		  for (var x = 79; mLn[x] != ' '; x--) {
 		    lastWS = x;
+		  }
 
-                  if (debugging)
+                  if (debugging) {
                     console.putmsg(red + "entry dbg4:" + normal);
+		  }
 
                   tmpStr = mLn.toString().substring(lastWS, 
 						    (mLn.length - 1));
                   for (var ouah = 0; ouah < (mLn.length - lastWS);
-                       ouah++)
+                       ouah++) {
                         console.putmsg('\b');
+		  }
                   //note there still needs to be a check for nonbroken
                   //line entries; not sure what that'll do heah
 
@@ -220,8 +230,9 @@ msg_base = {
              */
             var mBase = new MsgBase(uGrpSub.code);
 
-            if (debugging) console.putmsg("Opening " +
-                uGrpSub.name + "\n");
+            if (debugging) {
+		console.putmsg("Opening " + uGrpSub.name + "\n");
+	    }
 
             try {
                 mBase.open();
@@ -233,9 +244,10 @@ msg_base = {
                 return -1;
             }
 
-            if (debugging)
+            if (debugging) {
                 console.putmsg("scan_ptr: " + uGrpSub.scan_ptr +
                   "\t\tlast: " + mBase.last_msg + "\n");
+	    }
 
             while (uGrpSub.scan_ptr < mBase.last_msg) {
                 //commence the jigglin'
@@ -262,8 +274,9 @@ msg_base = {
                     tmpPtr++;
                     break;
                   default:
-                    if (debugging) 
+                    if (debugging) {
 			console.putmsg("\nNot implemented\n");
+		    }
                     break;
                 }
 

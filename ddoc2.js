@@ -92,8 +92,9 @@ if (!debugOnly) {
 		  break;
 		//logout
 		case 'l':
-		  if (debugging)
+		  if (debugging) {
 		    console.putmsg("\n\nExiting: " + excuse);
+		  }
 		  stillAlive = false;
 		  break;
           	case 'T':       //just for my testing
@@ -115,4 +116,3 @@ if (!debugOnly) {
  }
 }
 
-	

@@ -40,10 +40,13 @@ headsUpDbg = {
         //properties, build it, and display the crapola
         for (var p in Object.keys(dDat)) {
           reqY++;
-          if ((p.toString().length + 1 + dDat[p].length) > reqX)
+          if ((p.toString().length + 1 + dDat[p].length) > reqX) {
                 reqX = 3 + p.toString().length + dDat[p].length;
+	  }
           //find out 'tabstop' for the data column
-          if (cT < dDat[p].length) cT = dDat[p].length;
+          if (cT < dDat[p].length) { 
+		cT = dDat[p].length;
+	  }
         }
 
         stX = console.screen_columns - reqX;
