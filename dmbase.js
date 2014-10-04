@@ -41,7 +41,7 @@ msg_base = {
             this.listKnown();
             break;
           case 'e':     //enter a normal message
-            this.addMsg();
+            this.addMsg(user.cursub, false);
             break;
           default:
             if (debugging)
@@ -92,12 +92,11 @@ msg_base = {
           var nao = new Date(), mTxt = new Array(String),
               mLn = new Array();
 
-          var ndx = 0, lNdx = 0;
-
-          var done = false;
+          var ndx = 0, lNdx = 0, done = false, debugging = false;
+	  //note, this is only removing debugging in the local method
 
           //obviously date is only showing the day # [fix]
-          console.putmsg(magenta + high_intensity +
+          console.putmsg("\n" + magenta + high_intensity +
                 nao.getDate().toString() + green + " from " +
                 cyan + user.alias + "\n" + green);
 
@@ -125,8 +124,6 @@ msg_base = {
                 }
             } else if (mLn[ndx] == '\r') {      //newline
                 if (ndx == 0) {
-                  /*if (debugging) console.putmsg(red + "entry dbg2:" +
-						green);*/
                   done = true;
                 }
 
@@ -192,22 +189,49 @@ msg_base = {
             }
           } while (done != true);
 
-          //lol there will be debugging here
-	  /*
-          if (debugging) {
-            console.putmsg(normal + red + "\nDebugging\n" + green
-                + high_intensity);
-            for (var ouah = 0; ouah < mTxt.length; ouah++) {
-                console.putmsg("mTxt index: " + ouah + "; content: ");
-                console.putmsg(mTxt[ouah]);
-            }
-            console.putmsg(red + "\nThat's what we've got, suh . . .\n"
-                + normal);
-          }
-	  */
+	  //create the message for writing
+	  var mHdr = {
+		'from'		:	user.alias,
+		'to'		:	"All",	//cheat for now
+		'subject'	:	"dDOC Posting"	//cheat for now
+	  }
+	  var dMB = new MsgBase(base);
+
+	  try {
+	    dMB.open();
+	  } catch (e) {
+	    console.putmsg(red + "Error opening: " + high_intensity +
+		base + normal + "\n");
+	    log("dDOC err opening: " + base + "; " + e.message);
+	    return -1;
+	  }
+
+	  var catMTxt = "";
+	  for (ouah in mTxt) {
+	    catMTxt += (ouah + "\n");
+	  }
+
+	  try {
+	    dMB.save_msg(mHdr, catMTxt);
+	  } catch (e) {
+	    console.putmsg(red + "Error saving to: " + high_intensity +
+		base + normal + "\n");
+	    log("dDOC err saving msg to: " + base + "; " + e.message);
+	    return -2;
+	  }
+
+	  try {
+	    dMB.close();
+	  } catch (e) {
+	    console.putmsg(red + "Error closing: " + high_intensity +
+		base + normal + "\n");
+	    log("dDOC err closing: " + base + "; " + e.message);
+	    return -3;
+	  }
+
         } else {
           console.putmsg("\nUnable to handle message upload yet\n");
-          return -1;
+          return -2;
         }
 
         //entry completion menu
