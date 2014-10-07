@@ -92,7 +92,8 @@ msg_base = {
           var nao = new Date(), mTxt = new Array(String),
               mLn = new Array();
 
-          var ndx = 0, lNdx = 0, done = false, debugging = false;
+          var ndx = 0, lNdx = 0, done = false;
+	  var debugging = false;
 	  //note, this is only removing debugging in the local method
 
           //obviously date is only showing the day # [fix]
@@ -101,7 +102,8 @@ msg_base = {
                 cyan + user.alias + "\n" + green);
 
           //should we include a subject in the DOC clone?
-
+	  //working with a generic one for now; get Neuro's input on how
+	  //to do it best with the actual format later
           do {
             if ((mLn[ndx] = console.getkey()) == '\t') {        //tab
                 if ((ndx + 5) >= 79) {
@@ -130,7 +132,6 @@ msg_base = {
                 ndx = 0;
 
                 //same as above; set w/loop
-                //mTxt[lNdx] = mLn.toString();
                 for (var x = 0; x < mLn.length; x++) {
                   mTxt[lNdx] += mLn[x];
 		}
@@ -207,8 +208,11 @@ msg_base = {
 	  }
 
 	  var catMTxt = "";
-	  for (ouah in mTxt) {
-	    catMTxt += (ouah + "\n");
+	  for (var ouah in mTxt) {
+	    if (debugging) {
+		console.putstr(red + "ouah: " + ouah + "\n" + normal);
+	    }
+	    catMTxt += (mTxt[ouah].toString() + "\n");
 	  }
 
 	  try {
