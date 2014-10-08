@@ -94,7 +94,7 @@ msg_base = {
               mLn = new Array();
 
           var ndx = 0, lNdx = 0, done = false;
-	  var debugging = false;
+	  //var debugging = false;
 	  //note, this is only removing debugging in the local method
 
           //obviously date is only showing the day # [fix]
@@ -122,6 +122,7 @@ msg_base = {
                   console.putmsg("\n");
                   break;
                 } else {
+		  //code to fix undefined here?
                   mLn += "     ";       //not sure about this
                   ndx += 5;
                   console.putmsg("     ");
@@ -129,12 +130,14 @@ msg_base = {
             } else if (mLn[ndx] == '\r') {      //newline
                 if (ndx == 0) {
                   done = true;
+		  lNdx--;
                 }
 
                 ndx = 0;
 
                 //same as above; set w/loop
-                for (var x = 0; ((x < mLn.length) && 
+		mTxt[lNdx] = mLn[0];
+                for (var x = 1; ((x < mLn.length) && 
 				(mLn[x] != '\r')); x++) {
                   mTxt[lNdx] += mLn[x];
 		}
@@ -216,7 +219,7 @@ msg_base = {
 	  var catMTxt = new String();
 	  for each (var ouah in mTxt) {
 	    if (debugging) {
-		console.putstr(red + "ouah: " + ouah + "\n" + normal);
+		console.putmsg(red + "ouah: " + ouah + "\n" + normal);
 	    }
 	    catMTxt += ouah;
 	  }
