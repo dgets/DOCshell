@@ -89,7 +89,8 @@ msg_base = {
     },
     addMsg : function(base, upload) {
         if (!upload) {
-          var nao = new Date(), mTxt = new Array(String),
+          var nao = new Date(), mTxt = new Array(), //wow, String was
+						    //the problem?  :-?
               mLn = new Array();
 
           var ndx = 0, lNdx = 0, done = false;
@@ -116,6 +117,7 @@ msg_base = {
                     mTxt[lNdx] += mLn[x];
 		  }
                   lNdx++;
+		  mLn = new Array();
 
                   console.putmsg("\n");
                   break;
@@ -132,7 +134,8 @@ msg_base = {
                 ndx = 0;
 
                 //same as above; set w/loop
-                for (var x = 0; x < mLn.length; x++) {
+                for (var x = 0; ((x < mLn.length) && 
+				(mLn[x] != '\r')); x++) {
                   mTxt[lNdx] += mLn[x];
 		}
 		mTxt[lNdx++] += '\n';
@@ -144,10 +147,12 @@ msg_base = {
                   console.putmsg("lNdx: " + lNdx + normal + "\n");
                         if (done) {
                           console.putmsg(red + "Debugging output:\n");
-			  for (var x = 0; x < lNdx; x++) 
+			  for (var x = 0; x < lNdx; x++) {
 			    console.putmsg(x + ": " + mTxt[x] + "\n");
+			  }
                         }
                 }
+		mLn = new Array();	//fixie?
             } else if (mLn[ndx] == '\b') {      //backspace
                 if (ndx == 0) {
 			break;
@@ -184,6 +189,7 @@ msg_base = {
                   ndx = 0;
                   mTxt[lNdx++] = mLn;
                   mTxt[lNdx] = tmpStr;
+		  mLn = new Array();
                 }
 
                 console.putmsg(mLn[ndx++]);
@@ -207,12 +213,12 @@ msg_base = {
 	    return -1;
 	  }
 
-	  var catMTxt = "";
-	  for (var ouah in mTxt) {
+	  var catMTxt = new String();
+	  for each (var ouah in mTxt) {
 	    if (debugging) {
 		console.putstr(red + "ouah: " + ouah + "\n" + normal);
 	    }
-	    catMTxt += (mTxt[ouah].toString() + "\n");
+	    catMTxt += ouah;
 	  }
 
 	  try {
