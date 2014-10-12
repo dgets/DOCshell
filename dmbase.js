@@ -28,6 +28,7 @@ msg_base = {
          (msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
          msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
          + " remaining)] " + green + high_intensity + "Read cmd -> ",
+    stayUtopian : true,
     //msg_base methods
     handler : function(choice) {
         //which way do we go with this?
@@ -54,7 +55,8 @@ msg_base = {
         console.putmsg("\n\n" + green + high_intensity);
 
         //we can fuck with multi-columns later
-        for (uMsgGrp in msg_area.grp_list) {
+	if (!this.stayUtopian) {
+         for each (uMsgGrp in msg_area.grp_list) {
           if (debugging) {
 		console.putmsg(uMsgGrp.description + "\n\n");
 	  }
@@ -62,7 +64,13 @@ msg_base = {
                 console.putmsg("\t" + uMsgGrp.name + ": " +
                   uGrpSub.description + "\n");
           }
-        }
+         }
+	} else {
+	 uMsgGrp = msg_area.grp["DystopianUtopia"];
+	 for each (uGrpSub in uMsgGrp.sub_list) {
+	 	console.putmsg("\t" + uGrpSub.description + "\n");
+	 }
+	}
 
         console.putmsg("\n");
     },
@@ -87,7 +95,7 @@ msg_base = {
                 cyan + "Read cmd -> ");
         }
     },
-    msgEntryTabSub : function(line, ndx) {
+    /*msgEntryTabSub : function(line, ndx) {
 	//handle the tab case
 	if ((ndx + 5) >= 79) {
 	  if (debugging) {
@@ -104,14 +112,14 @@ msg_base = {
 		text : (line + "     ")
 	  };
 	}
-    },
-    cpyToTxt : function(line) {
+    }, */
+    /*cpyToTxt : function(line) {
 	for (var x = 0; x < line.length; x++) {
 	  parent.mTxt[parent.lNdx] += line[x];
 	}
 	parent.lNdx++;
 	return mTxt;
-    },
+    }, */
     dispNewMsgHdr : function() {
 	//obviously date is only showing the day # (easy fix)
 	var nao = new Date();

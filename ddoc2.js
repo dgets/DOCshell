@@ -11,6 +11,7 @@
 //includes
 load("ddebug.js");
 load("dmbase.js");
+load("dexpress.js");
 
 //pseudo-globals
 const debugging = true, excuse = "\n\nNot so fast . . .\n\n",
@@ -44,7 +45,7 @@ docIface = {
        "<u>\tungoto last room\n<v>\texpress -1\n<w>\tWho's online?\n" +
        "<W>\tshort wholist\n<x>\tsend eXpress message\n" +
        "<X>\ttoggle eXpress status\n<^X>\tcheck old X messages\n" +
-       "<y>\tyell\n<z>\tzaproom\n<0-9>\tquickX\n<#>\tReadroom by " +
+       "<y>\tyell\n<z>\tzaproom\n<0-9>\tquickX\n<#>\tRead room by " +
        "number\n<->\tread last n messages\n<%>\ttoggle guideflag " +
        "status\n<@>\taidelist\n<\">\tquote Xes to Sysop\n\n",
   dprompt : yellow + high_intensity + 
@@ -62,10 +63,15 @@ docIface = {
 var uchoice;
 
 if (!debugOnly) {
- /* to the main program loop */
+ /* the main program loop */
  while (stillAlive) {
-	console.putmsg(docIface.dprompt);
+	//maintenance
+	bbs.main_cmds++;
+	
+	//check for async messages waiting
+	bbs.nodesync();
 
+	console.putmsg(docIface.dprompt);
 	uchoice = docIface.getChoice();
 	//poor aliasing
 	if (uchoice == ' ') uchoice = 'n';
@@ -97,11 +103,18 @@ if (!debugOnly) {
 		  }
 		  stillAlive = false;
 		  break;
-          	case 'T':       //just for my testing
+          	/*case 'T':       //just for my testing
             	  console.putmsg(red + "Entering testing...\n\n");
             	  headsUpDbg.init({ ouah : "nakk", fuck : "tard" });
             	  console.putmsg(green + "\n\nEnding test.\n");
-            	  break;
+            	  break;*/
+		//wholist
+		case 'w':
+		  bbs.whos_online();
+		  break;
+		case 'x':
+		  express.sendX();
+		  break;
 		default:
 		  console.putmsg(excuse);
 		  break;
