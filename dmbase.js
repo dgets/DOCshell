@@ -87,26 +87,58 @@ msg_base = {
                 cyan + "Read cmd -> ");
         }
     },
+    msgEntryTabSub : function(line, ndx) {
+	//handle the tab case
+	if ((ndx + 5) >= 79) {
+	  if (debugging) {
+	    console.putmsg(red + "tab handler" + normal);
+	  }
+
+	  console.putmsg("\n");
+	  return { wrap : true };
+	} else {
+	  console.putmsg("     ");
+	  return { 
+		wrap : false, 
+		index : (ndx + 5), 
+		text : (line += "     ")
+	  };
+	}
+    },
+    cpyToTxt : function(line) {
+	for (var x = 0; x < line.length; x++) {
+	  parent.mTxt[parent.lNdx] += line[x];
+	}
+	parent.lNdx++;
+	return mTxt;
+    },
+    dispNewMsgHdr : function() {
+	//obviously date is only showing the day # (easy fix)
+	var nao = new Date();
+
+	console.putmsg("\n" + magenta + high_intensity +
+		nao.getDate().toString() + green + " from " +
+		cyan + user.alias + "\n" + green);
+    },
     addMsg : function(base, upload) {
+	/*
+	 * NOTE: This method is way too big and needs to be chopped the
+	 * fuck up in order to make this more readable and more reusable
+	 */
         if (!upload) {
-          var nao = new Date(), mTxt = new Array(), //wow, String was
-						    //the problem?  :-?
-              mLn = new Array();
+          var mTxt = new Array(), mLn = new Array();
 
           var ndx = 0, lNdx = 0, done = false;
-	  //var debugging = false;
-	  //note, this is only removing debugging in the local method
+	  var debugging = false;	//only for local here
 
-          //obviously date is only showing the day # [fix]
-          console.putmsg("\n" + magenta + high_intensity +
-                nao.getDate().toString() + green + " from " +
-                cyan + user.alias + "\n" + green);
+	  dispNewMsgHdr();
 
           //should we include a subject in the DOC clone?
 	  //working with a generic one for now; get Neuro's input on how
 	  //to do it best with the actual format later
           do {
-            if ((mLn[ndx] = console.getkey()) == '\t') {        //tab
+	    //begin modularizing this method here, for each 'if' case
+            /*if ((mLn[ndx] = console.getkey()) == '\t') {        //tab
                 if ((ndx + 5) >= 79) {
                   if (debugging) {
                     console.putmsg(red + "entry dbg1:" + normal);
@@ -126,7 +158,15 @@ msg_base = {
                   mLn += "     ";       //not sure about this
                   ndx += 5;
                   console.putmsg("     ");
-                }
+                } */
+	    if ((mLn[ndx] = console.getkey()) == '\t') {	//tab
+		ouahful = msgEntryTabSub(mLn, ndx);
+		if (ouahful.wrap) {
+		  mTxt = cpyToTxt(mLn);
+		} else {
+		  mLn = ouahful.text;
+		  ndx = ouahful.index;
+		}
             } else if (mLn[ndx] == '\r') {      //newline
                 if (ndx == 0) {
                   done = true;
