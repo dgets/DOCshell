@@ -242,47 +242,10 @@ msg_base = {
 
 	  //menu for saving, printing, continuing, etc
 
-	  //create the message for writing
-	  var mHdr = {
-		'from'		:	user.alias,
-		'to'		:	"All",	//cheat for now
-		'subject'	:	"dDOC Posting"	//cheat for now
-	  }
-	  var dMB = new MsgBase(base);
-
-	  try {
-	    dMB.open();
-	  } catch (e) {
-	    console.putmsg(red + "Error opening: " + high_intensity +
-		base + normal + "\n");
-	    log("dDOC err opening: " + base + "; " + e.message);
-	    return -1;
-	  }
-
-	  var catMTxt = new String();
-	  for each (var ouah in mTxt) {
-	    if (debugging) {
-		console.putmsg(red + "ouah: " + ouah + "\n" + normal);
-	    }
-	    catMTxt += ouah;
-	  }
-
-	  try {
-	    dMB.save_msg(mHdr, catMTxt);
-	  } catch (e) {
-	    console.putmsg(red + "Error saving to: " + high_intensity +
-		base + normal + "\n");
-	    log("dDOC err saving msg to: " + base + "; " + e.message);
-	    return -2;
-	  }
-
-	  try {
-	    dMB.close();
-	  } catch (e) {
-	    console.putmsg(red + "Error closing: " + high_intensity +
-		base + normal + "\n");
-	    log("dDOC err closing: " + base + "; " + e.message);
-	    return -3;
+	  //save
+	  if (this.mWrite(mTxt, base) != 0) {
+	    console.putmsg(red + "Error writing message in mWrite()" +
+		green + "\n");
 	  }
 
         } else {
@@ -293,6 +256,52 @@ msg_base = {
         //entry completion menu
         console.putmsg("\nMessage entry completed\nFalling through, " +
                        "Not Implemented Yet\n");
+    },
+    mWrite : function(txtArray, mBase) {
+          //create the message for writing
+          var mHdr = {
+                'from'          :       user.alias,
+                'to'            :       "All",  //cheat for now
+                'subject'       :       "dDOC Posting"  //cheat for now
+          }
+          var dMB = new MsgBase(mBase);
+	  var debugging = false;	//locally, of course
+
+          try {
+            dMB.open();
+          } catch (e) {
+            console.putmsg(red + "Error opening: " + high_intensity +
+                base + normal + "\n");
+            log("dDOC err opening: " + base + "; " + e.message);
+            return -1;
+          }
+
+          var catMTxt = new String(); 
+          for each (var ouah in txtArray) {
+            if (debugging) {
+                console.putmsg(red + "ouah: " + ouah + "\n" + normal);
+            }
+            catMTxt += ouah;
+          }
+
+          try {
+            dMB.save_msg(mHdr, catMTxt);
+          } catch (e) {
+            console.putmsg(red + "Error saving to: " + high_intensity +
+                base + normal + "\n");
+            log("dDOC err saving msg to: " + base + "; " + e.message);
+            return -2;
+          }
+
+          try {
+            dMB.close();
+          } catch (e) {
+            console.putmsg(red + "Error closing: " + high_intensity +
+                base + normal + "\n");
+            log("dDOC err closing: " + base + "; " + e.message);
+            return -3;
+          }
+	  return 0;
     },
     newScan : function() {
         console.putmsg(yellow + high_intensity + " Goto ");
