@@ -101,7 +101,7 @@ msg_base = {
 	  return { 
 		wrap : false, 
 		index : (ndx + 5), 
-		text : (line += "     ")
+		text : (line + "     ")
 	  };
 	}
     },
@@ -131,7 +131,7 @@ msg_base = {
           var ndx = 0, lNdx = 0, done = false;
 	  var debugging = false;	//only for local here
 
-	  dispNewMsgHdr();
+	  this.dispNewMsgHdr();
 
           //should we include a subject in the DOC clone?
 	  //working with a generic one for now; get Neuro's input on how
@@ -160,19 +160,20 @@ msg_base = {
                   console.putmsg("     ");
                 } */
 	    if ((mLn[ndx] = console.getkey()) == '\t') {	//tab
-		ouahful = msgEntryTabSub(mLn, ndx);
+		//fix this; skip handling tabs for nao
+		/*
+		ouahful = this.msgEntryTabSub(mLn, ndx);
 		if (ouahful.wrap) {
-		  mTxt = cpyToTxt(mLn);
+		  mTxt = this.cpyToTxt(mLn);
 		} else {
 		  mLn = ouahful.text;
 		  ndx = ouahful.index;
-		}
+		} */
             } else if (mLn[ndx] == '\r') {      //newline
                 if (ndx == 0) {
                   done = true;
-		  lNdx--;
+		  //lNdx--;
                 }
-
                 ndx = 0;
 
                 //same as above; set w/loop
@@ -238,6 +239,8 @@ msg_base = {
                 console.putmsg(mLn[ndx++]);
             }
           } while (done != true);
+
+	  //menu for saving, printing, continuing, etc
 
 	  //create the message for writing
 	  var mHdr = {
