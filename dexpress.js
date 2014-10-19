@@ -6,8 +6,20 @@
  *
  * Handles text entry and the like for the ddoc suite, strictly for
  * 'express message' functionality.
+ *
+ * Please note that this also contains the wholist array collection
+ * method functionality (in order to select appropriate recipients, etc)
  */
 
+wholist = {
+  //collect the wholist into three arrays; short, long, and one
+  //populated solely by the user numbers for easier access when Xing
+  populate : function() {
+	
+	
+  }
+
+},
 express = {
   //read the number of lines specified; return an array of such after
   //text processing/input is done
@@ -21,16 +33,22 @@ express = {
 	    var x = console.getkey();
 
 	    if (x == '\03') {
+		//Ctrl-C handling
 		abort = true;
 	    } else if ((x == '\r') && (lPos == 0)) {
 		//done
-
+		if (ouah == 0) {
+			abort = true;
+		} else {
+			//send it off
+			return mTxt;
+		}
 	    } else if (x == '\r') {
 		//next line
-
+		lPos = 0;
 	    } else {
 		//standard entry/copy
-	
+		
 	    }
 
 	  }
@@ -40,7 +58,7 @@ express = {
 
 	if (abort) { return null; }
   },
-  sendX : function() {
+  sendX : function(mTxt) {
 
   }
 
