@@ -110,10 +110,13 @@ if (!debugOnly) {
             	  break;*/
 		//wholist
 		case 'w':
-		  bbs.whos_online();
+		  wholist.list_long();
 		  break;
 		case 'x':
 		  express.sendX();
+		  break;
+		case 'W':
+		  wholist.list_short(wholist.populate());
 		  break;
 		default:
 		  console.putmsg(excuse);

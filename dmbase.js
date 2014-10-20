@@ -33,6 +33,7 @@ msg_base = {
     handler : function(choice) {
         //which way do we go with this?
         switch (choice) {
+	  //purely message related functionality
           case 'n':     //read new
             this.newScan();
             console.putmsg("\n\nJust give me a sign . . .");
@@ -44,6 +45,16 @@ msg_base = {
           case 'e':     //enter a normal message
             this.addMsg(user.cursub, false);
             break;
+	  //other functionality tie-ins
+	  case 'w':	//normal wholist
+	    wholist.list_long();
+	    break;
+	  case 'W':	//short wholist
+	    wholist.list_short(wholist.populate());
+	    break;
+	  case 'x':	//express msg
+	    express.sendX();
+	    break;
           default:
             if (debugging)
               console.putmsg("\nNot handled yet . . .\n\n");

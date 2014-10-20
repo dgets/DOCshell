@@ -60,6 +60,9 @@ wholist = {
 express = {
   //read the number of lines specified; return an array of such after
   //text processing/input is done
+  //NOTE: Finding out that console.getstr() has the functionality that
+  //I've been painstakingly rewriting by hand here will make this much
+  //easier.  We hates rewriting the wheel, thats we does.
   readBuf : function(lns) {
 	var mTxt = new Array(), abort = false;
 
@@ -77,8 +80,18 @@ express = {
 		if (ouah == 0) {
 			abort = true;
 		} else {
-			//send it off
-			return mTxt;
+		  //send it off
+		  //return mTxt;
+
+		  //nope: we need to do this concatted
+		  if (mTxt.length == 1) {
+			return mTxt[0];
+		  } else {
+		    var fullBuf = mTxt[0]; //need \n?
+		    for (var x = 1; x < mTxt.length; x++) {
+			fullBuf += mTxt[x];
+		    }
+		    return fullBuf;
 		}
 	    } else if (x == '\r') {
 		//next line
@@ -95,8 +108,52 @@ express = {
 
 	if (abort) { return null; }
   },
-  sendX : function(mTxt) {
+  chkRcp : function(ul) {
+	//check to make sure the recipient is valid
+	var recip = null, success = false;
 
+	console.putmsg(green + "Message eXpress\nRecipient: ");
+	//note that a default user from previous expresses will
+	//have to be added here to keep people from bitching
+
+	recip = console.getstr();
+	for each (u in ul) {
+	  if (u.name == recip) {
+	    success = true;
+	    return recip;
+	  }
+	}
+
+	//offline?
+	if ((!success) && (system.matchuser(recip) == 0)) {
+	  //not found
+	  console.putmsg(red + high_intensity +
+		"User record not found\n" + green);
+	  return -1;
+	} else {
+	  //user offline
+	  //NOTE: there will have to be a better solution here
+	  console.putmsg(yellow + high_intensity +
+		"User is currently offline; try Mail>\n" +
+		green);
+	  return 0;
+	}
+  },
+  sendX : function() {
+	var recip, ouah, mTxt;
+
+	recip = express.chkRcp(wholist.populate());
+	if (recip <= 0) {
+	  //oopthieoopth!
+	  return -1;
+	}
+
+	mTxt = express.readBuf();
+	
+	if (mTxt != null) {
+	  system.put_telegram(system.matchuser(recip), mTxt);
+	  console.putmsg(green + "Message sent!\n");
+	}
   }
 
 }
