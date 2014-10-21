@@ -27,8 +27,7 @@ My own BBS (still pending implementation of this DOCish interface [which
 will be coming very soon]) can be found at the following addresses:
 
 	* Tinfoil Tetrahedron BBS (telnet://tinfoil.synchro.net/)
-	* Tinfoil Tetrahedron BBS (secure via SSH:
-				   ssh://tinfoil.synchro.net/)
+	* Tinfoil Tetrahedron BBS (secure via SSH: ssh://tinfoil.synchro.net/)
 
 My original README.md contents follow:
 
