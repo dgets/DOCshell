@@ -11,16 +11,39 @@
  * method functionality (in order to select appropriate recipients, etc)
  */
 
+load("sbbsdefs.js");
+
+/*
+ * BUGS:
+ *
+ * At this point there is still no duplicate user checking; this should
+ * probably be taken care of at some point.
+ */
+
 wholist = {
+  debugging : true,	//just for wholist/populate, etc
+
   //collect the wholist into three arrays; short, long, and one
   //populated solely by the user numbers for easier access when Xing
   populate : function() {
-	var ul = new Array(User);
+	var ul = new Array();
 	var tu = 0;
 
 	for (var n = 0; n < system.nodes; n++) {
-	  if (system.node_list[n] == NODE_INUSE) {
+	  //god ouahful debugging
+	  /*if (wholist.debugging) {
+		console.putmsg(yellow + "In the goddamn for loop\n" +
+		  green);
+	  }*/
+
+	  if (system.node_list[n] && NODE_INUSE) {
 		ul[tu++] = User(system.node_list[n].useron);
+		/*if (wholist.debugging) {
+		  console.putmsg(red + "Debug: #" + tu + " - " +
+		    ul[tu - 1] + ", Raw: " +
+		    User(system.node_list[n].useron) + green +
+		    "\n");
+		}*/
 	  }
 	}
 
@@ -36,6 +59,9 @@ wholist = {
 	var unames = new Array();
 	var maxALen = 0, tu = 0, cols;
 
+	console.putmsg(green + high_intensity + 
+	  "\nWholist (Short)\n---------------\n");
+
 	for (var ouah = 0; ouah < ul.length; ouah++) {
 	  unames[ouah] = ul[ouah].alias;
 	  if (unames[ouah].length > maxALen) {
@@ -47,11 +73,10 @@ wholist = {
 	//assuming 80 column screens for now
 	cols = Math.round(80 / (maxALen + 2));
 
-	//there should probably be some sort of nice heading here
-	console.putmsg(green + "\n");
-	for (var ouah = 1; ouah <= tu; ouah++) {
+	//generate wholist
+	for (var ouah = 0; ouah < tu; ouah++) {
 	  console.putmsg(unames[ouah] + "  ");
-	  if ((ouah % cols) == 0) {
+	  if ((ouah > 0) && ((ouah % cols) == 0)) {
 		console.putmsg("\n");
 	  }
 	}
@@ -67,10 +92,10 @@ express = {
 	var mTxt = new Array(), abort = false;
 
 	for (var ouah = 0; ouah < lns; ouah++) {
-	  var mLn = '', lPos = 0;
+	  var mLn = '', lPos = 0, x;
 
 	  while ((lPos < 65) && (!abort)) {
-	    var x = console.getkey();
+	    x = console.getkey();
 
 	    if (x == '\03') {
 		//Ctrl-C handling
@@ -92,10 +117,11 @@ express = {
 			fullBuf += mTxt[x];
 		    }
 		    return fullBuf;
+		  }
 		}
 	    } else if (x == '\r') {
-		//next line
-		lPos = 0;
+		  //next line
+		  lPos = 0;
 	    } else {
 		//standard entry/copy
 		

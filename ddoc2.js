@@ -116,6 +116,16 @@ if (!debugOnly) {
 		  express.sendX();
 		  break;
 		case 'W':
+		  /*if (debugging) {
+		    var ouah = new Array();
+
+		    ouah = wholist.populate();
+		    console.putmsg(red + "wholist.populate():\n" +
+			ouah.toString() + "\n");
+		    console.putmsg("elements: " + ouah.length +
+			"\n" + green);
+			
+		  }*/
 		  wholist.list_short(wholist.populate());
 		  break;
 		default:

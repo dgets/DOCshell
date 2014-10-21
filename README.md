@@ -23,6 +23,13 @@ following two sites:
 
 Please be aware that, at the very least, eSchwa BBS is run by fascists.
 
+My own BBS (still pending implementation of this DOCish interface [which
+will be coming very soon]) can be found at the following addresses:
+
+	* Tinfoil Tetrahedron BBS (telnet://tinfoil.synchro.net/)
+	* Tinfoil Tetrahedron BBS (secure via SSH:
+				   ssh://tinfoil.synchro.net/)
+
 My original README.md contents follow:
 
 Just a wee bit of a project that I'm working on in order to make my
