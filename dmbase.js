@@ -2,6 +2,8 @@
  * dmbase.js
  *
  * by: Damon Getsman
+ * alpha phase: 25oct14
+ * beta phase: 
  * started: 21sept14
  * finished:
  * 
@@ -359,7 +361,7 @@ msg_base = {
 
             while (uGrpSub.scan_ptr < mBase.last_msg) {
                 //commence the jigglin'
-                var tmpPtr = uGrpSub.scan_ptr;
+                var tmpPtr = uGrpSub.scan_ptr, done = false;
 
                 /*
                 var mHdr = mBase.get_msg_header(tmpPtr);
@@ -377,9 +379,22 @@ msg_base = {
                         cyan + "Read cmd - > ");
                 */
                 this.dispMsg(mBase, tmpPtr, true);
+		this.read_cmd.rcChoice(mBase, tmpPtr);
+
+		return;
+
+		/*
+		 * I really don't know why this was written the way it
+		 * was here; I suspect that I had started rewriting it
+		 * from the commented out code at top and still had
+		 * loops that I was no longer trying to utilize bouncing
+		 * around in my head.  :P
+		 */
+		/*
                 switch (this.read_cmd.rcChoice(mBase, tmpPtr)) {
                   case '1':
                     tmpPtr++;
+		    done = true;
                     break;
                   default:
                     if (debugging) {
@@ -388,6 +403,10 @@ msg_base = {
                     break;
                 }
 
+		if (done) {
+		  return 0;
+		}
+		*/
             }
 
             try {
@@ -438,6 +457,7 @@ msg_base = {
                 case 's':
                   valid = true; hollaBack = 1;
                   console.putmsg("Stop\n");
+		  return hollaBack;
                   break;
                 case 'e':
                   valid = true;
@@ -446,7 +466,9 @@ msg_base = {
                   addMsg(base, false);  //not an upload
                   break;
                 default:
-                  if (debugging) console.putmsg("wtF-f-f\n");
+		  console.putmsg(normal + yellow + "Invalid choice\n");
+		  console.putmsg(this.mprompt);
+		  uchoice = console.getkey();
                   break;
             }
 

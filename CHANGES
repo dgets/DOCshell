@@ -1,0 +1,13 @@
+25 Oct 14
+-=-=-=-=-
+dmbase.js:
+* added confine_messagebase boolean constant to ddoc2
+* added return to 's' option @ message read menu, and some other magic
+  gunk to get it working properly
+* added code to make 'default' case at the read message menu not go into
+  an infinite loop
+* changed irrelevant code in rcChoice() that was causing infinite loops
+
+ddoc2.js:
+* added confine_messagebase boolean constant to ddoc2
+

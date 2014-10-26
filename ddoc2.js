@@ -1,7 +1,11 @@
 /* rudimentary DOC interface; utilizing OO implementation nao */
 /*
+ * ddoc2.js
+ *
  * by: Damon Getsman
  * started: 18aug14
+ * alpha phase: 25oct14
+ * beta phase: 
  * finished:
  *
  * a slightly more organized attempt to emulate the DOC shell from
@@ -15,7 +19,7 @@ load("dexpress.js");
 
 //pseudo-globals
 const debugging = true, excuse = "\n\nNot so fast . . .\n\n",
-	debugOnly = false;
+	debugOnly = false, confine_messagebase = true;
 
 //a few easier hooks for the ctrl-a codes
 const ctrl_a = "\1";
