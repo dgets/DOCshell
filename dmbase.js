@@ -30,19 +30,22 @@ msg_base = {
          (msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
          msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
          + " remaining)] " + green + high_intensity + "Read cmd -> ",
-    stayUtopian : true,
+    //stayUtopian : true,
+    //depreciated because we're setting that in ddoc2.js now and passing
+    //it to the appropriate methods here (the 'confined' parameter)
+
     //msg_base methods
-    handler : function(choice) {
+    handler : function(choice, confined) {
         //which way do we go with this?
         switch (choice) {
 	  //purely message related functionality
           case 'n':     //read new
-            this.newScan();
+            this.newScan(confined);
             console.putmsg("\n\nJust give me a sign . . .");
             console.getkey();
             break;
           case 'k':     //list scanned bases
-            this.listKnown();
+            this.listKnown(confined);
             break;
           case 'e':     //enter a normal message
             this.addMsg(user.cursub, false);
@@ -64,11 +67,11 @@ msg_base = {
         }
 
     },
-    listKnown : function() {
+    listKnown : function(confined) {
         console.putmsg("\n\n" + green + high_intensity);
 
         //we can fuck with multi-columns later
-	if (!this.stayUtopian) {
+	if (!confined) {
          for each (uMsgGrp in msg_area.grp_list) {
           if (debugging) {
 		console.putmsg(uMsgGrp.description + "\n\n");
@@ -79,7 +82,7 @@ msg_base = {
           }
          }
 	} else {
-	 uMsgGrp = msg_area.grp["DystopianUtopia"];
+	 uMsgGrp = msg_area.grp["TOPEGRP"];
 	 for each (uGrpSub in uMsgGrp.sub_list) {
 	 	console.putmsg("\t" + uGrpSub.description + "\n");
 	 }
@@ -324,12 +327,13 @@ msg_base = {
           }
 	  return 0;
     },
-    newScan : function() {
+    newScan : function(confined) {
         console.putmsg(yellow + high_intensity + " Goto ");
         //don't forget to finish off this vestigial functionality
 
         //let us reinvent the fucking wheel
-        for each (uMsgGrp in msg_area.grp_list) {
+	if (!confined) {
+         for each (uMsgGrp in msg_area.grp_list) {
           for each (uGrpSub in uMsgGrp.sub_list) {
             /*
              * read the new and on to the fuggin' next
@@ -363,50 +367,10 @@ msg_base = {
                 //commence the jigglin'
                 var tmpPtr = uGrpSub.scan_ptr, done = false;
 
-                /*
-                var mHdr = mBase.get_msg_header(tmpPtr);
-                var mBody = mBase.get_msg_body(tmpPtr);
-
-                console.putmsg(magenta + high_intensity + mHdr.date +
-                        green + " from " + cyan + mHdr.from + "\n\n" +
-                        green);
-                console.putmsg(mBody);  //this may need to have fmting
-                                        //fixes for vdoc emulation
-                console.putmsg(yellow + high_intensity + "\n" +
-                        "[" + uGrpSub.name + "> msg #" + tmpPtr +
-                        " (" + (mBase.last_msg - tmpPtr) + 
-			" remaining)]" +
-                        cyan + "Read cmd - > ");
-                */
                 this.dispMsg(mBase, tmpPtr, true);
 		this.read_cmd.rcChoice(mBase, tmpPtr);
 
 		return;
-
-		/*
-		 * I really don't know why this was written the way it
-		 * was here; I suspect that I had started rewriting it
-		 * from the commented out code at top and still had
-		 * loops that I was no longer trying to utilize bouncing
-		 * around in my head.  :P
-		 */
-		/*
-                switch (this.read_cmd.rcChoice(mBase, tmpPtr)) {
-                  case '1':
-                    tmpPtr++;
-		    done = true;
-                    break;
-                  default:
-                    if (debugging) {
-			console.putmsg("\nNot implemented\n");
-		    }
-                    break;
-                }
-
-		if (done) {
-		  return 0;
-		}
-		*/
             }
 
             try {
@@ -418,8 +382,53 @@ msg_base = {
                 return -2;
             }
           }
+         }
+	} else { //not confined
+	 for each (uGrpSub in msg_area.grp["TOPEGRP"]) {
+	  //read the new and on to the next; same caveats as the
+	  //above; this will also need to be modularized further :P  Too
+	  //much code repeating at this point, but I'm in a hurry to get
+	  //this done
 
-        }
+	  var mBase = new MsgBase(uGrpSub.code);
+
+	  if (debugging) {
+		console.putmsg("Opening " + uGrpSub.name + "\n");
+	  }
+
+          try {
+                mBase.open();
+          } catch (e) {
+                console.putmsg("\nUnable to open " +
+                  uGrpSub.name + ": " + e.message + "\n");
+	  	//same as above, a more legit way to fail would be nice
+	  }
+
+	  if (debugging) {
+	    console.putmsg("scan_ptr: " + uGrpSub.scan_ptr +
+		"\t\tlast: " + mBase.last_msg + "\n");
+	  }
+
+	  while (uGrpSub.scan_ptr < mBase.last_msg) {
+	    //read that shit
+	    var tmpPtr = uGrpSub.scan_ptr, done = false;
+
+	    this.dispMsg(mBase, tmpPtr, true);
+	    this.read_cmd.rcChoice(mBase, tmpPtr);
+
+	    return;
+	  }
+
+	  try {
+	    mbase.close();
+	  } catch (e) {
+	    console.putmsg("\nUnable to close " + uGrpSub.name +
+		": " + e.message + "\n");
+	    //ouah: you can read above, right?
+	    return -2;
+	  }
+	 }
+	}
     },
     read_cmd : {
         rcMenu : "\n" + green + high_intensity +

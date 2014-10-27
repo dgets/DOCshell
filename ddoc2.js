@@ -93,12 +93,12 @@ if (!debugOnly) {
 		case 'n':
 		case 'o':
 		case '-':
-		  msg_base.handler(uchoice);
+		  msg_base.handler(uchoice, confine_messagebase);
 		  break;
 		//other msg base shit
 		//list known
 		case 'k':
-		  msg_base.listKnown();
+		  msg_base.listKnown(confine_messagebase);
 		  break;
 		//logout
 		case 'l':

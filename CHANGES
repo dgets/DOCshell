@@ -11,3 +11,22 @@ dmbase.js:
 ddoc2.js:
 * added confine_messagebase boolean constant to ddoc2
 
+26 Oct 14
+-=-=-=-=-
+ddebug.js: 
+* removing due to depreciation and reimplementing messagebase constraint
+  code elsewhere
+
+ddoc2.js:
+* adding confine_messagebase passing as the final argument to any and
+  all messagebase routines
+
+dmbase.js:
+* adding testing for that boolean in appropriate methods
+* depreciating 'stay_utopian' as it's being passed from constraint
+  parameter passing from ddoc2 now
+* deleting a big chunk of depreciated and commented out code for ease of
+  further development
+* fixed 'DystopianUtopia' name being inserted where the message group
+  being constrained to should have been accessed by code
+
