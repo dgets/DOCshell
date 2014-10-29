@@ -39,4 +39,6 @@ dmbase.js:
 * realized that 'Goto' behavior is still hosed because it should not
   cycle through everything, but only print the name of the next sub that
   it finds with new messages
+* newScan method needed revamping; wasn't accessing groups or subs
+  correctly, and the message/scan pointer wasn't incremented correctly
 

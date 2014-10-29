@@ -41,8 +41,7 @@ msg_base = {
 	  //purely message related functionality
           case 'n':     //read new
             this.newScan(confined);
-            console.putmsg("\n\nJust give me a sign . . .");
-            console.getkey();
+            //console.getkey();
             break;
           case 'k':     //list scanned bases
             this.listKnown(confined);
@@ -91,8 +90,15 @@ msg_base = {
         console.putmsg("\n");
     },
     dispMsg : function(base, ptr, breaks) {
+	var debugging = false;	//we're good here
+
         if (breaks != false) { 
 	  breaks = true;
+	}
+
+	if (debugging) {
+	  console.putmsg(red + "base: " + base.grp_name + "\nptr: " + ptr +
+			 "\nbreaks: " + breaks + "\n");
 	}
 
         //try/catch this
@@ -328,11 +334,13 @@ msg_base = {
 	  return 0;
     },
     newScan : function(confined) {
-        console.putmsg(yellow + high_intensity + " Goto ");
+        console.putmsg(yellow + high_intensity + " Goto . . .\n");
         //don't forget to finish off this vestigial functionality
 
         //let us reinvent the fucking wheel
 	if (!confined) {
+	 var anyhits = false;
+
          for each (uMsgGrp in msg_area.grp_list) {
           for each (uGrpSub in uMsgGrp.sub_list) {
             /*
@@ -344,10 +352,10 @@ msg_base = {
              */
             var mBase = new MsgBase(uGrpSub.code);
 
-            if (debugging) {
+            /* if (debugging) {
 		console.putmsg("Opening " + uGrpSub.name + "\n");
 	    }
-	    console.putmsg(green + uGrpSub.name + yellow + ">\n");
+	    console.putmsg(green + uGrpSub.name + yellow + ">\n"); */
 
             try {
                 mBase.open();
@@ -364,15 +372,21 @@ msg_base = {
                   "\t\tlast: " + mBase.last_msg + "\n");
 	    }
 
-            while (uGrpSub.scan_ptr < mBase.last_msg) {
-                //commence the jigglin'
-                var tmpPtr = uGrpSub.scan_ptr, done = false;
+	    if (uGrpSub.scan_ptr < mBase.last_msg) {
+		bbs.cursub = uGrpSub.index;
+		console.putmsg(green + uGrpSub.name + yellow + ">\n");
 
-                this.dispMsg(mBase, tmpPtr, true);
-		this.read_cmd.rcChoice(mBase, tmpPtr);
+		while (uGrpSub.scan_ptr < mBase.last_msg) {
+                  //commence the jigglin'
+                  var tmpPtr = uGrpSub.scan_ptr, done = false;
 
-		return;
-            }
+                  this.dispMsg(mBase, ++tmpPtr, true);
+		  this.read_cmd.rcChoice(mBase, tmpPtr);
+		  anyhits = true;
+
+		  return; //and yeah here this does wut again?
+		}
+	    }
 
             try {
                 mBase.close();
@@ -392,13 +406,13 @@ msg_base = {
 	  //this done
 
 	  var mBase = new MsgBase(uGrpSub.code);
-	  var debugging = false;	//change this locally, we're
+	  //var debugging = false;	//change this locally; we're
 					//good
 
-	  if (debugging) {
+	  /* if (debugging) {
 		console.putmsg("Opening " + uGrpSub.name + "\n");
 	  }
-	  console.putmsg(green + uGrpSub.name + yellow + ">\n");
+	  console.putmsg(green + uGrpSub.name + yellow + ">\n"); */
 
           try {
                 mBase.open();
@@ -413,14 +427,20 @@ msg_base = {
 		"\t\tlast: " + mBase.last_msg + "\n");
 	  }
 
-	  while (uGrpSub.scan_ptr < mBase.last_msg) {
-	    //read that shit
-	    var tmpPtr = uGrpSub.scan_ptr, done = false;
+	  if (uGrpSub.scan_ptr < mBase.last_msg) {
+	    bbs.cursub = uGrpSub.index;
+	    console.putmsg(green + uGrpSub.name + yellow + ">\n");
 
-	    this.dispMsg(mBase, tmpPtr, true);
-	    this.read_cmd.rcChoice(mBase, tmpPtr);
+	    while (uGrpSub.scan_ptr < mBase.last_msg) {
+		//read that shit
+		var tmpPtr = uGrpSub.scan_ptr, done = false;
 
-	    return;
+		this.dispMsg(mBase, ++tmpPtr, true);
+		this.read_cmd.rcChoice(mBase, tmpPtr);
+		anyhits = true;
+
+		return;	//what is this for again?
+	    }
 	  }
 
 	  try {
@@ -432,6 +452,11 @@ msg_base = {
 	    return -2;
 	  }
 	 }
+	}
+
+	if (!anyhits) {
+	  //console.putmsg(yellow + ". . .\n");
+	  bbs.cursub = 1;
 	}
     },
     read_cmd : {
