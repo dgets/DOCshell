@@ -30,3 +30,13 @@ dmbase.js:
 * fixed 'DystopianUtopia' name being inserted where the message group
   being constrained to should have been accessed by code
 
+28 Oct 14
+-=-=-=-=-
+* adding a bounce to the dystopian message areas if confinement is set
+* working on 'j'ump functionality from the main level prompt/menu
+* changing 'Goto' behavior in the new message scan to print sub name
+  properly
+* realized that 'Goto' behavior is still hosed because it should not
+  cycle through everything, but only print the name of the next sub that
+  it finds with new messages
+

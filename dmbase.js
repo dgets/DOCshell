@@ -347,6 +347,7 @@ msg_base = {
             if (debugging) {
 		console.putmsg("Opening " + uGrpSub.name + "\n");
 	    }
+	    console.putmsg(green + uGrpSub.name + yellow + ">\n");
 
             try {
                 mBase.open();
@@ -383,18 +384,21 @@ msg_base = {
             }
           }
          }
-	} else { //not confined
-	 for each (uGrpSub in msg_area.grp["TOPEGRP"]) {
+	} else { //confined
+	 for each (uGrpSub in msg_area.grp_list[topebaseno].sub_list) {
 	  //read the new and on to the next; same caveats as the
 	  //above; this will also need to be modularized further :P  Too
 	  //much code repeating at this point, but I'm in a hurry to get
 	  //this done
 
 	  var mBase = new MsgBase(uGrpSub.code);
+	  var debugging = false;	//change this locally, we're
+					//good
 
 	  if (debugging) {
 		console.putmsg("Opening " + uGrpSub.name + "\n");
 	  }
+	  console.putmsg(green + uGrpSub.name + yellow + ">\n");
 
           try {
                 mBase.open();
@@ -420,7 +424,7 @@ msg_base = {
 	  }
 
 	  try {
-	    mbase.close();
+	    mBase.close();
 	  } catch (e) {
 	    console.putmsg("\nUnable to close " + uGrpSub.name +
 		": " + e.message + "\n");

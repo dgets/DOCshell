@@ -19,7 +19,7 @@ load("dexpress.js");
 
 //pseudo-globals
 const debugging = true, excuse = "\n\nNot so fast . . .\n\n",
-	debugOnly = false, confine_messagebase = true;
+	debugOnly = false, confine_messagebase = true, topebaseno = 6;
 
 //a few easier hooks for the ctrl-a codes
 const ctrl_a = "\1";
@@ -66,6 +66,15 @@ docIface = {
 
 var uchoice;
 
+if (confine_messagebase && (bbs.curgrp != topebaseno) && debugging) {
+  //are we already in a dystopian area?
+	console.putmsg(red + "CurGrp: " + bbs.curgrp + normal + "\n" +
+		       "Trying a jump . . .\n");
+	bbs.curgrp = topebaseno;
+} else if (confine_messagebase && (bbs.curgrp != topebaseno)) {
+	bbs.curgrp = topebaseno;
+}
+
 if (!debugOnly) {
  /* the main program loop */
  while (stillAlive) {
@@ -78,7 +87,9 @@ if (!debugOnly) {
 	console.putmsg(docIface.dprompt);
 	uchoice = docIface.getChoice();
 	//poor aliasing
-	if (uchoice == ' ') uchoice = 'n';
+	if (uchoice == ' ') {
+	  uchoice = 'n';
+	}
 
 	switch (uchoice) {
 		//top menu
