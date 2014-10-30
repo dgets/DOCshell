@@ -30,10 +30,10 @@ msg_base = {
          (msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
          msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
          + " remaining)] " + green + high_intensity + "Read cmd -> ",
-    //stayUtopian : true,
-    //depreciated because we're setting that in ddoc2.js now and passing
-    //it to the appropriate methods here (the 'confined' parameter)
-
+    sprompt: high_intensity + yellow + "<A>" + green + "bort " +
+	 yellow + "<C>" + green + "ontinue " + yellow + "<P>" + 
+	 green + "rint " + yellow + "<S>" + green + "ave " + yellow +
+	 "<X>" + green + "press -> ",
     //msg_base methods
     handler : function(choice, confined) {
         //which way do we go with this?
@@ -117,31 +117,6 @@ msg_base = {
                 cyan + "Read cmd -> ");
         }
     },
-    /*msgEntryTabSub : function(line, ndx) {
-	//handle the tab case
-	if ((ndx + 5) >= 79) {
-	  if (debugging) {
-	    console.putmsg(red + "tab handler" + normal);
-	  }
-
-	  console.putmsg("\n");
-	  return { wrap : true };
-	} else {
-	  console.putmsg("     ");
-	  return { 
-		wrap : false, 
-		index : (ndx + 5), 
-		text : (line + "     ")
-	  };
-	}
-    }, */
-    /*cpyToTxt : function(line) {
-	for (var x = 0; x < line.length; x++) {
-	  parent.mTxt[parent.lNdx] += line[x];
-	}
-	parent.lNdx++;
-	return mTxt;
-    }, */
     dispNewMsgHdr : function() {
 	//obviously date is only showing the day # (easy fix)
 	var nao = new Date();
@@ -149,6 +124,39 @@ msg_base = {
 	console.putmsg("\n" + magenta + high_intensity +
 		nao.getDate().toString() + green + " from " +
 		cyan + user.alias + "\n" + green);
+    },
+    dispSaveMsgPrompt : function() {
+	//kind of self-explanatory, don't you think?
+	var uc, done;
+
+	do {
+	  done = true;
+	  console.putmsg("\n" + sprompt);
+	  uc = console.getkey(K_UPPER);
+
+	  switch (uc) {
+	    case 'A':	//abort
+		console.putmsg(red + high_intensity + "Abort: ");
+		done = console.yesno("are you sure? ");
+		break;
+	    case 'C':	//continue
+		console.putmsg(green + high_intensity + "Continue...\n");
+		break;
+	    case 'P':	//print
+		console.putmsg(green + high_intensity + "Print...\n");
+		break;
+	    case 'S':	//save
+		console.putmsg(green + high_intensity + "Save...\n");
+		break;
+	    case 'X':	//message express
+		console.putmsg(red + "Implementing Xpress here " +
+				"later\n");
+		done = false;
+		break;
+        } while ((!done) || ((uc != 'A') && (uc != 'C') && (uc != 'P') &&
+                 (uc != 'S') /* && (uc != 'X')*/ ));
+
+	return uc;
     },
     addMsg : function(base, upload) {
 	/*
