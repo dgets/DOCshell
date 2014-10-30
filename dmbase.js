@@ -421,11 +421,12 @@ msg_base = {
           "<w>ho's online   <x>press msg      <X>press on/off\n\n",
 
         rcChoice : function(base, ndx) {
-          var uchoice = console.getkey();
+          var uchoice;
           var valid = false;
           var hollaBack = 0;    //can be used to switch dir, etc
 
           while (!valid) {
+	    uchoice = console.getkey();
             switch (uchoice) {
                 case '?':
                 case 'h':

@@ -42,3 +42,15 @@ dmbase.js:
 * newScan method needed revamping; wasn't accessing groups or subs
   correctly, and the message/scan pointer wasn't incremented correctly
 
+29 Oct 14
+-=-=-=-=-
+dmbase.js:
+* removed commented out message functionality that will not be used with
+  implementation of new string handling methods available via Synchronet
+* added dispSaveMsgPrompt(), which returns the uppercase selection, 
+  filtering out anything invalid
+* totally refactored addMsg(), including adding functionality for
+  message uploading
+* fixed infinite loop error happening in the post read-message input
+  validation code
+
