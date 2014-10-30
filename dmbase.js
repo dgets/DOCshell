@@ -143,7 +143,8 @@ msg_base = {
 		console.putmsg(green + high_intensity + "Continue...\n");
 		break;
 	    case 'P':	//print
-		console.putmsg(green + high_intensity + "Print...\n");
+		console.putmsg(green + high_intensity + "Print " +
+				"formatted...\n");
 		break;
 	    case 'S':	//save
 		console.putmsg(green + high_intensity + "Save...\n");
@@ -163,137 +164,77 @@ msg_base = {
 	 * NOTE: This method is way too big and needs to be chopped the
 	 * fuck up in order to make this more readable and more reusable
 	 */
-        if (!upload) {
-          var mTxt = new Array(), mLn = new Array();
+        var mTxt = new Array();
+        var lNdx = 0, done = false;
+	var uchoice;
 
-          var ndx = 0, lNdx = 0, done = false;
-	  var debugging = false;	//only for local here
+	//var debugging = false;	//only for local here
 
-	  this.dispNewMsgHdr();
+	this.dispNewMsgHdr();
 
-          //should we include a subject in the DOC clone?
-	  //working with a generic one for now; get Neuro's input on how
-	  //to do it best with the actual format later
-          do {
-	    //begin modularizing this method here, for each 'if' case
-            /*if ((mLn[ndx] = console.getkey()) == '\t') {        //tab
-                if ((ndx + 5) >= 79) {
-                  if (debugging) {
-                    console.putmsg(red + "entry dbg1:" + normal);
+        //going to use a generic subject for now; ignoring it from the
+        //ddoc interface completely to see how it goes
+
+	do {
+	  mTxt[lNdx] = console.getstr("", 79, K_WRAP):
+	  if (((mTxt[lNdx++] == "\03") && (upload)) ||
+	      ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r"))) {
+	    //end of message
+	    uchoice = dispSaveMsgPrompt();
+
+	    switch (uchoice) {
+		case 'A':	//abort
+		  done = true;
+		  break;
+		case 'C':	//continue
+		  //fall through, basically
+		  break;
+		case 'P':
+		  this.dispNewMsgHdr();
+		  for each (var derp in mTxt) {
+		    console.putmsg(green + high_intensity + derp);
 		  }
-                  ndx = 0;
-
-                  for (var x = 0; x < mLn.length; x++) {
-                    mTxt[lNdx] += mLn[x];
+		  //fall through to continue w/entry here, too
+		  break;
+		case 'S':
+		  if (this.mWrite(mTxt, base) < 0) {
+		    console.putmsg(red + "There was a problem " +
+				   "writing to " + base.name +
+				   "\nSorry; error is logged.\n");
+		    //put it some code to cuntpaste it back to the
+		    //screen or something of the sort so that the user
+		    //has a chance to salvage what they wrote, maybe?
+		    log(LOG_WARN, "Err writing to " + base.name);
+		  } else {
+		    console.putmsg(cyan + high_intensity +
+				   "Message saved successfully\n");
 		  }
-                  lNdx++;
-		  mLn = new Array();
+		  break;
+		/* case 'X':
+		 * just skipping this right now since I'm impatient
+		 * about losing all of the recoding this morning and
+		 * feeling much more that time is of the essence :| */
+		default:
+		  console.putmsg(red + "I have no idea what just "
+				 "happened; event logged.\n");
+		  log(LOG_WARN, "Unknown error in addMsg()");
+		  break;
+	    }
+	  }
+	} while (!done);
 
-                  console.putmsg("\n");
-                  break;
-                } else {
-		  //code to fix undefined here?
-                  mLn += "     ";       //not sure about this
-                  ndx += 5;
-                  console.putmsg("     ");
-                } */
-	    if ((mLn[ndx] = console.getkey()) == '\t') {	//tab
-		//fix this; skip handling tabs for nao
-		/*
-		ouahful = this.msgEntryTabSub(mLn, ndx);
-		if (ouahful.wrap) {
-		  mTxt = this.cpyToTxt(mLn);
-		} else {
-		  mLn = ouahful.text;
-		  ndx = ouahful.index;
-		} */
-            } else if (mLn[ndx] == '\r') {      //newline
-                if (ndx == 0) {
-                  done = true;
-		  //lNdx--;
-                }
-                ndx = 0;
+	/* I do believe this is all moot; I'll cut it after committing
+ 	 * to version control and testing it.  Too damn scared after the
+ 	 * data loss of today to take any more chances with shit like
+ 	 * that.  :| 
+	//menu for saving, printing, continuing, etc
 
-                //same as above; set w/loop
-		mTxt[lNdx] = mLn[0];
-                for (var x = 1; ((x < mLn.length) && 
-				(mLn[x] != '\r')); x++) {
-                  mTxt[lNdx] += mLn[x];
-		}
-		mTxt[lNdx++] += '\n';
-
-                console.putmsg("\n");
-
-                if (debugging) {	//why is this duplicated below?
-                  console.putmsg(red + "entry dbg3:\t")
-                  console.putmsg("lNdx: " + lNdx + normal + "\n");
-                        if (done) {
-                          console.putmsg(red + "Debugging output:\n");
-			  for (var x = 0; x < lNdx; x++) {
-			    console.putmsg(x + ": " + mTxt[x] + "\n");
-			  }
-                        }
-                }
-		mLn = new Array();	//fixie?
-            } else if (mLn[ndx] == '\b') {      //backspace
-                if (ndx == 0) {
-			break;
-		}
-
-		ndx--;
-                console.putmsg("\b");
-            } else {    //other conditions for ctrl keys should be here
-                if ((ndx != 0) && ((ndx % 79) == 0) && 
-		    (mLn[ndx] != ' ')) {
-                  //this is broken --DEBUG-- (fixed nao?)
-                  var lastWS, tmpStr;
-
-		  //this might require array initialization before reuse
-		  //for the next line of input at main message loop
-		  for (var x = 79; mLn[x] != ' '; x--) {
-		    lastWS = x;
-		  }
-
-                  if (debugging) {
-                    console.putmsg(red + "entry dbg4:" + normal);
-		  }
-
-                  tmpStr = mLn.toString().substring(lastWS, 
-						    (mLn.length - 1));
-                  for (var ouah = 0; ouah < (mLn.length - lastWS);
-                       ouah++) {
-                        console.putmsg('\b');
-		  }
-                  //note there still needs to be a check for nonbroken
-                  //line entries; not sure what that'll do heah
-
-                  mLn.length = lastWS;
-                  ndx = 0;
-                  mTxt[lNdx++] = mLn;
-                  mTxt[lNdx] = tmpStr;
-		  mLn = new Array();
-                }
-
-                console.putmsg(mLn[ndx++]);
-            }
-          } while (done != true);
-
-	  //menu for saving, printing, continuing, etc
-
-	  //save
-	  if (this.mWrite(mTxt, base) != 0) {
+	//save
+	if (this.mWrite(mTxt, base) != 0) {
 	    console.putmsg(red + "Error writing message in mWrite()" +
 		green + "\n");
-	  }
-
-        } else {
-          console.putmsg("\nUnable to handle message upload yet\n");
-          return -2;
-        }
-
-        //entry completion menu
-        console.putmsg("\nMessage entry completed\nFalling through, " +
-                       "Not Implemented Yet\n");
+	}
+	*/
     },
     mWrite : function(txtArray, mBase) {
           //create the message for writing
