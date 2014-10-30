@@ -16,6 +16,8 @@
  * newscan and shit.
  */
 
+load("sbbsdefs.js");
+
 //message base menu
 msg_base = {
     //msg_base properties
@@ -81,8 +83,8 @@ msg_base = {
           }
          }
 	} else {
-	 uMsgGrp = msg_area.grp["TOPEGRP"];
-	 for each (uGrpSub in uMsgGrp.sub_list) {
+	 //uMsgGrp = msg_area.grp_list[topebaseno].sub_list
+	 for each (uGrpSub in msg_area.grp_list[topebaseno].sub_list) {
 	 	console.putmsg("\t" + uGrpSub.description + "\n");
 	 }
 	}
@@ -154,6 +156,7 @@ msg_base = {
 				"later\n");
 		done = false;
 		break;
+	  }
         } while ((!done) || ((uc != 'A') && (uc != 'C') && (uc != 'P') &&
                  (uc != 'S') /* && (uc != 'X')*/ ));
 
@@ -176,7 +179,7 @@ msg_base = {
         //ddoc interface completely to see how it goes
 
 	do {
-	  mTxt[lNdx] = console.getstr("", 79, K_WRAP):
+	  mTxt[lNdx] = console.getstr("", 79, K_WRAP);
 	  if (((mTxt[lNdx++] == "\03") && (upload)) ||
 	      ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r"))) {
 	    //end of message
@@ -215,7 +218,7 @@ msg_base = {
 		 * about losing all of the recoding this morning and
 		 * feeling much more that time is of the essence :| */
 		default:
-		  console.putmsg(red + "I have no idea what just "
+		  console.putmsg(red + "I have no idea what just " +
 				 "happened; event logged.\n");
 		  log(LOG_WARN, "Unknown error in addMsg()");
 		  break;
