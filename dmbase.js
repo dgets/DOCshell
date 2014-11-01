@@ -411,6 +411,30 @@ msg_base = {
 	  bbs.cursub = 1;
 	}
     },
+    scanSub : function (sBoard, forward) {
+	var mBase = new MsgBase(sBoard.code), tmpPtr = sBoard.scan_ptr;
+	bbs.cursub = sBoard.index;
+
+	try {
+	  mBase.open();
+	} catch (e) {
+	  console.putmsg(red + "Error opening " + sBoard.name +
+	    ": " + e.message + "\nError logged.  Feel free to " +
+	    "pester the SysOp.\n");
+	  log("Error opening " + sBoard.name + ": " + e.message);
+	  return -1;
+	}
+
+	if (forward) {
+	  while (sBoard.scan_ptr < mBase.last_msg) {
+	    //read forward
+	    
+
+    uniMsgRead : function(confine, forward) {
+	if (confine && (bbs.curgrp != topebaseno)) {
+	  bbs.curgrp = topebaseno;
+
+    },
     read_cmd : {
         rcMenu : "\n" + green + high_intensity +
           "<?> help         <a>gain           <A>gain (no More" +
@@ -443,11 +467,11 @@ msg_base = {
                 case 'X':
                 case 'E':
                   //dispMsg();  //how to pass parameters?
-                  console.putmsg("\nI'm too dumb yet, just wait\n");
+                  console.putmsg(red + "\nI'm too dumb yet, just wait\n");
                   break;
                 case 's':
                   valid = true; hollaBack = 1;
-                  console.putmsg("Stop\n");
+                  console.putmsg(yellow + high_intensity + "Stop\n");
 		  return hollaBack;
                   break;
                 case 'e':
