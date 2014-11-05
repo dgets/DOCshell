@@ -358,13 +358,6 @@ msg_base = {
 	  //this done
 
 	  var mBase = new MsgBase(uGrpSub.code);
-	  //var debugging = false;	//change this locally; we're
-					//good
-
-	  /* if (debugging) {
-		console.putmsg("Opening " + uGrpSub.name + "\n");
-	  }
-	  console.putmsg(green + uGrpSub.name + yellow + ">\n"); */
 
           try {
                 mBase.open();
@@ -412,9 +405,10 @@ msg_base = {
 	}
     },
     scanSub : function (sBoard, forward) {
-	var mBase = new MsgBase(sBoard.code), tmpPtr = sBoard.scan_ptr;
+	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode;
 	bbs.cursub = sBoard.index;
 
+	//open
 	try {
 	  mBase.open();
 	} catch (e) {
@@ -425,10 +419,50 @@ msg_base = {
 	  return -1;
 	}
 
+	//scan in either direction
+	tmpPtr = sBoard.scan_ptr;
 	if (forward) {
-	  while (sBoard.scan_ptr < mBase.last_msg) {
+	  while (tmpPtr < mBase.last_msg) {
 	    //read forward
-	    
+	    this.dispMsg(mBase, tmpPtr, true); //wut is this true?
+	    ecode = this.read_cmd.rcChoice(mBase, tmpPtr++);
+	    if (ecode == 1) {
+		break;
+	    } else if (ecode == 2) {
+		forward = false;
+	    }
+	    ecode = null;
+	    //otherwise 0 means that there was a message entered?
+	    //this will almost certainly be the source of an error
+	  }
+	} else {
+	  while (tmpPtr >= mBase.first_msg) {
+	    //read reverse
+	    this.dispMsg(mBase, tmpPtr, true); //ditto
+	    ecode = this.read_cmd.rcChoice(mBase, tmpPtr--);
+	    if (ecode == 1) {
+		break;
+	    } else if (ecode == 2) {
+		forward = true;
+	    }
+	    ecode = null;
+	    //same issue as the above clause; check issues on github
+	    //for how to fix this flow control issue
+	  }
+	}
+
+	//close
+	try {
+	  mBase.close();
+	} catch (e) {
+	  console.putmsg(red + "Error closing " + sBoard.name + ": " +
+	    e.message + "\nError logged.  Feel free to pester the " +
+	    "SysOp.\n");
+	  log("Error opening " + sBoard.name + ": " + e.message);
+	  return -2;
+	}
+
+    },
 
     uniMsgRead : function(confine, forward) {
 	if (confine && (bbs.curgrp != topebaseno)) {
@@ -444,6 +478,15 @@ msg_base = {
           "<n>ext           <p>rofile author  <s>top\n" +
           "<w>ho's online   <x>press msg      <X>press on/off\n\n",
 
+	/*
+	 * base: MsgBase object currently in use (and opened)
+	 * ndx: index of the current message
+	 *
+	 * returns:
+	 * 	1 to stop
+	 *	2 to change direction
+	 *	0 for message entered (exit) -- Error?
+	 */
         rcChoice : function(base, ndx) {
           var uchoice;
           var valid = false;
@@ -458,13 +501,23 @@ msg_base = {
                   break;
                 case 'a':
                 case 'A':
+		  console.putmsg(yellow + "Not supported (yet)" +
+			"...\n");
+		  break;
                 case 'b':
+		  valid = true; hollaBack = 2;
+		  console.putmsg(green + "Back (change " +
+			direction)...\n");
+		  break;
                 case 'D':
                 case 'i':
                 case 'p':
                 case 'w':
                 case 'x':
                 case 'X':
+		  console.putmsg(yellow + "Not supported (yet)" +
+			"...\n");
+		  break;
                 case 'E':
                   //dispMsg();  //how to pass parameters?
                   console.putmsg(red + "\nI'm too dumb yet, just wait\n");
@@ -472,10 +525,9 @@ msg_base = {
                 case 's':
                   valid = true; hollaBack = 1;
                   console.putmsg(yellow + high_intensity + "Stop\n");
-		  return hollaBack;
                   break;
                 case 'e':
-                  valid = true;
+                  valid = true;	//I think we want to change this
                   console.putmsg(green + high_intensity +
                         "Enter message\n\n");
                   addMsg(base, false);  //not an upload
