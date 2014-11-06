@@ -36,7 +36,18 @@ msg_base = {
 	 yellow + "<C>" + green + "ontinue " + yellow + "<P>" + 
 	 green + "rint " + yellow + "<S>" + green + "ave " + yellow +
 	 "<X>" + green + "press -> ",
-    //msg_base methods
+
+    //---+++***===msg_base methods follow===***+++---
+
+	/*
+	 * summary:
+	 *	Forward command to the appropriate methods for entry
+	 *	into the message reading routines in general
+	 * choice: char
+	 *	Code for the menu choice
+	 * confined: Boolean
+	 *	true if restricted to Dystopian Utopia message group
+	 */
     handler : function(choice, confined) {
         //which way do we go with this?
         switch (choice) {
@@ -68,6 +79,13 @@ msg_base = {
         }
 
     },
+	/*
+	 * summary:
+	 *	Lists all known message sub-boards (broken down by
+	 *	message base group, optionally)
+	 * confined: Boolean
+	 *	true if restricted to Dystopian Utopia message group
+	 */
     listKnown : function(confined) {
         console.putmsg("\n\n" + green + high_intensity);
 
@@ -91,6 +109,16 @@ msg_base = {
 
         console.putmsg("\n");
     },
+	/*
+	 * summary:
+	 *	Displays message with or without pauses
+	 * base: MsgBase object
+	 *	Open message base object currently being read
+	 * ptr: Integer
+	 *	Current message index #
+	 * break: Boolean
+	 *	true for screen pauses
+	 */
     dispMsg : function(base, ptr, breaks) {
 	var debugging = false;	//we're good here
 
@@ -119,6 +147,11 @@ msg_base = {
                 cyan + "Read cmd -> ");
         }
     },
+	/*
+	 * summary:
+	 *	Displays initial header when starting to enter a new
+	 *	message for posting
+	 */
     dispNewMsgHdr : function() {
 	//obviously date is only showing the day # (easy fix)
 	var nao = new Date();
@@ -127,6 +160,13 @@ msg_base = {
 		nao.getDate().toString() + green + " from " +
 		cyan + user.alias + "\n" + green);
     },
+	/*
+	 * summary:
+	 *	Displays the save message menu & prompt
+	 * return:
+	 *	Returns the letter code of the valid menu option
+	 *	selected
+	 */
     dispSaveMsgPrompt : function() {
 	//kind of self-explanatory, don't you think?
 	var uc, done;
@@ -162,6 +202,15 @@ msg_base = {
 
 	return uc;
     },
+	/*
+	 * summary:
+	 *	Primary method for text entry for a message into the
+	 *	active message base via DOCesque interface
+	 * base: MsgBase object
+	 *	Currently open MsgBase
+	 * upload: Boolean
+	 *	true if doing an 'ascii upload'
+	 */
     addMsg : function(base, upload) {
 	/*
 	 * NOTE: This method is way too big and needs to be chopped the
@@ -239,6 +288,21 @@ msg_base = {
 	}
 	*/
     },
+	/*
+	 * summary:
+	 *	Writes appropriate message header & body data to the
+	 *	database
+	 * txtArray: Array of String
+	 *	An array of textual strings making up the body of the
+	 *	message to be added to the base
+	 * mBase: MsgBase Object
+	 *	Current MsgBase to be written to
+	 * return:
+	 *	0 for success
+	 *	-1 if unable to open the MsgBase
+	 *	-2 if unable to complete MsgBase.save_msg()
+	 *	-3 if unable to close the MsgBase
+	 */
     mWrite : function(txtArray, mBase) {
           //create the message for writing
           var mHdr = {
@@ -285,6 +349,17 @@ msg_base = {
           }
 	  return 0;
     },
+	/*
+	 * summary:
+	 *	Flow for sequential scanning for new messages in the
+	 *	bases
+	 * confined: Boolean
+	 *	true if confined to Dystopian Utopia group
+	 * return:
+	 *	negative for error; issues in the logic right now
+	 *	preventing full documentation on this that need to be
+	 *	fixed, unless this whole method is to be nixed
+	 */
     newScan : function(confined) {
         console.putmsg(yellow + high_intensity + " Goto . . .\n");
         //don't forget to finish off this vestigial functionality
@@ -404,6 +479,18 @@ msg_base = {
 	  bbs.cursub = 1;
 	}
     },
+	/*
+	 * summary:
+	 *	Sequentially scans for new messages within one
+	 *	particular sub-board
+	 * sBoard: String
+	 *	Sub-board's internal code
+	 * forward: Boolean
+	 *	true for forward read & converse
+	 * return:
+	 *	negative for errors; logic not completed yet (preventing
+	 *	full documentation at this point)
+	 */
     scanSub : function (sBoard, forward) {
 	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode;
 	bbs.cursub = sBoard.index;
@@ -463,7 +550,12 @@ msg_base = {
 	}
 
     },
-
+	/*
+	 * summary:
+	 *	Unified message reader; not sure where I was going with
+	 *	it at this point, this might be vestigial to be
+	 *	depreciated and eviscerated
+	 */
     uniMsgRead : function(confine, forward) {
 	if (confine && (bbs.curgrp != topebaseno)) {
 	  bbs.curgrp = topebaseno;
@@ -473,6 +565,11 @@ msg_base = {
 
 	}
     },
+	/*
+	 * summary:
+	 *	Sub-object representing the message read command menu
+	 *	properties and methods
+	 */
     read_cmd : {
         rcMenu : "\n" + green + high_intensity +
           "<?> help         <a>gain           <A>gain (no More" +
@@ -481,11 +578,13 @@ msg_base = {
           "<E>nter (upload) <h>elp            <i>nfo (forum)\n" +
           "<n>ext           <p>rofile author  <s>top\n" +
           "<w>ho's online   <x>press msg      <X>press on/off\n\n",
-
 	/*
-	 * base: MsgBase object currently in use (and opened)
-	 * ndx: index of the current message
-	 *
+	 * summary:
+	 *	Reads choice for valid selection
+	 * base: MsgBase object 
+	 *	currently in use (and opened)
+	 * ndx: Integer
+	 *	index of the current message
 	 * returns:
 	 * 	1 to stop
 	 *	2 to change direction
