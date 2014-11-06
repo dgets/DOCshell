@@ -468,6 +468,10 @@ msg_base = {
 	if (confine && (bbs.curgrp != topebaseno)) {
 	  bbs.curgrp = topebaseno;
 
+	  //please note this is totally incomplete, just closed things
+	  //in order to facilitate testing of the part that I did finish
+
+	}
     },
     read_cmd : {
         rcMenu : "\n" + green + high_intensity +
@@ -507,7 +511,7 @@ msg_base = {
                 case 'b':
 		  valid = true; hollaBack = 2;
 		  console.putmsg(green + "Back (change " +
-			direction)...\n");
+			"direction)...\n");
 		  break;
                 case 'D':
                 case 'i':
