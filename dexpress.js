@@ -4,8 +4,8 @@
  * started: 12oct14 (lol I'm 37 today; lawd the helpless aging)
  * finished;
  *
- * Handles text entry and the like for the ddoc suite, strictly for
- * 'express message' functionality.
+ * Handles text entry and the like for the ddoc suite's express message
+ * functionality
  *
  * Please note that this also contains the wholist array collection
  * method functionality (in order to select appropriate recipients, etc)
@@ -25,17 +25,22 @@ wholist = {
 
   //collect the wholist into three arrays; short, long, and one
   //populated solely by the user numbers for easier access when Xing
+  //
+  //the above is previous commenting; not sure what it's all about just
+  //yet so I'm going to keep it around for when I'm getting this fresh
+  //in my head again
+  /*
+   * summary:
+   *	Cycles through system's nodes, checking to see if they're in use
+   *	and then compiling an array of the usernames
+   * returns:
+   *	Array() of User objects
+   */
   populate : function() {
 	var ul = new Array();
 	var tu = 0;
 
 	for (var n = 0; n < system.nodes; n++) {
-	  //god ouahful debugging
-	  /*if (wholist.debugging) {
-		console.putmsg(yellow + "In the goddamn for loop\n" +
-		  green);
-	  }*/
-
 	  if (system.node_list[n] && NODE_INUSE) {
 		ul[tu++] = User(system.node_list[n].useron);
 		/*if (wholist.debugging) {
@@ -49,11 +54,21 @@ wholist = {
 
 	return ul;
   },
-  //just do a raw Synchronet wholist for the long version
+  /*
+   * summary:
+   *	Simply a wrapper for Synchronet's 'whos_online()' method
+   */
   list_long : function() {
 	//this is the easy one
 	bbs.whos_online();
   },
+  /*
+   * summary:
+   *	Displays a shorter (multicolumn, though spacing isn't perfectly
+   *	figured out on that yet) format listing of who is online
+   * ul:
+   *	Array() of User objects for those currently online
+   */
   list_short : function(ul) {
 	//this one we'll have to make multi-column
 	var unames = new Array();
@@ -88,6 +103,18 @@ express = {
   //NOTE: Finding out that console.getstr() has the functionality that
   //I've been painstakingly rewriting by hand here will make this much
   //easier.  We hates rewriting the wheel, thats we does.
+  /*
+   * summary:
+   *	With all of the functionality that was found to be available
+   *	within the console.* object in the Synchronet API, this will
+   *	have to be ripped out for maintainability and readability (as
+   *	well as already being debugged and will 'just work' with special
+   *	cases such as tab and control characters), just like everything
+   *	from the message & messagebase handling routines.  So basically,
+   *	why bother commenting on the functionality of what is sitting
+   *	right below when it's going to be the very next thing that is
+   *	gutted out?
+   */
   readBuf : function(lns) {
 	var mTxt = new Array(), abort = false;
 
@@ -134,6 +161,16 @@ express = {
 
 	if (abort) { return null; }
   },
+  /*
+   * summary:
+   *	Executes the portion of the express message to [recipient]
+   *	interface for 'X' functionality.  Upon the user's entry of the
+   *	recipient's name, it verifies whether or not the user is logged
+   *	in/valid in general.  More functionality will be added as the
+   *	skeleton is first implemented.
+   * returns:
+   *	Negative value for user not found, zero for success
+   */
   chkRcp : function(ul) {
 	//check to make sure the recipient is valid
 	var recip = null, success = false;
@@ -165,6 +202,15 @@ express = {
 	  return 0;
 	}
   },
+  /*
+   * summary:
+   *	The enclosing logic for the entire Xpress message sending
+   *	routine, from 'x' at the main menu, as well as from any other
+   *	area where it will be implemented (ie message save menus,
+   *	message read menus, etc)
+   * returns:
+   *	Negative value for fuggup
+   */
   sendX : function() {
 	var recip, ouah, mTxt;
 

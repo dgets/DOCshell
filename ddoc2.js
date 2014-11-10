@@ -54,14 +54,26 @@ docIface = {
   dprompt : yellow + high_intensity + 
 	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].description
  	+ "> ",
-  //menu methods
+  //		----++++****====menu methods====****++++----
+  /*
+   * summary:
+   *	Just a wrapper for console.getkey() at this point
+   * returns:
+   *	Unmodified return value from console.getkey()
+   */
   getChoice : function() {
 	return (console.getkey());
   },
+  /*
+   * summary:
+   *	Simply displays the docIface top level property 'menu'
+   */
   doMainMenu : function() {
 	console.putmsg(this.menu);
   }
 }
+
+//		---+++***===Execution Begins===***+++---
 
 var uchoice;
 
@@ -117,12 +129,6 @@ if (!debugOnly) {
 		  }
 		  stillAlive = false;
 		  break;
-          	/*case 'T':       //just for my testing
-            	  console.putmsg(red + "Entering testing...\n\n");
-            	  headsUpDbg.init({ ouah : "nakk", fuck : "tard" });
-            	  console.putmsg(green + "\n\nEnding test.\n");
-            	  break;*/
-		//wholist
 		case 'w':
 		  wholist.list_long();
 		  break;
@@ -130,16 +136,6 @@ if (!debugOnly) {
 		  express.sendX();
 		  break;
 		case 'W':
-		  /*if (debugging) {
-		    var ouah = new Array();
-
-		    ouah = wholist.populate();
-		    console.putmsg(red + "wholist.populate():\n" +
-			ouah.toString() + "\n");
-		    console.putmsg("elements: " + ouah.length +
-			"\n" + green);
-			
-		  }*/
 		  wholist.list_short(wholist.populate());
 		  break;
 		default:
