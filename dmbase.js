@@ -17,9 +17,299 @@
  */
 
 load("sbbsdefs.js");
+load("dpoast.js");
 
 //message base menu
 msg_base = {
+        /*
+         * summary:
+         *      Sub-object representing the message read command menu
+         *      properties and methods
+         */
+  read_cmd : {
+        rcMenu : "\n" + green + high_intensity +
+          "<?> help         <a>gain           <A>gain (no More" +
+          "prompt)\n" +
+          "<b>ack           <D>elete msg      <e>nter msg\n" +
+          "<E>nter (upload) <h>elp            <i>nfo (forum)\n" +
+          "<n>ext           <p>rofile author  <s>top\n" +
+          "<w>ho's online   <x>press msg      <X>press on/off\n\n",
+        /*
+         * summary:
+         *      Reads choice for valid selection
+         * base: MsgBase object 
+         *      currently in use (and opened)
+         * ndx: Integer
+         *      index of the current message
+         * returns:
+         *      1 to stop
+         *      2 to change direction
+         *      0 for message entered (exit) -- Error?
+         */
+        rcChoice : function(base, ndx) {
+          var uchoice;
+          var valid = false;
+          var hollaBack = 0;    //can be used to switch dir, etc
+
+          while (!valid) {
+            uchoice = console.getkey();
+            switch (uchoice) {
+                case '?':
+                case 'h':
+                  console.putmsg(rcMenu);
+                  break;
+                case 'a':
+                case 'A':
+                  console.putmsg(yellow + "Not supported (yet)" +
+                        "...\n");
+                  break;
+                case 'b':
+                  valid = true; hollaBack = 2;
+                  console.putmsg(green + "Back (change " +
+                        "direction)...\n");
+                  break;
+                case 'D':
+                case 'i':
+                case 'p':
+                case 'w':
+                case 'x':
+                case 'X':
+                  console.putmsg(yellow + "Not supported (yet)" +
+                        "...\n");
+                  break;
+                case 'E':
+                  //dispMsg();  //how to pass parameters?
+                  console.putmsg(red + "\nI'm too dumb yet, just " +
+				 "wait\n");
+                  break;
+                case 's':
+                  valid = true; hollaBack = 1;
+                  console.putmsg(yellow + high_intensity + "Stop\n");
+                  break;
+                case 'e':
+                  valid = true; //I think we want to change this
+                  console.putmsg(green + high_intensity +
+                        "Enter message\n\n");
+                  addMsg(base, false);  //not an upload
+                  break;
+                default:
+                  console.putmsg(normal + yellow + "Invalid choice\n");
+                  console.putmsg(this.mprompt);
+                  uchoice = console.getkey();
+                  break;
+            }
+
+          //write the prompt again here, durrr; other flow control
+          //issues, as well, here probably
+          }
+
+        return hollaBack;
+        }
+  },
+  entry_level = {
+    //through handler, from the main menu prompting system
+        /*
+         * summary:
+         *      Forward command to the appropriate methods for entry
+         *      into the message reading routines in general
+         * choice: char
+         *      Code for the menu choice
+         * confined: Boolean
+         *      true if restricted to Dystopian Utopia message group
+         */
+    handler : function(choice, confined) {
+        //which way do we go with this?
+        switch (choice) {
+          //purely message related functionality
+          case 'n':     //read new
+            this.newScan(confined);
+            //console.getkey();
+            break;
+          case 'k':     //list scanned bases
+            this.listKnown(confined);
+            break;
+          case 'e':     //enter a normal message
+            this.addMsg(user.cursub, false);
+            break;
+          //other functionality tie-ins
+          case 'w':     //normal wholist
+            wholist.list_long();
+            break;
+          case 'W':     //short wholist
+            wholist.list_short(wholist.populate());
+            break;
+          case 'x':     //express msg
+            express.sendX();
+            break;
+          default:
+            if (debugging)
+              console.putmsg("\nNot handled yet . . .\n\n");
+            break;
+        }
+    },
+        /*
+         * summary:
+         *      Lists all known message sub-boards (broken down by
+         *      message base group, optionally)
+         * confined: Boolean
+         *      true if restricted to Dystopian Utopia message group
+         */
+    listKnown : function(confined) {
+        console.putmsg("\n\n" + green + high_intensity);
+
+        //we can fuck with multi-columns later
+        if (!confined) {
+         for each (uMsgGrp in msg_area.grp_list) {
+          if (debugging) {
+                console.putmsg(uMsgGrp.description + "\n\n");
+          }
+          for each (uGrpSub in uMsgGrp.sub_list) {
+                console.putmsg("\t" + uMsgGrp.name + ": " +
+                  uGrpSub.description + "\n");
+          }
+         }
+        } else {
+         //uMsgGrp = msg_area.grp_list[topebaseno].sub_list
+         for each (uGrpSub in msg_area.grp_list[topebaseno].sub_list) {
+                console.putmsg("\t" + uGrpSub.description + "\n");
+         }
+        }
+        console.putmsg("\n");
+    },  
+        /*
+         * summary:
+         *      Flow for sequential scanning for new messages in the
+         *      bases
+         * confined: Boolean
+         *      true if confined to Dystopian Utopia group
+         * return:
+         *      negative for error; issues in the logic right now
+         *      preventing full documentation on this that need to be
+         *      fixed, unless this whole method is to be nixed
+         */
+    newScan : function(confined) {
+        console.putmsg(yellow + high_intensity + " Goto . . .\n");
+        //don't forget to finish off this vestigial functionality
+
+        //let us reinvent the fucking wheel
+        if (!confined) {
+         var anyhits = false;
+
+         for each (uMsgGrp in msg_area.grp_list) {
+          for each (uGrpSub in uMsgGrp.sub_list) {
+            /*
+             * read the new and on to the fuggin' next
+             * what does need to still be implemented, after basic
+             * functionality is done, is starting at the current
+             * location (grp & sub), instead of always starting at
+             * the beginning as per proper vdoc emulation
+             */
+            var mBase = new MsgBase(uGrpSub.code);
+
+            /* if (debugging) {
+                console.putmsg("Opening " + uGrpSub.name + "\n");
+            }
+            console.putmsg(green + uGrpSub.name + yellow + ">\n"); */
+
+            try {
+                mBase.open();
+            } catch (e) {
+                console.putmsg("\nUnable to open " +
+                  uGrpSub.name + ": " + e.message + "\n");
+                //we really need to find the appropriate way to fail
+                //here
+                return -1;
+            }
+
+            if (debugging) {
+                console.putmsg("scan_ptr: " + uGrpSub.scan_ptr +
+                  "\t\tlast: " + mBase.last_msg + "\n");
+            }
+
+            if (uGrpSub.scan_ptr < mBase.last_msg) {
+                bbs.cursub = uGrpSub.index;
+                console.putmsg(green + uGrpSub.name + yellow + ">\n");
+
+                while (uGrpSub.scan_ptr < mBase.last_msg) {
+                  //commence the jigglin'
+                  var tmpPtr = uGrpSub.scan_ptr, done = false;
+
+                  this.dispMsg(mBase, ++tmpPtr, true);
+                  this.read_cmd.rcChoice(mBase, tmpPtr);
+                  anyhits = true;
+
+                  return; //and yeah here this does wut again?
+                }
+            }
+
+            try {
+                mBase.close();
+            } catch (e) {
+                console.putmsg("\nUnable to close " + uGrpSub.name +
+                  ": " + e.message + "\n");
+                //again, make this not yuck
+                return -2;
+            }
+          }
+         }
+        } else { //confined
+         for each (uGrpSub in msg_area.grp_list[topebaseno].sub_list) {
+          //read the new and on to the next; same caveats as the
+          //above; this will also need to be modularized further :P  Too
+          //much code repeating at this point, but I'm in a hurry to get
+          //this done
+
+          var mBase = new MsgBase(uGrpSub.code);
+
+          try {
+                mBase.open();
+          } catch (e) {
+                console.putmsg("\nUnable to open " +
+                  uGrpSub.name + ": " + e.message + "\n");
+                //same as above, a more legit way to fail would be nice
+          }
+
+          if (debugging) {
+            console.putmsg("scan_ptr: " + uGrpSub.scan_ptr +
+                "\t\tlast: " + mBase.last_msg + "\n");
+          }
+
+          if (uGrpSub.scan_ptr < mBase.last_msg) {
+            bbs.cursub = uGrpSub.index;
+            console.putmsg(green + uGrpSub.name + yellow + ">\n");
+
+            while (uGrpSub.scan_ptr < mBase.last_msg) {
+                //read that shit
+                var tmpPtr = uGrpSub.scan_ptr, done = false;
+
+                this.dispMsg(mBase, ++tmpPtr, true);
+                this.read_cmd.rcChoice(mBase, tmpPtr);
+                anyhits = true;
+
+                return; //what is this for again?
+            }
+          }
+
+          try {
+            mBase.close();
+          } catch (e) {
+            console.putmsg("\nUnable to close " + uGrpSub.name +
+                ": " + e.message + "\n");
+            //ouah: you can read above, right?
+            return -2;
+          }
+         }
+        }
+
+        if (!anyhits) {
+          //console.putmsg(yellow + ". . .\n");
+          bbs.cursub = 1;
+        }
+    }
+
+    //[left off] RIGHT FAHKIN' HEAH
+
+  },
     //msg_base properties
     //these may not be determined dynamically (pretty sure), so this
     //will be a bug that needs to be fixed inline on a per-message read
@@ -42,76 +332,6 @@ msg_base = {
 
     //---+++***===msg_base methods follow===***+++---
 
-	/*
-	 * summary:
-	 *	Forward command to the appropriate methods for entry
-	 *	into the message reading routines in general
-	 * choice: char
-	 *	Code for the menu choice
-	 * confined: Boolean
-	 *	true if restricted to Dystopian Utopia message group
-	 */
-    handler : function(choice, confined) {
-        //which way do we go with this?
-        switch (choice) {
-	  //purely message related functionality
-          case 'n':     //read new
-            this.newScan(confined);
-            //console.getkey();
-            break;
-          case 'k':     //list scanned bases
-            this.listKnown(confined);
-            break;
-          case 'e':     //enter a normal message
-            this.addMsg(user.cursub, false);
-            break;
-	  //other functionality tie-ins
-	  case 'w':	//normal wholist
-	    wholist.list_long();
-	    break;
-	  case 'W':	//short wholist
-	    wholist.list_short(wholist.populate());
-	    break;
-	  case 'x':	//express msg
-	    express.sendX();
-	    break;
-          default:
-            if (debugging)
-              console.putmsg("\nNot handled yet . . .\n\n");
-            break;
-        }
-
-    },
-	/*
-	 * summary:
-	 *	Lists all known message sub-boards (broken down by
-	 *	message base group, optionally)
-	 * confined: Boolean
-	 *	true if restricted to Dystopian Utopia message group
-	 */
-    listKnown : function(confined) {
-        console.putmsg("\n\n" + green + high_intensity);
-
-        //we can fuck with multi-columns later
-	if (!confined) {
-         for each (uMsgGrp in msg_area.grp_list) {
-          if (debugging) {
-		console.putmsg(uMsgGrp.description + "\n\n");
-	  }
-          for each (uGrpSub in uMsgGrp.sub_list) {
-                console.putmsg("\t" + uMsgGrp.name + ": " +
-                  uGrpSub.description + "\n");
-          }
-         }
-	} else {
-	 //uMsgGrp = msg_area.grp_list[topebaseno].sub_list
-	 for each (uGrpSub in msg_area.grp_list[topebaseno].sub_list) {
-	 	console.putmsg("\t" + uGrpSub.description + "\n");
-	 }
-	}
-
-        console.putmsg("\n");
-    },
 	/*
 	 * summary:
 	 *	Displays message with or without pauses
@@ -149,136 +369,6 @@ msg_base = {
                 (base.last_msg - ptr) + " remaining)] " +
                 cyan + "Read cmd -> ");
         }
-    },
-	/*
-	 * summary:
-	 *	Flow for sequential scanning for new messages in the
-	 *	bases
-	 * confined: Boolean
-	 *	true if confined to Dystopian Utopia group
-	 * return:
-	 *	negative for error; issues in the logic right now
-	 *	preventing full documentation on this that need to be
-	 *	fixed, unless this whole method is to be nixed
-	 */
-    newScan : function(confined) {
-        console.putmsg(yellow + high_intensity + " Goto . . .\n");
-        //don't forget to finish off this vestigial functionality
-
-        //let us reinvent the fucking wheel
-	if (!confined) {
-	 var anyhits = false;
-
-         for each (uMsgGrp in msg_area.grp_list) {
-          for each (uGrpSub in uMsgGrp.sub_list) {
-            /*
-             * read the new and on to the fuggin' next
-             * what does need to still be implemented, after basic
-             * functionality is done, is starting at the current
-             * location (grp & sub), instead of always starting at
-             * the beginning as per proper vdoc emulation
-             */
-            var mBase = new MsgBase(uGrpSub.code);
-
-            /* if (debugging) {
-		console.putmsg("Opening " + uGrpSub.name + "\n");
-	    }
-	    console.putmsg(green + uGrpSub.name + yellow + ">\n"); */
-
-            try {
-                mBase.open();
-            } catch (e) {
-                console.putmsg("\nUnable to open " +
-                  uGrpSub.name + ": " + e.message + "\n");
-                //we really need to find the appropriate way to fail
-                //here
-                return -1;
-            }
-
-            if (debugging) {
-                console.putmsg("scan_ptr: " + uGrpSub.scan_ptr +
-                  "\t\tlast: " + mBase.last_msg + "\n");
-	    }
-
-	    if (uGrpSub.scan_ptr < mBase.last_msg) {
-		bbs.cursub = uGrpSub.index;
-		console.putmsg(green + uGrpSub.name + yellow + ">\n");
-
-		while (uGrpSub.scan_ptr < mBase.last_msg) {
-                  //commence the jigglin'
-                  var tmpPtr = uGrpSub.scan_ptr, done = false;
-
-                  this.dispMsg(mBase, ++tmpPtr, true);
-		  this.read_cmd.rcChoice(mBase, tmpPtr);
-		  anyhits = true;
-
-		  return; //and yeah here this does wut again?
-		}
-	    }
-
-            try {
-                mBase.close();
-            } catch (e) {
-                console.putmsg("\nUnable to close " + uGrpSub.name +
-                  ": " + e.message + "\n");
-                //again, make this not yuck
-                return -2;
-            }
-          }
-         }
-	} else { //confined
-	 for each (uGrpSub in msg_area.grp_list[topebaseno].sub_list) {
-	  //read the new and on to the next; same caveats as the
-	  //above; this will also need to be modularized further :P  Too
-	  //much code repeating at this point, but I'm in a hurry to get
-	  //this done
-
-	  var mBase = new MsgBase(uGrpSub.code);
-
-          try {
-                mBase.open();
-          } catch (e) {
-                console.putmsg("\nUnable to open " +
-                  uGrpSub.name + ": " + e.message + "\n");
-	  	//same as above, a more legit way to fail would be nice
-	  }
-
-	  if (debugging) {
-	    console.putmsg("scan_ptr: " + uGrpSub.scan_ptr +
-		"\t\tlast: " + mBase.last_msg + "\n");
-	  }
-
-	  if (uGrpSub.scan_ptr < mBase.last_msg) {
-	    bbs.cursub = uGrpSub.index;
-	    console.putmsg(green + uGrpSub.name + yellow + ">\n");
-
-	    while (uGrpSub.scan_ptr < mBase.last_msg) {
-		//read that shit
-		var tmpPtr = uGrpSub.scan_ptr, done = false;
-
-		this.dispMsg(mBase, ++tmpPtr, true);
-		this.read_cmd.rcChoice(mBase, tmpPtr);
-		anyhits = true;
-
-		return;	//what is this for again?
-	    }
-	  }
-
-	  try {
-	    mBase.close();
-	  } catch (e) {
-	    console.putmsg("\nUnable to close " + uGrpSub.name +
-		": " + e.message + "\n");
-	    //ouah: you can read above, right?
-	    return -2;
-	  }
-	 }
-	}
-
-	if (!anyhits) {
-	  //console.putmsg(yellow + ". . .\n");
-	  bbs.cursub = 1;
-	}
     },
 	/*
 	 * summary:
@@ -349,7 +439,6 @@ msg_base = {
 	  log("Error opening " + sBoard.name + ": " + e.message);
 	  return -2;
 	}
-
     },
 	/*
 	 * summary:
@@ -365,89 +454,5 @@ msg_base = {
 	  //in order to facilitate testing of the part that I did finish
 
 	}
-    },
-	/*
-	 * summary:
-	 *	Sub-object representing the message read command menu
-	 *	properties and methods
-	 */
-    read_cmd : {
-        rcMenu : "\n" + green + high_intensity +
-          "<?> help         <a>gain           <A>gain (no More" +
-	  "prompt)\n" +
-          "<b>ack           <D>elete msg      <e>nter msg\n" +
-          "<E>nter (upload) <h>elp            <i>nfo (forum)\n" +
-          "<n>ext           <p>rofile author  <s>top\n" +
-          "<w>ho's online   <x>press msg      <X>press on/off\n\n",
-	/*
-	 * summary:
-	 *	Reads choice for valid selection
-	 * base: MsgBase object 
-	 *	currently in use (and opened)
-	 * ndx: Integer
-	 *	index of the current message
-	 * returns:
-	 * 	1 to stop
-	 *	2 to change direction
-	 *	0 for message entered (exit) -- Error?
-	 */
-        rcChoice : function(base, ndx) {
-          var uchoice;
-          var valid = false;
-          var hollaBack = 0;    //can be used to switch dir, etc
-
-          while (!valid) {
-	    uchoice = console.getkey();
-            switch (uchoice) {
-                case '?':
-                case 'h':
-                  console.putmsg(rcMenu);
-                  break;
-                case 'a':
-                case 'A':
-		  console.putmsg(yellow + "Not supported (yet)" +
-			"...\n");
-		  break;
-                case 'b':
-		  valid = true; hollaBack = 2;
-		  console.putmsg(green + "Back (change " +
-			"direction)...\n");
-		  break;
-                case 'D':
-                case 'i':
-                case 'p':
-                case 'w':
-                case 'x':
-                case 'X':
-		  console.putmsg(yellow + "Not supported (yet)" +
-			"...\n");
-		  break;
-                case 'E':
-                  //dispMsg();  //how to pass parameters?
-                  console.putmsg(red + "\nI'm too dumb yet, just wait\n");
-                  break;
-                case 's':
-                  valid = true; hollaBack = 1;
-                  console.putmsg(yellow + high_intensity + "Stop\n");
-                  break;
-                case 'e':
-                  valid = true;	//I think we want to change this
-                  console.putmsg(green + high_intensity +
-                        "Enter message\n\n");
-                  addMsg(base, false);  //not an upload
-                  break;
-                default:
-		  console.putmsg(normal + yellow + "Invalid choice\n");
-		  console.putmsg(this.mprompt);
-		  uchoice = console.getkey();
-                  break;
-            }
-
-          //write the prompt again here, durrr; other flow control
-          //issues, as well, here probably
-          }
-
-        return hollaBack;
-        }
     }
 }
