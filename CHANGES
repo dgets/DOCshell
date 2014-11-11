@@ -54,3 +54,13 @@ dmbase.js:
 * fixed infinite loop error happening in the post read-message input
   validation code
 
+11 Nov 14
+-=-=-=-=-
+dmbase.js:
+* moving all of the poasting methods out of dmbase.js/msg_base into
+  dpoast.js; going to work with the rest of the heirarchy left in
+  dmbase.js after this, as well
+
+dpoast.js:
+* created with the objects removed from the above shite
+
