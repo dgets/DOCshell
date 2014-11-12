@@ -114,7 +114,7 @@ express = {
    *	why bother commenting on the functionality of what is sitting
    *	right below when it's going to be the very next thing that is
    *	gutted out?
-   */
+   *
   readBuf : function(lns) {
 	var mTxt = new Array(), abort = false;
 
@@ -160,7 +160,38 @@ express = {
 	}
 
 	if (abort) { return null; }
-  },
+  }, */
+  readBuf : function() {
+	var mTxt = new Array(), abort = false;
+
+	//heading should've already been taken care of
+	for (var ouah = 0; ouah < 5; ouah++) {
+	  var ln = '';
+
+	  console.putstr(green + "> ");
+	  if (ouah < 4) {
+	    mTxt[ouah] = console.getstr("", 77, K_WRAP);
+	  } else {
+	    mTxt[ouah] = console.getstr("", 77);
+	  }
+
+	  if (((mTxt[ouah] == "ABORT") || (mTxt[ouah] == "ABORT\r")) ||
+	      (((mTxt[ouah] == "\r") || (mTxt[ouah] == "")) && 
+		(ouah == 0))) {
+	    abort = true; break;
+	  } else if ((mTxt[ouah] == "") || (mTxt[ouah] == "\r")) {
+	    //didn't fill up all 5 lines, but done
+	    break;	//will require post-processing to avoid sending
+			//all 5 of those lines
+	  }
+	}
+
+	if (abort) {
+	  return null;
+	} else {
+	  return mTxt;	//postprocessing elsewhere, gotta hurry up 2nite
+	}
+  }
   /*
    * summary:
    *	Executes the portion of the express message to [recipient]
