@@ -40,6 +40,14 @@ wholist = {
 	  }
 	}
 
+	if (debugging) {
+	  console.putmsg(red + "Debugging wholist.populate():\n");
+	  for each (cu in ul) {
+	    console.putmsg(blue + high_intensity + cu.alias + " ");
+	  }
+	  console.putmsg("\n");
+	}
+
 	return ul;
   },
   /*
@@ -103,7 +111,7 @@ express = {
 	for (var ouah = 0; ouah < 5; ouah++) {
 	  var ln = '';
 
-	  console.putstr(green + "> ");
+	  console.putmsg(green + "> ");
 	  if (ouah < 4) {
 	    mTxt[ouah] = console.getstr("", 77, K_WRAP);
 	  } else {
@@ -148,9 +156,9 @@ express = {
 
 	recip = console.getstr();
 	for each (u in ul) {
-	  if (u.name == recip) {
+	  if (u.alias.toUpperCase() == recip.toUpperCase()) {
 	    success = true;
-	    return recip;
+	    return u.alias;
 	  }
 	}
 

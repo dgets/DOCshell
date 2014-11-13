@@ -76,7 +76,12 @@ docIface = {
 
 //		---+++***===Execution Begins===***+++---
 
+var preSubBoard, preFileDir;
 var uchoice;
+
+//save initial conditions
+preSubBoard = user.cursub;
+preFileDir = user.curdir;
 
 if (confine_messagebase && (bbs.curgrp != topebaseno) && debugging) {
   //are we already in a dystopian area?
@@ -116,7 +121,7 @@ if (!debugOnly) {
 		case 'n':
 		case 'o':
 		case '-':
-		  msg_base.handler(uchoice, confine_messagebase);
+		  msg_base.entry_level.handler(uchoice, confine_messagebase);
 		  break;
 		//other msg base shit
 		//list known
@@ -152,4 +157,8 @@ if (!debugOnly) {
 		       "should be theyah, budday\n\n" + normal);
  }
 }
+
+//restore initial setings prior to exit
+user.cursub = preSubBoard;
+user.curdir = preFileDir;
 
