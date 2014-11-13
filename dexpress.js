@@ -23,12 +23,6 @@ load("sbbsdefs.js");
 wholist = {
   debugging : true,	//just for wholist/populate, etc
 
-  //collect the wholist into three arrays; short, long, and one
-  //populated solely by the user numbers for easier access when Xing
-  //
-  //the above is previous commenting; not sure what it's all about just
-  //yet so I'm going to keep it around for when I'm getting this fresh
-  //in my head again
   /*
    * summary:
    *	Cycles through system's nodes, checking to see if they're in use
@@ -43,12 +37,6 @@ wholist = {
 	for (var n = 0; n < system.nodes; n++) {
 	  if (system.node_list[n] && NODE_INUSE) {
 		ul[tu++] = User(system.node_list[n].useron);
-		/*if (wholist.debugging) {
-		  console.putmsg(red + "Debug: #" + tu + " - " +
-		    ul[tu - 1] + ", Raw: " +
-		    User(system.node_list[n].useron) + green +
-		    "\n");
-		}*/
 	  }
 	}
 
@@ -98,69 +86,16 @@ wholist = {
   }
 },
 express = {
-  //read the number of lines specified; return an array of such after
-  //text processing/input is done
-  //NOTE: Finding out that console.getstr() has the functionality that
-  //I've been painstakingly rewriting by hand here will make this much
-  //easier.  We hates rewriting the wheel, thats we does.
-  /*
-   * summary:
-   *	With all of the functionality that was found to be available
-   *	within the console.* object in the Synchronet API, this will
-   *	have to be ripped out for maintainability and readability (as
-   *	well as already being debugged and will 'just work' with special
-   *	cases such as tab and control characters), just like everything
-   *	from the message & messagebase handling routines.  So basically,
-   *	why bother commenting on the functionality of what is sitting
-   *	right below when it's going to be the very next thing that is
-   *	gutted out?
-   *
-  readBuf : function(lns) {
-	var mTxt = new Array(), abort = false;
-
-	for (var ouah = 0; ouah < lns; ouah++) {
-	  var mLn = '', lPos = 0, x;
-
-	  while ((lPos < 65) && (!abort)) {
-	    x = console.getkey();
-
-	    if (x == '\03') {
-		//Ctrl-C handling
-		abort = true;
-	    } else if ((x == '\r') && (lPos == 0)) {
-		//done
-		if (ouah == 0) {
-			abort = true;
-		} else {
-		  //send it off
-		  //return mTxt;
-
-		  //nope: we need to do this concatted
-		  if (mTxt.length == 1) {
-			return mTxt[0];
-		  } else {
-		    var fullBuf = mTxt[0]; //need \n?
-		    for (var x = 1; x < mTxt.length; x++) {
-			fullBuf += mTxt[x];
-		    }
-		    return fullBuf;
-		  }
-		}
-	    } else if (x == '\r') {
-		  //next line
-		  lPos = 0;
-	    } else {
-		//standard entry/copy
-		
-	    }
-
-	  }
-
-	  if (abort) { break; }
-	}
-
-	if (abort) { return null; }
-  }, */
+  	/*
+	 * summary:
+	 *	Reads in a buffer of up to 5 77 column lines, checking
+	 *	each line for end-of-input criteria (ie ABORT, or a
+	 *	blank line prematurely), sending it off to be sent via a
+	 *	Synchronet telegram by the calling routine
+	 * returns:
+	 *	null if aborted; an array of Strings, with up to 5
+	 *	elements.  Assume nothing else.
+	 */
   readBuf : function() {
 	var mTxt = new Array(), abort = false;
 
@@ -181,6 +116,7 @@ express = {
 	    abort = true; break;
 	  } else if ((mTxt[ouah] == "") || (mTxt[ouah] == "\r")) {
 	    //didn't fill up all 5 lines, but done
+	    if (ouah == 0) { abort = true; }
 	    break;	//will require post-processing to avoid sending
 			//all 5 of those lines
 	  }
@@ -191,7 +127,7 @@ express = {
 	} else {
 	  return mTxt;	//postprocessing elsewhere, gotta hurry up 2nite
 	}
-  }
+  },
   /*
    * summary:
    *	Executes the portion of the express message to [recipient]
@@ -258,5 +194,4 @@ express = {
 	  console.putmsg(green + "Message sent!\n");
 	}
   }
-
 }

@@ -106,7 +106,7 @@ msg_base = {
         return hollaBack;
         }
   },
-  entry_level = {
+  entry_level : {
     //through handler, from the main menu prompting system
         /*
          * summary:
@@ -331,7 +331,9 @@ msg_base = {
 	 "<X>" + green + "press -> ",
 
     //---+++***===msg_base methods follow===***+++---
-
+    //dispMsg(), scanSub(), and uniMsgRead(); scanSub() and uniMsgRead()
+    //should end up replacing most of newScan() [above] and some other
+    //areas, I'm sure
 	/*
 	 * summary:
 	 *	Displays message with or without pauses

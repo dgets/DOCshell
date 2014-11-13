@@ -14,6 +14,7 @@
 
 //includes
 load("dmbase.js");
+load("dpoast.js");
 load("dexpress.js");
 
 //pseudo-globals
@@ -120,7 +121,7 @@ if (!debugOnly) {
 		//other msg base shit
 		//list known
 		case 'k':
-		  msg_base.listKnown(confine_messagebase);
+		  msg_base.entry_level.listKnown(confine_messagebase);
 		  break;
 		//logout
 		case 'l':

@@ -14,6 +14,14 @@
 load("sbbsdefs.js");
 
 poast = {
+    //properites
+    sprompt : high_intensity + yellow + "<A>" + green + "bort " +
+         yellow + "<C>" + green + "ontinue " + yellow + "<P>" + 
+         green + "rint " + yellow + "<S>" + green + "ave " + yellow +
+         "<X>" + green + "press -> ",
+
+	//		---+++***===METHODS===***+++---
+
         /*
          * summary:
          *      Displays initial header when starting to enter a new
@@ -50,7 +58,7 @@ poast = {
                 break;
             case 'C':   //continue
                 console.putmsg(green + high_intensity +
-"Continue...\n");
+				"Continue...\n");
                 break;
             case 'P':   //print
                 console.putmsg(green + high_intensity + "Print " +
