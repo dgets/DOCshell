@@ -129,7 +129,7 @@ msg_base = {
             this.listKnown(confined);
             break;
           case 'e':     //enter a normal message
-            this.addMsg(user.cursub, false);
+            poast.addMsg(user.cursub, false);
             break;
           //other functionality tie-ins
           case 'w':     //normal wholist
@@ -386,6 +386,8 @@ msg_base = {
 	 */
     scanSub : function (sBoard, forward) {
 	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode;
+	var fuggit = false;	//because never start with 'fuggit'
+
 	bbs.cursub = sBoard.index;
 
 	//open
@@ -399,14 +401,16 @@ msg_base = {
 	  return -1;
 	}
 
-	//scan in either direction
-	tmpPtr = sBoard.scan_ptr;
-	if (forward) {
+	while (!fuggit) {
+	 //scan in either direction
+	 tmpPtr = sBoard.scan_ptr;
+	 if (forward) {
 	  while (tmpPtr < mBase.last_msg) {
 	    //read forward
 	    this.dispMsg(mBase, tmpPtr, true); //wut is this true?
 	    ecode = this.read_cmd.rcChoice(mBase, tmpPtr++);
 	    if (ecode == 1) {
+		fuggit = true;
 		break;
 	    } else if (ecode == 2) {
 		forward = false;
@@ -414,13 +418,14 @@ msg_base = {
 	    ecode = null;
 	    //otherwise 0 means that there was a message entered?
 	    //this will almost certainly be the source of an error
-	  }
-	} else {
-	  while (tmpPtr >= mBase.first_msg) {
+	   }
+	 } else {
+	   while (tmpPtr >= mBase.first_msg) {
 	    //read reverse
 	    this.dispMsg(mBase, tmpPtr, true); //ditto
 	    ecode = this.read_cmd.rcChoice(mBase, tmpPtr--);
 	    if (ecode == 1) {
+		fuggit = true;
 		break;
 	    } else if (ecode == 2) {
 		forward = true;
@@ -429,8 +434,9 @@ msg_base = {
 	    //same issue as the above clause; check issues on github
 	    //for how to fix this flow control issue
 	  }
-	}
+	 }
 
+	}
 	//close
 	try {
 	  mBase.close();

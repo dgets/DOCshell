@@ -48,7 +48,7 @@ poast = {
 
         do {
           done = true;
-          console.putmsg("\n" + sprompt);
+          console.putmsg("\n" + this.sprompt);
           uc = console.getkey(K_UPPER);
 
           switch (uc) {
@@ -109,7 +109,7 @@ poast = {
           if (((mTxt[lNdx++] == "\03") && (upload)) ||
               ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r"))) {
             //end of message
-            uchoice = dispSaveMsgPrompt();
+            uchoice = this.dispSaveMsgPrompt();
 
             switch (uchoice) {
                 case 'A':       //abort
