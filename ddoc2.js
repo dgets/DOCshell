@@ -130,10 +130,16 @@ if (!debugOnly) {
 		  break;
 		//logout
 		case 'l':
-		  if (debugging) {
-		    console.putmsg("\n\nExiting: " + excuse);
+		  console.putmsg(yellow + high_intensity + "Logout: ");
+		  if (!console.noyes("Are you sure? ")) {
+		    if (debugging) {
+		      console.putmsg("\n\nExiting: " + excuse);
+		    }
+		    stillAlive = false;
+		  } else {
+		    console.putmsg(green + high_intensity +
+			"Good choice.  ;)\n");
 		  }
-		  stillAlive = false;
 		  break;
 		case 'w':
 		  wholist.list_long();

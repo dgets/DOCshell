@@ -234,7 +234,7 @@ msg_base = {
                   //commence the jigglin'
                   var tmpPtr = uGrpSub.scan_ptr, done = false;
 
-                  this.dispMsg(mBase, ++tmpPtr, true);
+                  msg_base.dispMsg(mBase, ++tmpPtr, true);
                   this.read_cmd.rcChoice(mBase, tmpPtr);
                   anyhits = true;
 
@@ -282,8 +282,8 @@ msg_base = {
                 //read that shit
                 var tmpPtr = uGrpSub.scan_ptr, done = false;
 
-                this.dispMsg(mBase, ++tmpPtr, true);
-                this.read_cmd.rcChoice(mBase, tmpPtr);
+                msg_base.dispMsg(mBase, ++tmpPtr, true);
+                msg_base.read_cmd.rcChoice(mBase, tmpPtr);
                 anyhits = true;
 
                 return; //what is this for again?
