@@ -106,6 +106,14 @@ msg_base = {
         return hollaBack;
         }
   },
+  /*
+   * summary:
+   *	Sub-object for methods utilized when dropping through from the
+   *	main-menuing system.  I think that these methods might also be
+   *	utilized from rcChoice, also, which kind of puts my OO structure
+   *	into question here...  Need to look at that at some point, or
+   *	else place improper methods somewhere more appropriate.
+   */
   entry_level : {
     //through handler, from the main menu prompting system
         /*
@@ -310,30 +318,30 @@ msg_base = {
     //[left off] RIGHT FAHKIN' HEAH
 
   },
-    //msg_base properties
-    //these may not be determined dynamically (pretty sure), so this
-    //will be a bug that needs to be fixed inline on a per-message read
-    //basis
-    menu : green + high_intensity + "\n\n<?> help\t\t" +
+  //msg_base properties
+  //these may not be determined dynamically (pretty sure), so this
+  //will be a bug that needs to be fixed inline on a per-message read
+  //basis
+  menu : green + high_intensity + "\n\n<?> help\t\t" +
          "<a>gain\t\t<A>gain (no More prompt)\n<b>ack\t\t<D>" +
          "elete msg\t<e>nter msg\n<E>nter (upload)\t<h>elp\t\t\t" +
          "<i>nfo (forum)\n<n>ext\t\t<p>rofile author\t<s>top\n" +
          "<w>ho's online\t<x>press msg\t<X>press on/off\n\n",
-    mprompt : yellow + high_intensity + user.cursub + "> msg #" +
+  mprompt : yellow + high_intensity + user.cursub + "> msg #" +
          msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr +
          " (" +
          (msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
          msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
          + " remaining)] " + green + high_intensity + "Read cmd -> ",
-    sprompt: high_intensity + yellow + "<A>" + green + "bort " +
+  sprompt: high_intensity + yellow + "<A>" + green + "bort " +
 	 yellow + "<C>" + green + "ontinue " + yellow + "<P>" + 
 	 green + "rint " + yellow + "<S>" + green + "ave " + yellow +
 	 "<X>" + green + "press -> ",
 
-    //---+++***===msg_base methods follow===***+++---
-    //dispMsg(), scanSub(), and uniMsgRead(); scanSub() and uniMsgRead()
-    //should end up replacing most of newScan() [above] and some other
-    //areas, I'm sure
+  //---+++***===msg_base methods follow===***+++---
+  //dispMsg(), scanSub(), and uniMsgRead(); scanSub() and uniMsgRead()
+  //should end up replacing most of newScan() [above] and some other
+  //areas, I'm sure
 	/*
 	 * summary:
 	 *	Displays message with or without pauses
@@ -344,7 +352,7 @@ msg_base = {
 	 * break: Boolean
 	 *	true for screen pauses
 	 */
-    dispMsg : function(base, ptr, breaks) {
+  dispMsg : function(base, ptr, breaks) {
 	var debugging = false;	//we're good here
 
         if (breaks != false) { 
@@ -371,7 +379,7 @@ msg_base = {
                 (base.last_msg - ptr) + " remaining)] " +
                 cyan + "Read cmd -> ");
         }
-    },
+  },
 	/*
 	 * summary:
 	 *	Sequentially scans for new messages within one
@@ -384,7 +392,7 @@ msg_base = {
 	 *	negative for errors; logic not completed yet (preventing
 	 *	full documentation at this point)
 	 */
-    scanSub : function (sBoard, forward) {
+  scanSub : function (sBoard, forward) {
 	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode;
 	var fuggit = false;	//because never start with 'fuggit'
 
@@ -447,14 +455,14 @@ msg_base = {
 	  log("Error opening " + sBoard.name + ": " + e.message);
 	  return -2;
 	}
-    },
+  },
 	/*
 	 * summary:
 	 *	Unified message reader; not sure where I was going with
 	 *	it at this point, this might be vestigial to be
 	 *	depreciated and eviscerated
 	 */
-    uniMsgRead : function(confine, forward) {
+  uniMsgRead : function(confine, forward) {
 	if (confine && (bbs.curgrp != topebaseno)) {
 	  bbs.curgrp = topebaseno;
 
@@ -462,5 +470,5 @@ msg_base = {
 	  //in order to facilitate testing of the part that I did finish
 
 	}
-    }
+  }
 }
