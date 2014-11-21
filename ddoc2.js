@@ -71,6 +71,37 @@ docIface = {
    */
   doMainMenu : function() {
 	console.putmsg(this.menu);
+  },
+
+  //sub-objects
+  nav : {
+	/*
+	 * summary:
+	 *	Displays the prompt for a string to search for in the
+	 *	available message sub-boards, executes a call to the
+	 *	functionality to search for it and find it, and jumps to
+	 *	it, if available (via yet another call)
+	 * returns:
+	 *	boolean true or false regarding success in finding the
+	 *	string and executing the sub-board change; not sure if
+	 *	there will be a reason to test for it or not
+	 */
+    jump : function() {
+	var uChoice;
+
+	console.putmsg(green + high_intensity + "Jump to forum " +
+	  "name? -> ");
+	if (chk4Room(uChoice = console.getstr()) {
+	  //let's go
+
+	} else {
+	  //oopthieoopth
+
+	}
+    },
+    chk4Room : function (srchStr) {
+
+    }
   }
 }
 
@@ -124,13 +155,17 @@ if (!debugOnly) {
 		  msg_base.entry_level.handler(uchoice, confine_messagebase);
 		  break;
 		//other msg base shit
+		case 'j':
+		//jump to new sub-board (room in DOCspeak)
+		  nav.jump();
+		  break;
 		//list known
 		case 'k':
 		  msg_base.entry_level.listKnown(confine_messagebase);
 		  break;
 		//logout
 		case 'l':
-		  console.putmsg(yellow + high_intensity + "Logout: ");
+		  console.putmsg(yellow + high_intensity + "Logout: \n");
 		  if (!console.noyes("Are you sure? ")) {
 		    if (debugging) {
 		      console.putmsg("\n\nExiting: " + excuse);
