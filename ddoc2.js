@@ -96,11 +96,53 @@ docIface = {
 
 	} else {
 	  //oopthieoopth
-
+	  console.putmsg(green + high_intensity + "No forum \"" +
+	    uChoice + "\"\n");
+	  return false;
 	}
     },
     chk4Room : function (srchStr) {
+	var hit = false;
+	var rList = util.getRoomList(true);
 
+	if (rList == null) {
+	  return null;
+	}
+
+	for each (var rm in rList) {
+	  if (rm.indexOf(srchStr) != -1) {
+		hit = true;
+		//we're going to have to have more than a flat array :|
+		//we need like sub-board code also, or something
+	  }
+	}
+    }
+  },
+  util : {
+	/*
+	 * summary:
+	 *	Returns a flat array of message rooms that are
+	 *	accessible; this will be extended as functionality for
+	 *	not being confined is expanded.  Also, this may be
+	 *	useful in the future for listKnown() and other routines
+	 *	in dmbase.js that are recreating the wheel a bit
+	 * confined:
+	 *	Same as usual; boolean showing whether or not we're in a
+	 *	confined instance of ddoc
+	 * returns:
+	 *	As I redundantly and out-of-proper-orderly mentioned
+	 *	above, it returns a flat array of sub-board names, at
+	 *	this point solely returning the 'long names' for the
+	 *	subs; this should be extended in the future, as well.
+	 *	If running non-confined, returns null
+	 */
+    getRoomList : function(confined /*in the future, group here too*/) {
+	if (confined) {
+	  	//damn we don't need anything complex, durrr
+		return msg_area.grp_list[topebaseno].sub_list;
+	} else {
+		return null;
+	}
     }
   }
 }
