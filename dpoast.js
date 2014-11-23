@@ -14,11 +14,12 @@
 load("sbbsdefs.js");
 
 poast = {
-    //properites
-    sprompt : high_intensity + yellow + "<A>" + green + "bort " +
+    //properties moved to ddoc2.js in order to access global constants
+    //properly
+    /* sprompt : high_intensity + yellow + "<A>" + green + "bort " +
          yellow + "<C>" + green + "ontinue " + yellow + "<P>" + 
          green + "rint " + yellow + "<S>" + green + "ave " + yellow +
-         "<X>" + green + "press -> ",
+         "<X>" + green + "press -> ", */
 
 	//		---+++***===METHODS===***+++---
 
@@ -47,8 +48,8 @@ poast = {
         var uc, done;
 
         do {
-          done = true;
-          console.putmsg("\n" + this.sprompt);
+          done = false;
+          console.putmsg("\n" + docIface.sprompt);
           uc = console.getkey(K_UPPER);
 
           switch (uc) {
@@ -73,9 +74,9 @@ poast = {
                 done = false;
                 break;
           }
-        } while ((!done) || ((uc != 'A') && (uc != 'C') && (uc != 'P')
-&&
-                 (uc != 'S') /* && (uc != 'X')*/ ));
+        } while ((!done) || 
+		 ((uc != 'A') && (uc != 'C') && (uc != 'P') &&
+                  (uc != 'S') /* && (uc != 'X')*/ ));
 
         return uc;
     },  

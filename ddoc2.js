@@ -52,6 +52,11 @@ docIface = {
        "<y>\tyell\n<z>\tzaproom\n<0-9>\tquickX\n<#>\tRead room by " +
        "number\n<->\tread last n messages\n<%>\ttoggle guideflag " +
        "status\n<@>\taidelist\n<\">\tquote Xes to Sysop\n\n",
+  sprompt : high_intensity + yellow + "<A>" + green + "bort " +
+       yellow + "<C>" + green + "ontinue " + yellow + "<P>" +
+       green + "rint " + yellow + "<S>" + green + "ave " + yellow +
+       "<X>" + green + "press -> ",
+
   //		----++++****====menu methods====****++++----
   /*
    * summary:

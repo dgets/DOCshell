@@ -95,7 +95,7 @@ msg_base = {
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
                   console.putmsg(this.mprompt);
-                  uchoice = console.getkey();
+                  //uchoice = console.getkey();
                   break;
             }
 
@@ -333,10 +333,11 @@ msg_base = {
          (msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
          msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
          + " remaining)] " + green + high_intensity + "Read cmd -> ",
-  sprompt: high_intensity + yellow + "<A>" + green + "bort " +
+  //this shouldn't be necessary at all here anymore
+  /* sprompt : high_intensity + yellow + "<A>" + green + "bort " +
 	 yellow + "<C>" + green + "ontinue " + yellow + "<P>" + 
 	 green + "rint " + yellow + "<S>" + green + "ave " + yellow +
-	 "<X>" + green + "press -> ",
+	 "<X>" + green + "press -> ", */
 
   //---+++***===msg_base methods follow===***+++---
   //dispMsg(), scanSub(), and uniMsgRead(); scanSub() and uniMsgRead()
