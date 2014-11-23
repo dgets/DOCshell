@@ -174,8 +174,9 @@ var preSubBoard, preFileDir;
 var uchoice;
 
 //save initial conditions
-preSubBoard = user.cursub;
-preFileDir = user.curdir;
+preSubBoard = bbs.cursub;
+preMsgGroup = bbs.curgrp;
+preFileDir = bbs.curdir;
 
 if (confine_messagebase && (bbs.curgrp != topebaseno) && debugging) {
   //are we already in a dystopian area?
@@ -268,6 +269,7 @@ if (!debugOnly) {
 }
 
 //restore initial setings prior to exit
-user.cursub = preSubBoard;
-user.curdir = preFileDir;
+bbs.cursub = preSubBoard;
+bbs.curgrp = preMsgGroup;
+bbs.curdir = preFileDir;
 
