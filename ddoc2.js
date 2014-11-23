@@ -52,9 +52,6 @@ docIface = {
        "<y>\tyell\n<z>\tzaproom\n<0-9>\tquickX\n<#>\tRead room by " +
        "number\n<->\tread last n messages\n<%>\ttoggle guideflag " +
        "status\n<@>\taidelist\n<\">\tquote Xes to Sysop\n\n",
-  dprompt : yellow + high_intensity + 
-	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].description
- 	+ "> ",
   //		----++++****====menu methods====****++++----
   /*
    * summary:
@@ -91,7 +88,12 @@ docIface = {
 
 	console.putmsg(green + high_intensity + "Jump to forum " +
 	  "name? -> ");
-	ouah = chk4Room(uChoice = console.getstr();
+	ouah = this.chk4Room(uChoice = console.getstr().toUpperCase());
+
+	if (debugging) {
+	  console.putmsg("Got back " + ouah.name + " from chk4Room\n");
+	}
+
 	if (ouah == null) {
 	  console.putmsg(red + "No list returned\n");
 	  return -1;
@@ -115,14 +117,18 @@ docIface = {
 	 *	within a valid list
 	 */
     chk4Room : function (srchStr) {
-	var rList = util.getRoomList(true);
+	var rList = docIface.util.getRoomList(true);
 
 	if (rList == null) {
 	  return null;
 	}
 
 	for each (var rm in rList) {
-	  if (rm.description.indexOf(srchStr) != -1) {
+	  if (rm.description.toUpperCase().indexOf(
+				srchStr.toUpperCase()) != -1) {
+		if (debugging) {
+		  console.putmsg("Success in chk4Room()\n");
+		}
 		return rm;	
 	  }
 	}
@@ -150,6 +156,10 @@ docIface = {
     getRoomList : function(confined /*in the future, group here too*/) {
 	if (confined) {
 	  	//damn we don't need anything complex, durrr
+		if (debugging) {
+		  console.putmsg("working with sub list: " +
+			msg_area.grp_list[topebaseno].sub_list.toString());
+		}
 		return msg_area.grp_list[topebaseno].sub_list;
 	} else {
 		return null;
@@ -179,13 +189,18 @@ if (confine_messagebase && (bbs.curgrp != topebaseno) && debugging) {
 if (!debugOnly) {
  /* the main program loop */
  while (stillAlive) {
+	//dynamic prompt
+	dprompt = yellow + high_intensity + 
+	  msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].description
+	  + "> ";
+
 	//maintenance
 	bbs.main_cmds++;
 	
 	//check for async messages waiting
 	bbs.nodesync();
 
-	console.putmsg(docIface.dprompt);
+	console.putmsg(dprompt);
 	uchoice = docIface.getChoice();
 	//poor aliasing
 	if (uchoice == ' ') {
@@ -210,7 +225,7 @@ if (!debugOnly) {
 		//other msg base shit
 		case 'j':
 		//jump to new sub-board (room in DOCspeak)
-		  nav.jump();
+		  docIface.nav.jump();
 		  break;
 		//list known
 		case 'k':
