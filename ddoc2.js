@@ -87,22 +87,34 @@ docIface = {
 	 *	there will be a reason to test for it or not
 	 */
     jump : function() {
-	var uChoice;
+	var uChoice, ouah;
 
 	console.putmsg(green + high_intensity + "Jump to forum " +
 	  "name? -> ");
-	if (chk4Room(uChoice = console.getstr()) {
-	  //let's go
-
+	ouah = chk4Room(uChoice = console.getstr();
+	if (ouah == null) {
+	  console.putmsg(red + "No list returned\n");
+	  return -1;
+	} else if (ouah == -1) {
+	  console.putmsg(yellow + high_intensity + "Room not found\n");
+	  return -2;
 	} else {
-	  //oopthieoopth
-	  console.putmsg(green + high_intensity + "No forum \"" +
-	    uChoice + "\"\n");
-	  return false;
+	  //let's go
+	  bbs.cursub_code = ouah.code;	//try/catch?
 	}
     },
+	/*
+	 * summary:
+	 *	Searches for the substring within the list of available 
+	 *	sub-boards
+	 * srchStr:
+	 *	Substring to search for
+	 * returns:
+	 *	The object for the sub-board if a match, null if rList
+	 *	doesn't come back decently, -1 if no match is found
+	 *	within a valid list
+	 */
     chk4Room : function (srchStr) {
-	var hit = false;
 	var rList = util.getRoomList(true);
 
 	if (rList == null) {
@@ -110,18 +122,19 @@ docIface = {
 	}
 
 	for each (var rm in rList) {
-	  if (rm.indexOf(srchStr) != -1) {
-		hit = true;
-		//we're going to have to have more than a flat array :|
-		//we need like sub-board code also, or something
+	  if (rm.description.indexOf(srchStr) != -1) {
+		return rm;	
 	  }
 	}
+
+	//bad failover method, but whatever
+	return -1;
     }
   },
   util : {
 	/*
 	 * summary:
-	 *	Returns a flat array of message rooms that are
+	 *	Returns an array of message rooms that are
 	 *	accessible; this will be extended as functionality for
 	 *	not being confined is expanded.  Also, this may be
 	 *	useful in the future for listKnown() and other routines
@@ -131,9 +144,7 @@ docIface = {
 	 *	confined instance of ddoc
 	 * returns:
 	 *	As I redundantly and out-of-proper-orderly mentioned
-	 *	above, it returns a flat array of sub-board names, at
-	 *	this point solely returning the 'long names' for the
-	 *	subs; this should be extended in the future, as well.
+	 *	above, it returns an array of sub-board objects
 	 *	If running non-confined, returns null
 	 */
     getRoomList : function(confined /*in the future, group here too*/) {
