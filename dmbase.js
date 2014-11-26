@@ -44,7 +44,7 @@ msg_base = {
          * returns:
          *      1 to stop
          *      2 to change direction
-         *      0 for message entered (exit) -- Error?
+         *      0 for message entered successfully or next msg also
          */
         rcChoice : function(base, ndx) {
           var uchoice;
@@ -92,9 +92,12 @@ msg_base = {
                         "Enter message\n\n");
                   addMsg(base, false);  //not an upload
                   break;
+		case ' ':
+		case 'n':
+		  valid = true; hollaBack = 0;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
-                  console.putmsg(this.mprompt);
+                  //console.putmsg(msg_base.mprompt);
                   //uchoice = console.getkey();
                   break;
             }
@@ -130,7 +133,11 @@ msg_base = {
         switch (choice) {
           //purely message related functionality
           case 'n':     //read new
-            this.newScan(confined);
+            //this.newScan(confined);
+	    //out with the old, in with the new
+	    //NOTE: we'll need an enclosing loop to route through
+	    //separate sub-boards now
+	    msg_base.scanSub(msg_area.sub[bbs.cursub_code], true);
             //console.getkey();
             break;
           case 'k':     //list scanned bases
@@ -183,138 +190,7 @@ msg_base = {
          }
         }
         console.putmsg("\n");
-    },  
-        /*
-         * summary:
-         *      Flow for sequential scanning for new messages in the
-         *      bases
-         * confined: Boolean
-         *      true if confined to Dystopian Utopia group
-         * return:
-         *      negative for error; issues in the logic right now
-         *      preventing full documentation on this that need to be
-         *      fixed, unless this whole method is to be nixed
-         */
-    newScan : function(confined) {
-        console.putmsg(yellow + high_intensity + " Goto . . .\n");
-        //don't forget to finish off this vestigial functionality
-
-        //let us reinvent the fucking wheel
-        if (!confined) {
-         var anyhits = false;
-
-         for each (uMsgGrp in msg_area.grp_list) {
-          for each (uGrpSub in uMsgGrp.sub_list) {
-            /*
-             * read the new and on to the fuggin' next
-             * what does need to still be implemented, after basic
-             * functionality is done, is starting at the current
-             * location (grp & sub), instead of always starting at
-             * the beginning as per proper vdoc emulation
-             */
-            var mBase = new MsgBase(uGrpSub.code);
-
-            /* if (debugging) {
-                console.putmsg("Opening " + uGrpSub.name + "\n");
-            }
-            console.putmsg(green + uGrpSub.name + yellow + ">\n"); */
-
-            try {
-                mBase.open();
-            } catch (e) {
-                console.putmsg("\nUnable to open " +
-                  uGrpSub.name + ": " + e.message + "\n");
-                //we really need to find the appropriate way to fail
-                //here
-                return -1;
-            }
-
-            if (debugging) {
-                console.putmsg("scan_ptr: " + uGrpSub.scan_ptr +
-                  "\t\tlast: " + mBase.last_msg + "\n");
-            }
-
-            if (uGrpSub.scan_ptr < mBase.last_msg) {
-                bbs.cursub = uGrpSub.index;
-                console.putmsg(green + uGrpSub.name + yellow + ">\n");
-
-                while (uGrpSub.scan_ptr < mBase.last_msg) {
-                  //commence the jigglin'
-                  var tmpPtr = uGrpSub.scan_ptr, done = false;
-
-                  msg_base.dispMsg(mBase, ++tmpPtr, true);
-                  this.read_cmd.rcChoice(mBase, tmpPtr);
-                  anyhits = true;
-
-                  return; //and yeah here this does wut again?
-                }
-            }
-
-            try {
-                mBase.close();
-            } catch (e) {
-                console.putmsg("\nUnable to close " + uGrpSub.name +
-                  ": " + e.message + "\n");
-                //again, make this not yuck
-                return -2;
-            }
-          }
-         }
-        } else { //confined
-         for each (uGrpSub in msg_area.grp_list[topebaseno].sub_list) {
-          //read the new and on to the next; same caveats as the
-          //above; this will also need to be modularized further :P  Too
-          //much code repeating at this point, but I'm in a hurry to get
-          //this done
-
-          var mBase = new MsgBase(uGrpSub.code);
-
-          try {
-                mBase.open();
-          } catch (e) {
-                console.putmsg("\nUnable to open " +
-                  uGrpSub.name + ": " + e.message + "\n");
-                //same as above, a more legit way to fail would be nice
-          }
-
-          if (debugging) {
-            console.putmsg("scan_ptr: " + uGrpSub.scan_ptr +
-                "\t\tlast: " + mBase.last_msg + "\n");
-          }
-
-          if (uGrpSub.scan_ptr < mBase.last_msg) {
-            bbs.cursub = uGrpSub.index;
-            console.putmsg(green + uGrpSub.name + yellow + ">\n");
-
-            while (uGrpSub.scan_ptr < mBase.last_msg) {
-                //read that shit
-                var tmpPtr = uGrpSub.scan_ptr, done = false;
-
-                msg_base.dispMsg(mBase, ++tmpPtr, true);
-                msg_base.read_cmd.rcChoice(mBase, tmpPtr);
-                anyhits = true;
-
-                return; //what is this for again?
-            }
-          }
-
-          try {
-            mBase.close();
-          } catch (e) {
-            console.putmsg("\nUnable to close " + uGrpSub.name +
-                ": " + e.message + "\n");
-            //ouah: you can read above, right?
-            return -2;
-          }
-         }
-        }
-
-        if (!anyhits) {
-          //console.putmsg(yellow + ". . .\n");
-          bbs.cursub = 1;
-        }
     }
-
     //[left off] RIGHT FAHKIN' HEAH
 
   },
@@ -327,6 +203,7 @@ msg_base = {
          "elete msg\t<e>nter msg\n<E>nter (upload)\t<h>elp\t\t\t" +
          "<i>nfo (forum)\n<n>ext\t\t<p>rofile author\t<s>top\n" +
          "<w>ho's online\t<x>press msg\t<X>press on/off\n\n",
+  //needs to be dynamic, also :P
   mprompt : yellow + high_intensity + user.cursub + "> msg #" +
          msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr +
          " (" +
@@ -390,14 +267,16 @@ msg_base = {
 	 * forward: Boolean
 	 *	true for forward read & converse
 	 * return:
-	 *	negative for errors; logic not completed yet (preventing
-	 *	full documentation at this point)
+	 *	negative for errors; 1 to move on to the next sub, still
+	 *	working on further shite
 	 */
   scanSub : function (sBoard, forward) {
 	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode;
 	var fuggit = false;	//because never start with 'fuggit'
 
-	bbs.cursub = sBoard.index;
+	if (debugging) {
+	  console.putmsg(red + "In scanSub()\n");
+	}
 
 	//open
 	try {
@@ -414,6 +293,22 @@ msg_base = {
 	 //scan in either direction
 	 tmpPtr = sBoard.scan_ptr;
 	 if (forward) {
+	  if (tmpPtr == mBase.last_msg) {
+		//no new messages, skip to next
+		if (debugging) {
+		  console.putmsg(yellow + high_intensity +
+		    "Nothing new . . .\n");
+		}
+		return 1;
+	  } else if (tmpPtr >= mBase.last_msg) {
+		//corrupt pointers? wtF-f-f
+		if (debugging) {
+		  console.putmsg(red + high_intensity +
+		    "Current pointer exceeds last_msg pointer; this " +
+		    "shouldn't happen. :|\n");
+		}
+		return -3;
+	  }
 	  while (tmpPtr < mBase.last_msg) {
 	    //read forward
 	    this.dispMsg(mBase, tmpPtr, true); //wut is this true?
@@ -429,6 +324,13 @@ msg_base = {
 	    //this will almost certainly be the source of an error
 	   }
 	 } else {
+	   if (tmpPtr <= mBase.first_msg) {
+	     if (debugging) {
+		console.putmsg(red + "Current message pointer is " +
+		  "prior to first_msg; oopthieoopth!\n");
+	     }
+	     return -4;
+	   }
 	   while (tmpPtr >= mBase.first_msg) {
 	    //read reverse
 	    this.dispMsg(mBase, tmpPtr, true); //ditto
