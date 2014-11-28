@@ -204,12 +204,15 @@ msg_base = {
          "<i>nfo (forum)\n<n>ext\t\t<p>rofile author\t<s>top\n" +
          "<w>ho's online\t<x>press msg\t<X>press on/off\n\n",
   //needs to be dynamic, also :P
-  mprompt : yellow + high_intensity + user.cursub + "> msg #" +
+  /*
+	Not sure if this is going to stay depreciated, so keeping it for
+	now
+    mprompt : yellow + high_intensity + user.cursub + "> msg #" +
          msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr +
          " (" +
          (msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
          msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
-         + " remaining)] " + green + high_intensity + "Read cmd -> ",
+         + " remaining)] " + green + high_intensity + "Read cmd -> ",*/
   //this shouldn't be necessary at all here anymore
   /* sprompt : high_intensity + yellow + "<A>" + green + "bort " +
 	 yellow + "<C>" + green + "ontinue " + yellow + "<P>" + 
@@ -257,6 +260,24 @@ msg_base = {
                 (base.last_msg - ptr) + " remaining)] " +
                 cyan + "Read cmd -> ");
         }
+  },
+	/*
+	 * summary:
+	 *	Creates and displays the dynamic end of message prompt
+	 */
+  doMPrompt : function() {
+	 /* mprompt : yellow + high_intensity + user.cursub + "> msg #" +
+         msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr +
+         " (" +
+         (msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
+         msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
+         + " remaining)] " + green + high_intensity + "Read cmd -> ", */
+    console.putmsg(yellow + high_intensity + user.cursub + "> msg #" +
+	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr +
+	" (" +
+	(msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
+	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr) +
+	" remaining)] " + green + high_intensity + "Read cmd -> ");
   },
 	/*
 	 * summary:
