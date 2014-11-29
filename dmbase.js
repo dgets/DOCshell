@@ -95,6 +95,8 @@ msg_base = {
 		case ' ':
 		case 'n':
 		  valid = true; hollaBack = 0;
+		  //console.putmsg("\n");
+		  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
                   //console.putmsg(msg_base.mprompt);
@@ -203,21 +205,6 @@ msg_base = {
          "elete msg\t<e>nter msg\n<E>nter (upload)\t<h>elp\t\t\t" +
          "<i>nfo (forum)\n<n>ext\t\t<p>rofile author\t<s>top\n" +
          "<w>ho's online\t<x>press msg\t<X>press on/off\n\n",
-  //needs to be dynamic, also :P
-  /*
-	Not sure if this is going to stay depreciated, so keeping it for
-	now
-    mprompt : yellow + high_intensity + user.cursub + "> msg #" +
-         msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr +
-         " (" +
-         (msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
-         msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
-         + " remaining)] " + green + high_intensity + "Read cmd -> ",*/
-  //this shouldn't be necessary at all here anymore
-  /* sprompt : high_intensity + yellow + "<A>" + green + "bort " +
-	 yellow + "<C>" + green + "ontinue " + yellow + "<P>" + 
-	 green + "rint " + yellow + "<S>" + green + "ave " + yellow +
-	 "<X>" + green + "press -> ", */
 
   //---+++***===msg_base methods follow===***+++---
   //dispMsg(), scanSub(), and uniMsgRead(); scanSub() and uniMsgRead()
@@ -256,7 +243,8 @@ msg_base = {
           console.putmsg(mBody);  //this may need to have formatting
                                   //fixes for vdoc emulation
           console.putmsg(yellow + high_intensity + "\n[" +
-                uGrpSub.name + "> msg #" + ptr + " (" +
+                msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].name 
+		+ "> msg #" + ptr + " (" +
                 (base.last_msg - ptr) + " remaining)] " +
                 cyan + "Read cmd -> ");
         }
@@ -292,7 +280,7 @@ msg_base = {
 	 *	working on further shite
 	 */
   scanSub : function (sBoard, forward) {
-	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode;
+	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode, inc;
 	var fuggit = false;	//because never start with 'fuggit'
 
 	if (debugging) {
@@ -311,25 +299,27 @@ msg_base = {
 	}
 
 	while (!fuggit) {
-	 //scan in either direction
-	 tmpPtr = sBoard.scan_ptr;
-	 if (forward) {
-	  if (tmpPtr == mBase.last_msg) {
-		//no new messages, skip to next
-		if (debugging) {
-		  console.putmsg(yellow + high_intensity +
-		    "Nothing new . . .\n");
-		}
+	  if (forward) {
+	    inc = 1;
+	  } else {
+	    inc = -1;
+	  }	//no need for double, redundant, loops
+
+	  tmpPtr = sBoard.scan_ptr;
+	  if (forward && (tmpPtr == mBase.last_msg)) {
+		//no new, skip to next in external flow to n/sub
+		console.putmsg(green + high_intensity + "Next\n");
 		return 1;
-	  } else if (tmpPtr >= mBase.last_msg) {
-		//corrupt pointers? wtF-f-f
-		if (debugging) {
-		  console.putmsg(red + high_intensity +
-		    "Current pointer exceeds last_msg pointer; this " +
-		    "shouldn't happen. :|\n");
-		}
+	  } else if (forward && (tmpPtr >= mBase.last_msg)) {
+		//corrupt pointers, wtf?
+		console.putmsg(red + high_intensity + "Current " +
+		  "pointer exceeds last_msg pointer; this is bad."
+		  + "\n");
+		//insert debug logging to standard log here
 		return -3;
 	  }
+
+	//while (!fuggit) {
 	  while (tmpPtr < mBase.last_msg) {
 	    //read forward
 	    this.dispMsg(mBase, tmpPtr, true); //wut is this true?
