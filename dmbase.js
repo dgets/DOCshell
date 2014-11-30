@@ -317,48 +317,24 @@ msg_base = {
 		  + "\n");
 		//insert debug logging to standard log here
 		return -3;
+	  } else if ((!forward) && (tmpPtr < mBase.first_msg)) {
+		console.putmsg(green + high_intensity +
+			"No preceeding messages\n");
+		return 2;	//new value for bottoming out
 	  }
 
-	//while (!fuggit) {
-	  while (tmpPtr < mBase.last_msg) {
-	    //read forward
-	    this.dispMsg(mBase, tmpPtr, true); //wut is this true?
-	    ecode = this.read_cmd.rcChoice(mBase, tmpPtr++);
-	    if (ecode == 1) {
-		fuggit = true;
-		break;
-	    } else if (ecode == 2) {
-		forward = false;
-	    }
-	    ecode = null;
-	    //otherwise 0 means that there was a message entered?
-	    //this will almost certainly be the source of an error
-	   }
-	 } else {
-	   if (tmpPtr <= mBase.first_msg) {
-	     if (debugging) {
-		console.putmsg(red + "Current message pointer is " +
-		  "prior to first_msg; oopthieoopth!\n");
-	     }
-	     return -4;
-	   }
-	   while (tmpPtr >= mBase.first_msg) {
-	    //read reverse
-	    this.dispMsg(mBase, tmpPtr, true); //ditto
-	    ecode = this.read_cmd.rcChoice(mBase, tmpPtr--);
-	    if (ecode == 1) {
-		fuggit = true;
-		break;
-	    } else if (ecode == 2) {
-		forward = true;
-	    }
-	    ecode = null;
-	    //same issue as the above clause; check issues on github
-	    //for how to fix this flow control issue
+	  //wut's up with the last param on this again?
+	  this.dispMsg(mBase, tmpPtr, true);
+	  ecode = this.read_cmd.rcChoice(mBase, (tmpPtr + inc));
+	  if (ecode == 1) {
+	    fuggit = true;
+	    break;	//not sure if this is strictly necessary still
+	  } else if (ecode == 2) {
+	    forward = false;
 	  }
-	 }
-
+	  ecode = null;
 	}
+
 	//close
 	try {
 	  mBase.close();
