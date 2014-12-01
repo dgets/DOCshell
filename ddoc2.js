@@ -241,9 +241,6 @@ if (!debugOnly) {
 		case 'l':
 		  console.putmsg(yellow + high_intensity + "Logout: \n");
 		  if (!console.noyes("Are you sure? ")) {
-		    if (debugging) {
-		      console.putmsg("\n\nExiting: " + excuse);
-		    }
 		    stillAlive = false;
 		  } else {
 		    console.putmsg(green + high_intensity +

@@ -49,7 +49,7 @@ poast = {
 
         do {
           done = false;
-          console.putmsg("\n" + docIface.sprompt);
+          console.putmsg(docIface.sprompt);
           uc = console.getkey(K_UPPER);
 
           switch (uc) {
@@ -67,12 +67,17 @@ poast = {
                 break;
             case 'S':   //save
                 console.putmsg(green + high_intensity + "Save...\n");
+		done = true;
                 break;
             case 'X':   //message express
                 console.putmsg(red + "Implementing Xpress here " +
                                 "later\n");
                 done = false;
                 break;
+	    default:
+		console.putmsg(yellow + high_intensity +
+			"Invalid choice\n");
+		break;
           }
         } while ((!done) || 
 		 ((uc != 'A') && (uc != 'C') && (uc != 'P') &&
@@ -117,7 +122,7 @@ poast = {
                   done = true;
                   break;
                 case 'C':       //continue
-                  //fall through, basically
+                  lNdx--;
                   break;
                 case 'P':
                   this.dispNewMsgHdr();
@@ -139,6 +144,7 @@ poast = {
                     console.putmsg(cyan + high_intensity +
                                    "Message saved successfully\n");
                   }
+		  done = true;
                   break;
                 /* case 'X':
                  * just skipping this right now since I'm impatient
