@@ -95,7 +95,7 @@ msg_base = {
 		case ' ':
 		case 'n':
 		  valid = true; hollaBack = 0;
-		  //console.putmsg("\n");
+		  console.putmsg("\n");
 		  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
@@ -135,8 +135,6 @@ msg_base = {
         switch (choice) {
           //purely message related functionality
           case 'n':     //read new
-            //this.newScan(confined);
-	    //out with the old, in with the new
 	    //NOTE: we'll need an enclosing loop to route through
 	    //separate sub-boards now
 	    msg_base.scanSub(msg_area.sub[bbs.cursub_code], true);
@@ -254,12 +252,6 @@ msg_base = {
 	 *	Creates and displays the dynamic end of message prompt
 	 */
   doMPrompt : function() {
-	 /* mprompt : yellow + high_intensity + user.cursub + "> msg #" +
-         msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr +
-         " (" +
-         (msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
-         msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr)
-         + " remaining)] " + green + high_intensity + "Read cmd -> ", */
     console.putmsg(yellow + high_intensity + user.cursub + "> msg #" +
 	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr +
 	" (" +
@@ -298,26 +290,27 @@ msg_base = {
 	  return -1;
 	}
 
-	while (!fuggit) {
-	  if (forward) {
-	    inc = 1;
-	  } else {
-	    inc = -1;
-	  }	//no need for double, redundant, loops
+	tmpPtr = sBoard.scan_ptr;
+	if (forward) {
+	  inc = 1;
+	} else {
+	  inc = -1;
+	}
 
-	  tmpPtr = sBoard.scan_ptr;
-	  if (forward && (tmpPtr == mBase.last_msg)) {
+	while (!fuggit) {
+	  
+	  if ((inc == 1) && (tmpPtr == mBase.last_msg)) {
 		//no new, skip to next in external flow to n/sub
 		console.putmsg(green + high_intensity + "Next\n");
 		return 1;
-	  } else if (forward && (tmpPtr >= mBase.last_msg)) {
+	  } else if ((inc == 1) && (tmpPtr >= mBase.last_msg)) {
 		//corrupt pointers, wtf?
 		console.putmsg(red + high_intensity + "Current " +
 		  "pointer exceeds last_msg pointer; this is bad."
 		  + "\n");
 		//insert debug logging to standard log here
 		return -3;
-	  } else if ((!forward) && (tmpPtr < mBase.first_msg)) {
+	  } else if ((inc == -1) && (tmpPtr < mBase.first_msg)) {
 		console.putmsg(green + high_intensity +
 			"No preceeding messages\n");
 		return 2;	//new value for bottoming out
@@ -325,13 +318,22 @@ msg_base = {
 
 	  //wut's up with the last param on this again?
 	  this.dispMsg(mBase, tmpPtr, true);
-	  ecode = this.read_cmd.rcChoice(mBase, (tmpPtr + inc));
+	  if (inc == 1) {
+	    sBoard.lead_read = tmpPtr;
+	  }
+	  ecode = this.read_cmd.rcChoice(mBase, (tmpPtr));
 	  if (ecode == 1) {
 	    fuggit = true;
 	    break;	//not sure if this is strictly necessary still
 	  } else if (ecode == 2) {
-	    forward = false;
+	    if (inc == 1) {
+		inc = -1;
+	    } else {
+		inc = 1;
+	    }
 	  }
+	 
+	  tmpPtr += inc;
 	  ecode = null;
 	}
 
