@@ -30,7 +30,6 @@ const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
-//cut out the new debugging routine from here to move to ddebug.js
 docIface = {
   //top level menu
   //menu properties
@@ -143,6 +142,8 @@ docIface = {
     }
   },
   util : {
+    var preSubBoard, preFileDir, preMsgGroup;
+
 	/*
 	 * summary:
 	 *	Returns an array of message rooms that are
@@ -169,19 +170,59 @@ docIface = {
 	} else {
 		return null;
 	}
+    },
+	/*
+	 * summary:
+	 * 	Saves the settings that we want to restore upon exit from the
+	 * 	ddoc shell; not sure if this is going to work properly due to
+	 * 	JavaScript scope, this is kind of pushing the limits of what
+	 * 	I know off the top of my head.  This could also be stored to
+	 * 	a scratchpad in the $SBBSHOME/user/ directory, as well.
+	 * confined:
+	 *	Boolean indicating whether or not this instance is
+	 *	confined
+	 */
+    initDdoc : function(confined) {
+	if (debugging) {
+	  console.putmsg(red + "Saving bbs.cursub: " + bbs.cursub + 
+	    "\nbbs.curgrp: " + bbs.curgrp + "\nbbs.curdir: " +
+	    bbs.curdir + "\n\n");
+	}
+	preSubBoard = bbs.cursub;
+	preMsgGroup = bbs.curgrp;
+	preFileDir = bbs.curdir;
+    },
+	/*
+	 * summary:
+	 *	Restores settings that were detected at first going into
+	 *	ddoc, in order to restore functionality to where it was
+	 *	left off for somebody that may be jumping between
+	 *	shells, or the like.  As mentioned above; this may be
+	 *	out of scope and needing a better solution.
+	 */
+    quitDdoc : function() {
+	if (debugging) {
+	  console.putmsg(red + "Restoring bbs.cursub: " + preSubBoard +
+	    "\nbbs.curgrp: " + preMsgGroup + "\nbbs.curdir: " +
+	    preFileDir + "\n");
+	bbs.cursub = preSubBoard;
+	bbs.curgrp = preMsgGroup;
+	bbs.curdir = preFileDir;
     }
   }
 }
 
 //		---+++***===Execution Begins===***+++---
 
-var preSubBoard, preFileDir;
+var preSubBoard, preFileDir, preMsgGrp;
 var uchoice;
 
 //save initial conditions
-preSubBoard = bbs.cursub;
+/*preSubBoard = bbs.cursub;
 preMsgGroup = bbs.curgrp;
-preFileDir = bbs.curdir;
+preFileDir = bbs.curdir;*/
+
+util.initDdoc(confine_messagebase);
 
 if (confine_messagebase && (bbs.curgrp != topebaseno) && debugging) {
   //are we already in a dystopian area?

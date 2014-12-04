@@ -14,13 +14,6 @@
 load("sbbsdefs.js");
 
 poast = {
-    //properties moved to ddoc2.js in order to access global constants
-    //properly
-    /* sprompt : high_intensity + yellow + "<A>" + green + "bort " +
-         yellow + "<C>" + green + "ontinue " + yellow + "<P>" + 
-         green + "rint " + yellow + "<S>" + green + "ave " + yellow +
-         "<X>" + green + "press -> ", */
-
 	//		---+++***===METHODS===***+++---
 
         /*
@@ -158,19 +151,6 @@ poast = {
             }
           }
         } while (!done);
-
-        /* I do believe this is all moot; I'll cut it after committing
-         * to version control and testing it.  Too damn scared after the
-         * data loss of today to take any more chances with shit like
-         * that.  :| 
-        //menu for saving, printing, continuing, etc
-
-        //save
-        if (this.mWrite(mTxt, base) != 0) {
-            console.putmsg(red + "Error writing message in mWrite()" +
-                green + "\n");
-        }
-        */
     },  
         /*
          * summary:

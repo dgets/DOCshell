@@ -170,7 +170,8 @@ express = {
 	  return -1;
 	} else {
 	  //user offline
-	  //NOTE: there will have to be a better solution here
+	  //NOTE: there will have to be a better solution here; ie add a
+	  //telegram to the user though they're offline
 	  console.putmsg(yellow + high_intensity +
 		"User is currently offline; try Mail>\n" +
 		green);

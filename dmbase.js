@@ -120,7 +120,6 @@ msg_base = {
    *	else place improper methods somewhere more appropriate.
    */
   entry_level : {
-    //through handler, from the main menu prompting system
         /*
          * summary:
          *      Forward command to the appropriate methods for entry
@@ -205,7 +204,7 @@ msg_base = {
          "<w>ho's online\t<x>press msg\t<X>press on/off\n\n",
 
   //---+++***===msg_base methods follow===***+++---
-  //dispMsg(), scanSub(), and uniMsgRead(); scanSub() and uniMsgRead()
+  //dispMsg(), scanSub(), removed uniMsgRead(): scanSub() 
   //should end up replacing most of newScan() [above] and some other
   //areas, I'm sure
 	/*
@@ -346,21 +345,6 @@ msg_base = {
 	    "SysOp.\n");
 	  log("Error opening " + sBoard.name + ": " + e.message);
 	  return -2;
-	}
-  },
-	/*
-	 * summary:
-	 *	Unified message reader; not sure where I was going with
-	 *	it at this point, this might be vestigial to be
-	 *	depreciated and eviscerated
-	 */
-  uniMsgRead : function(confine, forward) {
-	if (confine && (bbs.curgrp != topebaseno)) {
-	  bbs.curgrp = topebaseno;
-
-	  //please note this is totally incomplete, just closed things
-	  //in order to facilitate testing of the part that I did finish
-
 	}
   }
 }
