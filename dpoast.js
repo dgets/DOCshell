@@ -86,8 +86,12 @@ poast = {
          *      Currently open MsgBase
          * upload: Boolean
          *      true if doing an 'ascii upload'
+	 * mail: Boolean
+	 *	true if sending a mail message
+	 * recip: String
+	 *	if to anybody other than 'All'
          */
-    addMsg : function(base, upload) {
+    addMsg : function(base, upload, mail, recip) {
         /*
          * NOTE: This method is way too big and needs to be chopped the
          * fuck up in order to make this more readable and more reusable
@@ -212,6 +216,16 @@ poast = {
             return -3;
           }
           return 0;
-    }
+    },
+	/*
+	 * summary:
+	 *	Takes a message with the message handling routines and
+	 *	sends it in private mail to the sysop, marked as
+	 *	important/urgent, if possible.  Strict emulation as
+	 *	possible.  Takes no arguments, gives no return status,
+	 *	though this might be good for error checking later on.
+	 */
+    yell : function() {
+	
 }
 

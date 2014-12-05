@@ -297,6 +297,9 @@ if (!debugOnly) {
 		case 'W':
 		  wholist.list_short(wholist.populate());
 		  break;
+		case 'y':
+		  poast.yell();
+		  break;
 		default:
 		  console.putmsg(excuse);
 		  break;
