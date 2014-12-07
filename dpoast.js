@@ -86,12 +86,10 @@ poast = {
          *      Currently open MsgBase
          * upload: Boolean
          *      true if doing an 'ascii upload'
-	 * mail: Boolean
-	 *	true if sending a mail message
 	 * recip: String
 	 *	if to anybody other than 'All'
          */
-    addMsg : function(base, upload, mail, recip) {
+    addMsg : function(base, upload, recip) {
         /*
          * NOTE: This method is way too big and needs to be chopped the
          * fuck up in order to make this more readable and more reusable
@@ -101,12 +99,17 @@ poast = {
         var uchoice;
 
         //var debugging = false;        //only for local here
+	if (debugging) {
+	  console.putmsg(red + "Passed to addMsg(base, upload, " +
+	    "recip):\n");
+	  console.putmsg(red + "base:\t" + base.name + "\nu/l:\t" +
+	    upload + "\nrecip:\t" + recip + "\n");
+	}
 
         this.dispNewMsgHdr();
 
         //going to use a generic subject for now; ignoring it from the
         //ddoc interface completely to see how it goes
-
         do {
           mTxt[lNdx] = console.getstr("", 79, K_WRAP);
           if (((mTxt[lNdx++] == "\03") && (upload)) ||
@@ -115,6 +118,9 @@ poast = {
             uchoice = this.dispSaveMsgPrompt();
 
             switch (uchoice) {
+		/* note, abort is not checked for when this function
+ 		 * exits, and I'm pretty sure there are other little
+ 		 * bugs hiding out in here, as well */
                 case 'A':       //abort
                   done = true;
                   break;
@@ -129,7 +135,7 @@ poast = {
                   //fall through to continue w/entry here, too
                   break;
                 case 'S':
-                  if (this.mWrite(mTxt, base) < 0) {
+                  if (this.mWrite(mTxt, base, recip) < 0) {
                     console.putmsg(red + "There was a problem " +
                                    "writing to " + base.name +
                                    "\nSorry; error is logged.\n");
@@ -171,15 +177,22 @@ poast = {
          *      -2 if unable to complete MsgBase.save_msg()
          *      -3 if unable to close the MsgBase
          */
-    mWrite : function(txtArray, mBase) {
+    mWrite : function(txtArray, mBase, recipient) {
           //create the message for writing
           var mHdr = {
                 'from'          :       user.alias,
-                'to'            :       "All",  //cheat for now
+                //'to'            :       "All",  
                 'subject'       :       "dDOC Posting"  //cheat for now
           }
+	  if ((recipient != null) && 
+	      (recipient.toUpperCase() != "ALL")) {
+		mHdr['to_ext'] = recipient;
+	  } else {
+		mHdr['to'] = "All";
+	  }
+
           var dMB = new MsgBase(mBase);
-          var debugging = false;        //locally, of course
+          //var debugging = false;        //locally, of course
 
           try {
             dMB.open();
@@ -189,6 +202,15 @@ poast = {
             log("dDOC err opening: " + base + "; " + e.message);
             return -1;
           }
+
+	  if (debugging) {
+	    console.putmsg(red + "Received mBase:\t" + mBase.name + 
+		"\t(in call to mWrite())\n");
+	    console.putmsg(red + "Group:\t" + dMB.grp_name +
+		"\nSub-board:\t" + dMB.name + "\n");
+	    console.putmsg(red + "\nNext debugging output is text " +
+		"concatenation for message body.\n\n");
+	  }
 
           var catMTxt = new String();
           for each (var ouah in txtArray) {
@@ -226,6 +248,28 @@ poast = {
 	 *	though this might be good for error checking later on.
 	 */
     yell : function() {
-	
+	console.putmsg(green + high_intensity + "\nPress 'y' to send" +
+	  " a yell to the Sysop(s).\n\nEnter your choice -> ");
+	if (console.getkey().toUpperCase() != 'Y') {
+	  return -1;
+	}
+
+	var mb = new MsgBase('mail');
+	if (debugging) {
+	  console.putmsg(red + "God ouah (MsgBase('mail') status):\t" +
+	    mb.file + "\n");
+	}
+
+	//proceed to send the yell
+	//doing this by user number now, since lookup by user number and
+	//other methods to determine the sysop's alias seem lobotimized,
+	//non-existant, or otherwise retarded
+	this.addMsg(mb, false, 1);
+
+	console.putmsg(green + high_intensity + "If you didn't see " +
+	  "anything foreboding above, your message will be read by " +
+	  "system user #1 upon next login.\n");
+    }
+
 }
 
