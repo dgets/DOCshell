@@ -264,7 +264,7 @@ poast = {
 	//doing this by user number now, since lookup by user number and
 	//other methods to determine the sysop's alias seem lobotimized,
 	//non-existant, or otherwise retarded
-	this.addMsg(mb, false, 1);
+	poast.addMsg(mb, false, 1);
 
 	console.putmsg(green + high_intensity + "If you didn't see " +
 	  "anything foreboding above, your message will be read by " +

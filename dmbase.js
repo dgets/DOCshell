@@ -90,7 +90,7 @@ msg_base = {
                   valid = true; //I think we want to change this
                   console.putmsg(green + high_intensity +
                         "Enter message\n\n");
-                  addMsg(base, false);  //not an upload
+                  addMsg(base, false, 'All');  //not an upload
                   break;
 		case ' ':
 		case 'n':
@@ -143,7 +143,7 @@ msg_base = {
             this.listKnown(confined);
             break;
           case 'e':     //enter a normal message
-            poast.addMsg(user.cursub, false);
+            poast.addMsg(msg_area.sub[user.cursub], false, 'All');
             break;
           //other functionality tie-ins
           case 'w':     //normal wholist

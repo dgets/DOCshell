@@ -142,7 +142,11 @@ docIface = {
     }
   },
   util : {
-    var preSubBoard, preFileDir, preMsgGroup;
+	//	--++==**properties**==++--
+
+    preSubBoard : null, 
+    preFileDir : null, 
+    preMsgGroup : null,
 
 	/*
 	 * summary:
@@ -184,13 +188,22 @@ docIface = {
 	 */
     initDdoc : function(confined) {
 	if (debugging) {
-	  console.putmsg(red + "Saving bbs.cursub: " + bbs.cursub + 
-	    "\nbbs.curgrp: " + bbs.curgrp + "\nbbs.curdir: " +
-	    bbs.curdir + "\n\n");
+	  console.putmsg(red + "Saving user.cursub: " + user.cursub + 
+	    "\nuser.curgrp: " + user.curgrp + "\nuser.curdir: " +
+	    user.curdir + "\n\n");
 	}
-	preSubBoard = bbs.cursub;
-	preMsgGroup = bbs.curgrp;
-	preFileDir = bbs.curdir;
+	preSubBoard = user.cursub;
+	preMsgGroup = user.curgrp;
+	preFileDir = user.curdir;
+
+	if (confined) {
+	  if (debugging) {
+	    console.putmsg("Setting user.curgrp to DystopianUtopia\n");
+	    console.putmsg("Setting user.cursub to LOBBY\n");
+	  }
+	  user.curgrp = "DystopianUtopia";
+	  user.cursub = "Lobby";
+	}
     },
 	/*
 	 * summary:
@@ -210,6 +223,7 @@ docIface = {
 	bbs.curdir = preFileDir;
     }
   }
+ }
 }
 
 //		---+++***===Execution Begins===***+++---
@@ -222,7 +236,7 @@ var uchoice;
 preMsgGroup = bbs.curgrp;
 preFileDir = bbs.curdir;*/
 
-util.initDdoc(confine_messagebase);
+docIface.util.initDdoc(confine_messagebase);
 
 if (confine_messagebase && (bbs.curgrp != topebaseno) && debugging) {
   //are we already in a dystopian area?
