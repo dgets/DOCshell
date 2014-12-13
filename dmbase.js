@@ -143,7 +143,7 @@ msg_base = {
             this.listKnown(confined);
             break;
           case 'e':     //enter a normal message
-            poast.addMsg(msg_area.sub[user.cursub], false, 'All');
+            poast.addMsg(docIface.nav.chk4Room(user.cursub), false, 'All');
             break;
           //other functionality tie-ins
           case 'w':     //normal wholist

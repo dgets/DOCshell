@@ -191,7 +191,7 @@ poast = {
 		mHdr['to'] = "All";
 	  }
 
-          var dMB = new MsgBase(mBase);
+          var dMB = new MsgBase(mBase.code);
           //var debugging = false;        //locally, of course
 
           try {
