@@ -102,8 +102,8 @@ poast = {
 	if (debugging) {
 	  console.putmsg(red + "Passed to addMsg(base, upload, " +
 	    "recip):\n");
-	  console.putmsg(red + "base:\t" + base.name + "\nu/l:\t" +
-	    upload + "\nrecip:\t" + recip + "\n");
+	  console.putmsg(red + "base.subnum:\t" + base.subnum + 
+	    "\nu/l:\t" + upload + "\nrecip:\t" + recip + "\n");
 	}
 
         this.dispNewMsgHdr();
@@ -185,29 +185,45 @@ poast = {
                 'subject'       :       "dDOC Posting"  //cheat for now
           }
 	  if ((recipient != null) && 
-	      (recipient.toUpperCase() != "ALL")) {
-		mHdr['to_ext'] = recipient;
+	      (recipient.toString().toUpperCase() != "ALL")) {
+		if (recipient !== 1) {
+		  mHdr['to'] = recipient;
+		} else {
+		  var sysop = new User(recipient);
+		  mHdr['to'] = sysop.alias;
+		}
 	  } else {
 		mHdr['to'] = "All";
 	  }
 
-          var dMB = new MsgBase(mBase.code);
+	  /*
+	   * This is really kind of nasty, but I'm not functioning well
+	   * enough right now to get down to the bottom of how it's
+	   * being handled differently for the mail sub as opposed to
+	   * the standards.  :P  Whatever, it'll go into a later
+	   * refactor.
+	   */
+	  if (mBase.subnum == -1) {
+		var dMB = mBase;
+	  } else {
+          	var dMB = new MsgBase(mBase.code);
+	  }
           //var debugging = false;        //locally, of course
 
           try {
             dMB.open();
           } catch (e) {
             console.putmsg(red + "Error opening: " + high_intensity +
-                base + normal + "\n");
-            log("dDOC err opening: " + base + "; " + e.message);
+                mBase.subnum + normal + "\n");
+            log("dDOC err opening: " + mBase.subnum + "; " + e.message);
             return -1;
           }
 
 	  if (debugging) {
-	    console.putmsg(red + "Received mBase:\t" + mBase.name + 
+	    console.putmsg(red + "Received mBase.subnum:\t" + dMB.subnum + 
 		"\t(in call to mWrite())\n");
-	    console.putmsg(red + "Group:\t" + dMB.grp_name +
-		"\nSub-board:\t" + dMB.name + "\n");
+	    //console.putmsg(red + "Group:\t" + dMB.grp_name +
+	    //	"\nSub-board:\t" + dMB.name + "\n");
 	    console.putmsg(red + "\nNext debugging output is text " +
 		"concatenation for message body.\n\n");
 	  }
@@ -224,8 +240,9 @@ poast = {
             dMB.save_msg(mHdr, catMTxt);
           } catch (e) {
             console.putmsg(red + "Error saving to: " + high_intensity +
-                base + normal + "\n");
-            log("dDOC err saving msg to: " + base + "; " + e.message);
+                mBase.subnum + normal + "\n");
+            log("dDOC err saving msg to: " + mBase.subnum + "; " 
+		+ e.message);
             return -2;
           }
 
@@ -233,8 +250,8 @@ poast = {
             dMB.close();
           } catch (e) {
             console.putmsg(red + "Error closing: " + high_intensity +
-                base + normal + "\n");
-            log("dDOC err closing: " + base + "; " + e.message);
+                mBase.subnum + normal + "\n");
+            log("dDOC err closing: " + mBase.subnum + "; " + e.message);
             return -3;
           }
           return 0;
