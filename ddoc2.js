@@ -106,7 +106,7 @@ docIface = {
 	  return -2;
 	} else {
 	  //let's go
-	  bbs.cursub_code = ouah.code;	//try/catch?
+	  user.cursub = ouah.name;	//try/catch?
 	}
     },
 	/*
@@ -199,7 +199,7 @@ docIface = {
 	if (confined) {
 	  if (debugging) {
 	    console.putmsg("Setting user.curgrp to DystopianUtopia\n");
-	    console.putmsg("Setting user.cursub to LOBBY\n");
+	    console.putmsg("Setting user.cursub to Lobby\n");
 	  }
 	  user.curgrp = "DystopianUtopia";
 	  user.cursub = "Lobby";
@@ -215,12 +215,12 @@ docIface = {
 	 */
     quitDdoc : function() {
 	if (debugging) {
-	  console.putmsg(red + "Restoring bbs.cursub: " + preSubBoard +
-	    "\nbbs.curgrp: " + preMsgGroup + "\nbbs.curdir: " +
+	  console.putmsg(red + "Restoring user.cursub: " + preSubBoard +
+	    "\nuser.curgrp: " + preMsgGroup + "\nuser.curdir: " +
 	    preFileDir + "\n");
-	bbs.cursub = preSubBoard;
-	bbs.curgrp = preMsgGroup;
-	bbs.curdir = preFileDir;
+	user.cursub = preSubBoard;
+	user.curgrp = preMsgGroup;
+	user.curdir = preFileDir;
     }
   }
  }
@@ -232,13 +232,15 @@ var preSubBoard, preFileDir, preMsgGrp;
 var uchoice;
 
 //save initial conditions
-/*preSubBoard = bbs.cursub;
-preMsgGroup = bbs.curgrp;
-preFileDir = bbs.curdir;*/
 
 docIface.util.initDdoc(confine_messagebase);
 
-if (confine_messagebase && (bbs.curgrp != topebaseno) && debugging) {
+/*
+ * changing this to user.curgrp isn't going to work as the user object
+ * has no curgrp.  need to find out if bbs.curgrp is going to work, and
+ * if not, how do we reverse lookup a group from a sub code name
+ */
+if (confine_messagebase && (user.curgrp != topebaseno) && debugging) {
   //are we already in a dystopian area?
 	console.putmsg(red + "CurGrp: " + bbs.curgrp + normal + "\n" +
 		       "Trying a jump . . .\n");
@@ -250,9 +252,13 @@ if (confine_messagebase && (bbs.curgrp != topebaseno) && debugging) {
 if (!debugOnly) {
  /* the main program loop */
  while (stillAlive) {
+	if (debugging) {
+	  console.putmsg("Got " + user.cursub + " in user.cursub\n");
+	}
+
 	//dynamic prompt
-	dprompt = yellow + high_intensity + 
-	  msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].description
+	dprompt = yellow + high_intensity + user.cursub
+	  //msg_area.grp_list[bbs.curgrp].sub_list[user.cursub]
 	  + "> ";
 
 	//maintenance
