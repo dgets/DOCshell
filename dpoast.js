@@ -196,6 +196,18 @@ poast = {
 		mHdr['to'] = "All";
 	  }
 
+	  if (debugging) {
+	    //debug dump requested by echicken (?) in order to help find
+	    //out what is causing mail sent to the 'mail' sub board is
+	    //ending up in 'all mail' but never a personal account, and
+	    //also (I believe) triggering networked processing
+	    console.putmsg(red + "DEBUGGING\nmHdr values:\n" +
+		"from\t:\t" + mHdr['from'] + " (user.alias)\n" +
+		"to\t:\t" + mHdr['to'] + " selected by code as " +
+		"sysop.alias or recipient name passed (null=ALL)\n" +
+		"subject\t:\t" + mHdr['subject'] + " static\n\n");
+	  }
+
 	  /*
 	   * This is really kind of nasty, but I'm not functioning well
 	   * enough right now to get down to the bottom of how it's
