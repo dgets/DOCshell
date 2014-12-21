@@ -216,11 +216,26 @@ poast = {
 	   * refactor.
 	   */
 	  if (mBase.subnum == -1) {
-		var dMB = mBase;
+		var dMB = new MsgBase('mail');
+		mHdr["to_ext"] = 1;
+		mHdr["from_ext"] = user.number;
+		mHdr["subject"] = "<Y>ell mail to SysOp";
 	  } else {
           	var dMB = new MsgBase(mBase.code);
 	  }
           //var debugging = false;        //locally, of course
+
+	  /*
+	   * Here, because of being sent to sub['mail'] does not seem to
+	   * be working, we're going to try implementing the bbs.email()
+	   * function which, I believes, has the option granularity to
+	   * be able to make certain that email is manually set or not
+	   * as far as going to the network.  To this point, logs seem
+	   * to indicate that previous messages sent to the 'mail' sub
+	   * have ended up looking for a way out on the network, and not
+	   * at local users.
+	   */
+
 
           try {
             dMB.open();
