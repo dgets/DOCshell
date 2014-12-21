@@ -13,9 +13,9 @@
  */
 
 //includes
-load("dmbase.js");
-load("dpoast.js");
-load("dexpress.js");
+load("load/dmbase.js");
+load("load/dpoast.js");
+load("load/dexpress.js");
 
 //pseudo-globals
 const debugging = true, excuse = "\n\nNot so fast . . .\n\n",
@@ -221,6 +221,17 @@ docIface = {
 	user.cursub = preSubBoard;
 	user.curgrp = preMsgGroup;
 	user.curdir = preFileDir;
+	//not sure which one of this is exactly accurate, but settings
+	//aren't getting saved after quitting the shell, so here's moar
+	//(with vestigial code that will have to be removed l8r)
+	//restore initial setings prior to exit
+	bbs.cursub = preSubBoard;
+	bbs.curgrp = preMsgGroup;
+	bbs.curdir = preFileDir;
+
+	console.putmsg(blue + high_intensity + "\n\nHope to see you " +
+                "again soon!\n\nPeace out!\n");
+
     }
   }
  }
@@ -303,6 +314,7 @@ if (!debugOnly) {
 		  console.putmsg(yellow + high_intensity + "Logout: \n");
 		  if (!console.noyes("Are you sure? ")) {
 		    stillAlive = false;
+		    docIface.util.quitDdoc();
 		  } else {
 		    console.putmsg(green + high_intensity +
 			"Good choice.  ;)\n");
@@ -333,9 +345,4 @@ if (!debugOnly) {
 		       "should be theyah, budday\n\n" + normal);
  }
 }
-
-//restore initial setings prior to exit
-bbs.cursub = preSubBoard;
-bbs.curgrp = preMsgGroup;
-bbs.curdir = preFileDir;
 
