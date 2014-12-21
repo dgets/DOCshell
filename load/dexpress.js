@@ -105,12 +105,15 @@ express = {
 	 *	elements.  Assume nothing else.
 	 */
   readBuf : function() {
-	var mTxt = new Array(), abort = false;
+	var abort = false, nao = new Date, mTxt = new Array, xHdr;
+
+	xHdr = green + "Xpress message from " + high_intensity +
+		user.alias + normal + green + " sent at " +
+		yellow + high_intensity + nao.toString() + 
+		"\n" + green + high_intensity + "-=-=-=-=-=-=-=-\n";
 
 	//heading should've already been taken care of
 	for (var ouah = 0; ouah < 5; ouah++) {
-	  var ln = '';
-
 	  console.putmsg(green + "> ");
 	  if (ouah < 4) {
 	    mTxt[ouah] = console.getstr("", 77, K_WRAP);
@@ -118,7 +121,8 @@ express = {
 	    mTxt[ouah] = console.getstr("", 77);
 	  }
 
-	  if (((mTxt[ouah] == "ABORT") || (mTxt[ouah] == "ABORT\r")) ||
+	  if (((mTxt[ouah].toUpperCase() == "ABORT") ||
+	       (mTxt[ouah].toUpperCase() == "ABORT\r")) ||
 	      (((mTxt[ouah] == "\r") || (mTxt[ouah] == "")) && 
 		(ouah == 0))) {
 	    abort = true; break;
@@ -133,7 +137,20 @@ express = {
 	if (abort) {
 	  return null;
 	} else {
-	  return mTxt;	//postprocessing elsewhere, gotta hurry up 2nite
+	  var full = xHdr;
+
+	  full += (green + high_intensity);
+	  for each (xLine in mTxt) {
+		if (xLine === ",") {
+		  //wut the fuck is this?
+		  break;
+		}
+		full += (xLine + "\n");
+	  }
+	  full += "\n";
+
+	  return (full);
+		//postprocessing elsewhere, gotta hurry up 2nite
 	}
   },
   /*
