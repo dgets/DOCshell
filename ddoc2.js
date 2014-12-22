@@ -19,7 +19,8 @@ load("load/dexpress.js");
 
 //pseudo-globals
 const debugging = true, excuse = "\n\nNot so fast . . .\n\n",
-	debugOnly = false, confine_messagebase = true, topebaseno = 6;
+	debugOnly = false, confine_messagebase = true, topebaseno = 6,
+	alwaysLogout = false;
 
 //a few easier hooks for the ctrl-a codes
 const ctrl_a = "\1";
@@ -192,17 +193,17 @@ docIface = {
 	    "\nuser.curgrp: " + user.curgrp + "\nuser.curdir: " +
 	    user.curdir + "\n\n");
 	}
-	preSubBoard = user.cursub;
-	preMsgGroup = user.curgrp;
-	preFileDir = user.curdir;
+	preSubBoard = bbs.cursub;
+	preMsgGroup = bbs.curgrp;
+	preFileDir = bbs.curdir;
 
 	if (confined) {
 	  if (debugging) {
 	    console.putmsg("Setting user.curgrp to DystopianUtopia\n");
 	    console.putmsg("Setting user.cursub to Lobby\n");
 	  }
-	  user.curgrp = "DystopianUtopia";
-	  user.cursub = "Lobby";
+	  bbs.curgrp = "DystopianUtopia";
+	  bbs.cursub = "Lobby";
 	}
     },
 	/*
@@ -215,12 +216,17 @@ docIface = {
 	 */
     quitDdoc : function() {
 	if (debugging) {
-	  console.putmsg(red + "Restoring user.cursub: " + preSubBoard +
-	    "\nuser.curgrp: " + preMsgGroup + "\nuser.curdir: " +
+	  console.putmsg(red + "Restoring bbs.cursub: " + preSubBoard +
+	    "\nbbs.curgrp: " + preMsgGroup + "\nbbs.curdir: " +
 	    preFileDir + "\n");
+	/*
 	user.cursub = preSubBoard;
 	user.curgrp = preMsgGroup;
 	user.curdir = preFileDir;
+	It turns out that the user.* properties are used for any user,
+	not necessarily logged in, that they last used; we're going to
+	be using bbs.* only in this shell
+	*/
 	//not sure which one of this is exactly accurate, but settings
 	//aren't getting saved after quitting the shell, so here's moar
 	//(with vestigial code that will have to be removed l8r)
@@ -313,8 +319,8 @@ if (!debugOnly) {
 		case 'l':
 		  console.putmsg(yellow + high_intensity + "Logout: \n");
 		  if (!console.noyes("Are you sure? ")) {
-		    stillAlive = false;
 		    docIface.util.quitDdoc();
+		    stillAlive = false;
 		  } else {
 		    console.putmsg(green + high_intensity +
 			"Good choice.  ;)\n");
@@ -345,4 +351,10 @@ if (!debugOnly) {
 		       "should be theyah, budday\n\n" + normal);
  }
 }
+
+console.putmsg(yellow + high_intensity + "\n\nGoodbye!\n");
+if (alwaysLogout) {
+	bbs.logout();
+}
+
 
