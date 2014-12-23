@@ -189,21 +189,22 @@ docIface = {
 	 */
     initDdoc : function(confined) {
 	if (debugging) {
-	  console.putmsg(red + "Saving user.cursub: " + user.cursub + 
-	    "\nuser.curgrp: " + user.curgrp + "\nuser.curdir: " +
-	    user.curdir + "\n\n");
+	  console.putmsg(red + "Debugging:\n" + high_intensity +
+	    "user.cursub:\t" + user.cursub + "\nuser.curdir:\t" +
+	    user.curdir + "\nbbs.curgrp:\t" + bbs.curgrp + 
+	    "\nbbs.cursub:\t" + bbs.cursub + "\n");
 	}
-	preSubBoard = bbs.cursub;
-	preMsgGroup = bbs.curgrp;
-	preFileDir = bbs.curdir;
+	docIface.util.preSubBoard = user.cursub;
+	docIface.util.preMsgGroup = bbs.curgrp;
+	docIface.util.preFileDir = user.curdir;
 
 	if (confined) {
 	  if (debugging) {
 	    console.putmsg("Setting user.curgrp to DystopianUtopia\n");
 	    console.putmsg("Setting user.cursub to Lobby\n");
 	  }
-	  bbs.curgrp = "DystopianUtopia";
-	  bbs.cursub = "Lobby";
+	  user.curgrp = "DystopianUtopia";
+	  user.cursub = "Lobby";
 	}
     },
 	/*
@@ -216,9 +217,13 @@ docIface = {
 	 */
     quitDdoc : function() {
 	if (debugging) {
-	  console.putmsg(red + "Restoring bbs.cursub: " + preSubBoard +
-	    "\nbbs.curgrp: " + preMsgGroup + "\nbbs.curdir: " +
-	    preFileDir + "\n");
+	  console.putmsg(red + "Restoring user.cursub: " + 
+	    docIface.util.preSubBoard +
+	    "\nbbs.curgrp: " + docIface.util.preMsgGroup + 
+	    "\nuser.curdir: " + docIface.util.preFileDir + "\n");
+	  console.putmsg(red + "\nRestoring bbs.* properties\n");
+	}
+
 	/*
 	user.cursub = preSubBoard;
 	user.curgrp = preMsgGroup;
@@ -227,20 +232,20 @@ docIface = {
 	not necessarily logged in, that they last used; we're going to
 	be using bbs.* only in this shell
 	*/
+
 	//not sure which one of this is exactly accurate, but settings
 	//aren't getting saved after quitting the shell, so here's moar
 	//(with vestigial code that will have to be removed l8r)
 	//restore initial setings prior to exit
-	bbs.cursub = preSubBoard;
-	bbs.curgrp = preMsgGroup;
-	bbs.curdir = preFileDir;
+	user.cursub = docIface.util.preSubBoard;
+	bbs.curgrp = docIface.util.preMsgGroup;
+	user.curdir = docIface.util.preFileDir;
 
 	console.putmsg(blue + high_intensity + "\n\nHope to see you " +
                 "again soon!\n\nPeace out!\n");
 
     }
   }
- }
 }
 
 //		---+++***===Execution Begins===***+++---
