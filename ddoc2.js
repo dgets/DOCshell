@@ -20,7 +20,7 @@ load("load/dexpress.js");
 //pseudo-globals
 const debugging = true, excuse = "\n\nNot so fast . . .\n\n",
 	debugOnly = false, confine_messagebase = true, topebaseno = 6,
-	alwaysLogout = false;
+	alwaysLogout = false, std_logging = true;
 
 //a few easier hooks for the ctrl-a codes
 const ctrl_a = "\1";
@@ -69,9 +69,32 @@ docIface = {
   },
   /*
    * summary:
+   *	Just to avoid duplicating too much code when logging needs to
+   *	be done for both a string and a keystroke afterwards
+   * str:
+   *	String value
+   * key:
+   *	Character value
+   * returns: nonzero on error
+   */
+  log_str_n_char : function(str, key) {
+	try {
+	  bbs.log_str(str);
+	  bbs.log_key(key);
+	} catch (e) {
+	  system.log("TTBBS Error " + e.description +
+		" when trying to save str+key to log");
+	  return -1;
+	}
+
+	return 0;
+  }
+  /*
+   * summary:
    *	Simply displays the docIface top level property 'menu'
    */
   doMainMenu : function() {
+	bbs.log_key("?");
 	console.putmsg(this.menu);
   },
 
@@ -91,6 +114,8 @@ docIface = {
     jump : function() {
 	var uChoice, ouah;
 
+	bbs.log_key("J");
+
 	console.putmsg(green + high_intensity + "Jump to forum " +
 	  "name? -> ");
 	ouah = this.chk4Room(uChoice = console.getstr().toUpperCase());
@@ -108,6 +133,7 @@ docIface = {
 	} else {
 	  //let's go
 	  user.cursub = ouah.name;	//try/catch?
+	  bbs.log_str("Jumped to " + ouah.name);
 	}
     },
 	/*
@@ -188,6 +214,13 @@ docIface = {
 	 *	confined
 	 */
     initDdoc : function(confined) {
+	if (confined) {
+		bbs.log_str(user.name + " is entering dDOC shell and " +
+			"confining to DystopianUtopia group");
+	} else {
+		bbs.log_str(user.name + " entering dDOC shell");
+	}
+
 	if (debugging) {
 	  console.putmsg(red + "Debugging:\n" + high_intensity +
 	    "user.cursub:\t" + user.cursub + "\nuser.curdir:\t" +
@@ -216,6 +249,9 @@ docIface = {
 	 *	out of scope and needing a better solution.
 	 */
     quitDdoc : function() {
+	bbs.log_str(user.name + " is leaving dDOC shell");
+	bbs.log_key("L");
+
 	if (debugging) {
 	  console.putmsg(red + "Restoring user.cursub: " + 
 	    docIface.util.preSubBoard +

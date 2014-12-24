@@ -56,6 +56,7 @@ wholist = {
    */
   list_long : function() {
 	//this is the easy one
+	bbs.log_key("w");
 	bbs.whos_online();
   },
   /*
@@ -70,6 +71,7 @@ wholist = {
 	var unames = new Array();
 	var maxALen = 0, tu = 0, cols;
 
+	bbs.log_key("W");
 	console.putmsg(green + high_intensity + 
 	  "\nWholist (Short)\n---------------\n");
 
@@ -216,6 +218,7 @@ express = {
 	mTxt = express.readBuf();
 	
 	if (mTxt != null) {
+	  bbs.log_key("x");
 	  system.put_telegram(system.matchuser(recip), mTxt);
 	  console.putmsg(green + "Message sent!\n");
 	}

@@ -21,6 +21,12 @@ load("dpoast.js");
 
 //message base menu
 msg_base = {
+	/*
+	 * summary:
+	 *	String to prepend before a key is hit and logged to
+	 *	signify that it was at this menu
+	 */
+  log_header : "dDOC Read menu command: ",
         /*
          * summary:
          *      Sub-object representing the message read command menu
@@ -65,6 +71,7 @@ msg_base = {
                   break;
                 case 'b':
                   valid = true; hollaBack = 2;
+		  docIface.log_str_n_char(log_header, 'b');
                   console.putmsg(green + "Back (change " +
                         "direction)...\n");
                   break;
@@ -84,6 +91,7 @@ msg_base = {
                   break;
                 case 's':
                   valid = true; hollaBack = 1;
+		  docIface.log_str_n_char(log_header, 's');
                   console.putmsg(yellow + high_intensity + "Stop\n");
                   break;
                 case 'e':
@@ -95,6 +103,7 @@ msg_base = {
 		case ' ':
 		case 'n':
 		  valid = true; hollaBack = 0;
+		  docIface.log_str_n_char(log_header, 'n');
 		  console.putmsg("\n");
 		  break;
                 default:
@@ -130,6 +139,8 @@ msg_base = {
          *      true if restricted to Dystopian Utopia message group
          */
     handler : function(choice, confined) {
+	docIface.log_str_n_char(log_header, choice);
+
         //which way do we go with this?
         switch (choice) {
           //purely message related functionality

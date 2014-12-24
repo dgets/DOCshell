@@ -304,6 +304,8 @@ poast = {
 	    mb.file + "\n");
 	}
 
+	docIface.log_str_n_char("YELL to SysOp", 'y');
+
 	//proceed to send the yell
 	//doing this by user number now, since lookup by user number and
 	//other methods to determine the sysop's alias seem lobotimized,
