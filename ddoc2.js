@@ -18,7 +18,15 @@ load("load/dpoast.js");
 load("load/dexpress.js");
 
 //pseudo-globals
-const debugging = true, excuse = "\n\nNot so fast . . .\n\n",
+//let's leave the debugging to the sysops & cosysops, shall we?
+if ((user.alias == "Khelair") || (user.alias == "neuro") ||
+    (user.alias == "Xtal")) {
+	  const debugging = true;
+	} else {
+	  const debugging = false;
+}
+
+const excuse = "\n\nNot so fast . . .\n\n",
 	debugOnly = false, confine_messagebase = true, topebaseno = 6,
 	alwaysLogout = false, std_logging = true;
 
