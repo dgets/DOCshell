@@ -23,7 +23,7 @@ if ((user.alias == "Khelair") || (user.alias == "neuro") ||
     (user.alias == "Xtal")) {
 	  const debugging = true;
 	} else {
-	  const debugging = false;
+	  debugging = false;
 }
 
 const excuse = "\n\nNot so fast . . .\n\n",
@@ -96,7 +96,7 @@ docIface = {
 	}
 
 	return 0;
-  }
+  },
   /*
    * summary:
    *	Simply displays the docIface top level property 'menu'
