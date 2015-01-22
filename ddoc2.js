@@ -147,6 +147,59 @@ docIface = {
     },
 	/*
 	 * summary:
+	 *	Pulls a list of rooms, locates the current one, leaves
+	 *	current room for the next one in linear fashion, looping
+	 *	back to lobby if there is no other room remaining.
+	 *	NOTE: This will require heavy modification when
+	 *	used in a non-confined environment
+	 * confined:
+	 *	boolean depending on confinement status (currently
+	 *	ignored
+	 */
+    skip : function(confined) {
+	var rList = docIface.util.getRoomList(confined);
+	var ndx = 0, success = false;
+
+	if (debugging) {
+	  console.putmsg(red + "Entered docIface.nav.skip(), " +
+	    "looking for: " + user.cursub + "\n" +
+	    red + high_intensity + "Working with list:\n");
+	}
+
+	for each (rm in rList) {
+	  if (debugging) {
+	    console.putmsg(yellow + ndx++ + ": " + rm.name + 
+		"\n");
+	  }
+          if (success) {
+              if (debugging) {
+                console.putmsg(yellow + "Skipping to " +
+                  rm.name + "\n");
+              }
+              user.cursub = rm.name;
+              break;
+          }
+	  if (rm.name == user.cursub) {
+	    if (debugging) {
+	      console.putmsg(yellow + "Found current sub " +
+		user.cursub + " in the list\n");
+	    }
+	    success = true;
+	  }
+	  //I know that's a horrible way to do this, it's just early in
+	  //the morning and I haven't had enough coffee to process it
+	  //better yet.  :P
+	}
+
+	if (!success) {
+	  if (debugging) {
+	    console.putmsg(yellow + "Wrapping to Lobby>\n");
+	  }
+	  user.cursub = 'Lobby';
+	}
+    },
+	/*
+	 * summary:
 	 *	Searches for the substring within the list of available 
 	 *	sub-boards
 	 * srchStr:
@@ -203,8 +256,9 @@ docIface = {
 	if (confined) {
 	  	//damn we don't need anything complex, durrr
 		if (debugging) {
-		  console.putmsg("working with sub list: " +
-			msg_area.grp_list[topebaseno].sub_list.toString());
+		  console.putmsg(red + "Working with sub list: " +
+			msg_area.grp_list[topebaseno].sub_list.toString() +
+			"\n");
 		}
 		return msg_area.grp_list[topebaseno].sub_list;
 	} else {
@@ -400,6 +454,9 @@ if (!debugOnly) {
 		   * about the best way to handle this or look in the 
 		   * classic shell code
 		   */
+		  break;
+		case 's':
+		  docIface.nav.skip(confine_messagebase);
 		  break;
 		default:
 		  console.putmsg(excuse);
