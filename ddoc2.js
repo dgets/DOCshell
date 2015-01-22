@@ -51,7 +51,8 @@ docIface = {
        "<F>\tshow Fortune\n<G>\tGoto next room\n" +
        "<Q>\tAsk a question of a guide\n<i>\tforum information\n" +
        "<j>\tjump to a room name/number\n<k>\tknown rooms list\n" +
-       "<l>\tlogout\n<n>\tread new msgs\n<o>\tread old msgs reverse" +
+       "<l>\tlogout\n<N>\tselect new shell\n" +
+       "<n>\tread new msgs\n<o>\tread old msgs reverse" +
        "\n<p>\tprofile user\n<P>\tprofile user (full info)\n" +
        "<s>\tskip room\n<S>\tskip to\n<t>\tCurrent time\n" +
        "<u>\tungoto last room\n<v>\texpress -1\n<w>\tWho's online?\n" +
@@ -386,6 +387,19 @@ if (!debugOnly) {
 		  break;
 		case 'y':
 		  poast.yell();
+		  break;
+		case 'N':
+		  bbs.select_shell();
+		  /*
+		   * please note that after my torpor finishes and I get
+		   * back on this tomorrow that this also requires a call
+		   * to resetting the defaults/logout procedure for dDOC,
+		   * and then finally (perhaps alternate way to dump the
+		   * active shell) and then to respawn the user's newly
+		   * selected shell; talk to the dues on Synchronet IRC
+		   * about the best way to handle this or look in the 
+		   * classic shell code
+		   */
 		  break;
 		default:
 		  console.putmsg(excuse);

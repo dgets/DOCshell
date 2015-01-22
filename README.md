@@ -7,7 +7,7 @@ The general goals of this interface are to provide as little overhead
 for posting and reading messages as possible.  I'm actually deferring a
 little bit to the judgment of some others that've been utilizing this
 interface for longer than I.  I prefer the old school BBS days, where
-more functionality and more options meant more things to explore; this
+more functionality, and more options, meant more things to explore; this
 goal is decidedly different, it is to implement as little distraction
 from message text/bases and instant messages to other users as possible.
 As such, many Synchronet features will not be implemented until I have a
@@ -28,6 +28,7 @@ will be coming very soon]) can be found at the following addresses:
 
 	* Tinfoil Tetrahedron BBS (telnet://tinfoil.synchro.net/)
 	* Tinfoil Tetrahedron BBS (secure via SSH: ssh://tinfoil.synchro.net/)
+	  _please note that SSH is currently unavailable_
 
 My original README.md contents follow:
 
