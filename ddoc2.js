@@ -186,9 +186,21 @@ docIface = {
 	    }
 	    success = true;
 	  }
+	  //okay so if this works, we need to wipe out the if !success
+	  //clause below
+	  if ((ndx == rList.length) && (!success)) {
+	    if (debugging) {
+		console.putmsg(yellow + "Wrapping to Lobby> via " +
+		  "ndx & !success comparison code\n");
+	    }
+	    user.cursub = "Lobby";
+	    success = true;
+	  }
+
 	  //I know that's a horrible way to do this, it's just early in
 	  //the morning and I haven't had enough coffee to process it
 	  //better yet.  :P
+	  //(initially speaking of the method below this block)
 	}
 
 	if (!success) {
