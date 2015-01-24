@@ -474,6 +474,8 @@ if (!debugOnly) {
 		   * about the best way to handle this or look in the 
 		   * classic shell code
 		   */
+		  docIface.util.quitDdoc();
+		  stillAlive = false;
 		  break;
 		case 's':
 		  docIface.nav.skip(confine_messagebase);
