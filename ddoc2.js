@@ -179,23 +179,31 @@ docIface = {
               user.cursub = rm.name;
               break;
           }
-	  if (rm.name == user.cursub) {
+	  //let's try out the experimental technology
+	  if (rm.name.indexOf(user.cursub) == 0) {
 	    if (debugging) {
 	      console.putmsg(yellow + "Found current sub " +
 		user.cursub + " in the list\n");
 	    }
 	    success = true;
+	    if (ndx == rList.length) {
+		user.cursub = "Lobby";
+		break;
+	    } else {
+		user.cursub = rList[ndx].name;
+	   	break;
+	    }
 	  }
 	  //okay so if this works, we need to wipe out the if !success
 	  //clause below
-	  if ((ndx == rList.length) && (!success)) {
+	  /*if ((ndx == (rList.length)) && (!success)) {
 	    if (debugging) {
 		console.putmsg(yellow + "Wrapping to Lobby> via " +
 		  "ndx & !success comparison code\n");
 	    }
 	    user.cursub = "Lobby";
 	    success = true;
-	  }
+	  }*/
 
 	  //I know that's a horrible way to do this, it's just early in
 	  //the morning and I haven't had enough coffee to process it
@@ -203,12 +211,12 @@ docIface = {
 	  //(initially speaking of the method below this block)
 	}
 
-	if (!success) {
+	/*if (!success) {
 	  if (debugging) {
 	    console.putmsg(yellow + "Wrapping to Lobby>\n");
 	  }
-	  user.cursub = 'Lobby';
-	}
+	  user.cursub = "Lobby";
+	} */
     },
 	/*
 	 * summary:
