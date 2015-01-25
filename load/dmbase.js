@@ -229,15 +229,15 @@ msg_base = {
 	 *	true for screen pauses
 	 */
   dispMsg : function(base, ptr, breaks) {
-	var debugging = false;	//we're good here
+	var debugging = true;	//we're good here -- LIES!!!
 
         if (breaks != false) { 
 	  breaks = true;
 	}
 
 	if (debugging) {
-	  console.putmsg(red + "base: " + base.grp_name + "\nptr: " + ptr +
-			 "\nbreaks: " + breaks + "\n");
+	  console.putmsg(red + "base: " + base.cfg.grp_name + "\nptr: "
+			 + ptr + "\nbreaks: " + breaks + "\n");
 	}
 
         //try/catch this
@@ -284,9 +284,11 @@ msg_base = {
   scanSub : function (sBoard, forward) {
 	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode, inc;
 	var fuggit = false;	//because never start with 'fuggit'
+	var debugging = true;
 
 	if (debugging) {
-	  console.putmsg(red + "In scanSub()\n");
+	  console.putmsg(red + "In scanSub(); forward = " + forward +
+		"\n");
 	}
 
 	//open
