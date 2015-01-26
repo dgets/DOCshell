@@ -16,6 +16,7 @@
 load("load/dmbase.js");
 load("load/dpoast.js");
 load("load/dexpress.js");
+load("load/dperuser.js");
 
 //pseudo-globals
 //let's leave the debugging to the sysops & cosysops, shall we?

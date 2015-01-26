@@ -18,6 +18,7 @@
 
 load("sbbsdefs.js");
 load("dpoast.js");
+load("dperuser.js");
 
 //message base menu
 msg_base = {
@@ -310,7 +311,12 @@ msg_base = {
 	}
 
 	while (!fuggit) {
-	  
+	  debugging = true;
+	 
+	  if (debugging) {
+	    console.putmsg(red + "in while--> tmpPtr: " + tmpPtr + "\n");
+	  }
+ 
 	  if ((inc == 1) && (tmpPtr == mBase.last_msg)) {
 		//no new, skip to next in external flow to n/sub
 		console.putmsg(green + high_intensity + "Next\n");
@@ -346,6 +352,11 @@ msg_base = {
 	  }
 	 
 	  tmpPtr += inc;
+	  if (debugging) {
+	    console.putmsg(red + "tmpPtr += " + inc + "= " + tmpPtr +
+		"\nfuggit: " + fuggit + "\n");
+	  }
+
 	  ecode = null;
 	}
 
