@@ -481,6 +481,8 @@ if (!debugOnly) {
 		case 's':
 		  docIface.nav.skip(confine_messagebase);
 		  break;
+		case 'c':
+		  userConfig.reConfigure(); 
 		default:
 		  console.putmsg(excuse);
 		  break;

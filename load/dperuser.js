@@ -93,7 +93,7 @@ userConfig = {
 	var stillAlahv = true, uResponse = null, ecode = null;
 
 	while (stillAlahv) {
-	  console.putmsg(cConfPrompt);
+	  console.putmsg(this.cConfPrompt);
 	  uResponse = console.getkey();
 
 	  switch (uResponse) {
@@ -108,10 +108,16 @@ userConfig = {
 		  stillAlahv = false;
 		}
 	    	break;
+	    case 'q':
+		//quit out of here
+		stillAlahv = false;
+		break;
 	    default:
 		console.putmsg(excuse);
 		break;
 	  }
+
+  	}
 
   }
 
