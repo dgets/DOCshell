@@ -30,8 +30,28 @@ userRecords = {
 
   userDataIO : {
     //pulling or pushing the information stored in the user profile/info
-        
 
+    //	---++++****====userDataIO methods====****++++----
+    saveInfo : function(newInfo) {
+	if (newInfo.length == 0) {
+	  console.putmsg(red + high_intensity + "No new info found\n");
+	  return 1;
+	}
+
+	try {
+	  var userInfo = new File("user" + user.number + ".ddoc-info");
+	} catch (e) {
+	  console.putmsg(red + "Error writing user" + user.number +
+		".ddoc-info to /sbbs/user/ directory\nException: " +
+		e.toString() + "\n");
+	  return -1;
+	}
+
+	//of course, there needs to be try/catching around anything like
+	//this at all times (add while debugging)
+	userInfo.writeln(newInfo);
+	userInfo.close();
+    }
   },
   userDataUI : {
     //pushing/pulling output from the user (sorry, I can't stop using that
@@ -70,7 +90,7 @@ userConfig = {
 
   //	----++++****====userConfig methods====****++++----
   reConfigure : function() {
-	var stillAlahv = true, uResponse = null;
+	var stillAlahv = true, uResponse = null, ecode = null;
 
 	while (stillAlahv) {
 	  console.putmsg(cConfPrompt);
@@ -79,8 +99,14 @@ userConfig = {
 	  switch (uResponse) {
 	    case 'i':
 		//change user info
-		
-
+		ecode = userRecords.userDataIO.saveInfo(
+				userRecords.userDataUI.getInfo());
+		if (ecode == 0) {
+		  console.putmsg(green + high_intensity + "User info " +
+		    "updated.\n\n");
+		} else {
+		  stillAlahv = false;
+		}
 	    	break;
 	    default:
 		console.putmsg(excuse);
