@@ -245,6 +245,18 @@ msg_base = {
         var mHdr = base.get_msg_header(ptr);
         var mBody = base.get_msg_body(ptr);
 
+	//as per echicken's suggestion that perhaps mHdr is returning
+	//null due to the fact that it may be hitting an unused or
+	//deleted message slot
+	if (mHdr === null) {
+	  if (debugging) {
+	    console.putmsg(red + "echicken was right; mHdr was null " +
+			   "due to hitting an unused or deleted msg " +
+			   "slot, it appears.\n");
+	  }
+	  return;
+	}
+
         if (breaks) {
           console.putmsg(magenta + high_intensity + mHdr.date +
                 green + " from " + cyan + mHdr.from + "\n" +
