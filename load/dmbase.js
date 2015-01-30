@@ -104,7 +104,17 @@ msg_base = {
 		case ' ':
 		case 'n':
 		  valid = true; hollaBack = 0;
+		  if (debugging) {
+		    console.putmsg(red +
+			"xxxx DEBUGING  xxxx   dmbase.js    prior to " +
+			"  docIface.log_str_n_char\n");
+		  }
 		  docIface.log_str_n_char(this.log_header, 'n');
+		  if (debugging) {
+		    console.putmsg(red +
+			console.putmsg("xxxx DEBUGING  xxxx   dmbase.js" +
+				"    after to   docIface.log_str_n_char\n");
+		  }
 		  console.putmsg("\n");
 		  break;
                 default:
@@ -245,18 +255,6 @@ msg_base = {
         var mHdr = base.get_msg_header(ptr);
         var mBody = base.get_msg_body(ptr);
 
-	//as per echicken's suggestion that perhaps mHdr is returning
-	//null due to the fact that it may be hitting an unused or
-	//deleted message slot
-	if (mHdr === null) {
-	  if (debugging) {
-	    console.putmsg(red + "echicken was right; mHdr was null " +
-			   "due to hitting an unused or deleted msg " +
-			   "slot, it appears.\n");
-	  }
-	  return 1;
-	}
-
         if (breaks) {
           console.putmsg(magenta + high_intensity + mHdr.date +
                 green + " from " + cyan + mHdr.from + "\n" +
@@ -269,8 +267,6 @@ msg_base = {
                 (base.last_msg - ptr) + " remaining)] " +
                 cyan + "Read cmd -> ");
         }
-
-	return 0;
   },
 	/*
 	 * summary:
@@ -297,8 +293,7 @@ msg_base = {
 	 *	working on further shite
 	 */
   scanSub : function (sBoard, forward) {
-	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode, ecode2,
-		    inc;
+	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode, inc;
 	var fuggit = false;	//because never start with 'fuggit'
 	var debugging = true;
 
@@ -350,18 +345,11 @@ msg_base = {
 	  }
 
 	  //wut's up with the last param on this again?
-	  ecode2 = this.dispMsg(mBase, tmpPtr, true);
+	  this.dispMsg(mBase, tmpPtr, true);
 	  if (inc == 1) {
-	    //wait wtf is with this again?
 	    sBoard.lead_read = tmpPtr;
 	  }
 	  ecode = this.read_cmd.rcChoice(mBase, (tmpPtr));
-	  if (ecode2 == 1) {
-	    //echicken's recommendation goes here; probably also in a
-	    //conditional with the incrementing code below to make
-	    //things more compact
-
-	  }
 	  if (ecode == 1) {
 	    fuggit = true;
 	    break;	//not sure if this is strictly necessary still

@@ -89,8 +89,21 @@ docIface = {
    */
   log_str_n_char : function(str, key) {
 	try {
+	  if (debugging) {
+	    console.putmsg(red + 
+		"xxxx DEBUGING  xxxx   ddoc2.js    prior to log_str\n");
+	  }
 	  bbs.log_str(str);
+	  if (debugging) {
+	    console.putmsg(red +
+		"xxxx DEBUGING  xxxx   ddoc2.js    between log_str and " + 
+		"log_key\n");
+	  }
 	  bbs.log_key(key);
+	  if (debugging) {
+	    console.putmsg(red +
+		"xxxx DEBUGING  xxxx   ddoc2.js    after log_key\n");
+	  }
 	} catch (e) {
 	  system.log("TTBBS Error " + e.description +
 		" when trying to save str+key to log");
