@@ -254,6 +254,14 @@ msg_base = {
         var mHdr = base.get_msg_header(ptr);
         var mBody = base.get_msg_body(ptr);
 
+	if ((mHdr === null) && (ptr == base.last_msg)) {
+	  //this is where echicken's suggestion must go
+	  return -1;	//code for we're out of messages here, skip to
+			//next
+	} else if (mHdr === null) {
+	  return -2;	//just increment the pointer and try again
+	}
+
         if (breaks) {
           console.putmsg(magenta + high_intensity + mHdr.date +
                 green + " from " + cyan + mHdr.from + "\n" +
@@ -266,6 +274,8 @@ msg_base = {
                 (base.last_msg - ptr) + " remaining)] " +
                 cyan + "Read cmd -> ");
         }
+
+	return 0;
   },
 	/*
 	 * summary:
@@ -292,7 +302,7 @@ msg_base = {
 	 *	working on further shite
 	 */
   scanSub : function (sBoard, forward) {
-	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode, inc;
+	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode, ecode2, inc;
 	var fuggit = false;	//because never start with 'fuggit'
 	var debugging = true;
 
@@ -344,7 +354,18 @@ msg_base = {
 	  }
 
 	  //wut's up with the last param on this again?
-	  this.dispMsg(mBase, tmpPtr, true);
+	  ecode2 = this.dispMsg(mBase, tmpPtr, true);
+	  //in order to implement echicken's suggestion
+	  if (ecode2 == -1) {
+		//skip to next sub
+
+
+	  } else if (ecode2 == -2) {
+		//skip to next msg
+		while ((this.dispMsg(mBase, ++tmpPtr, true) < 0) {
+		}		  
+	  }
+
 	  if (inc == 1) {
 	    sBoard.lead_read = tmpPtr;
 	  }
@@ -362,7 +383,7 @@ msg_base = {
 	 
 	  tmpPtr += inc;
 	  if (debugging) {
-	    console.putmsg(red + "tmpPtr += " + inc + "= " + tmpPtr +
+	    console.putmsg(red + "tmpPtr += " + inc + " = " + tmpPtr +
 		"\nfuggit: " + fuggit + "\n");
 	  }
 
