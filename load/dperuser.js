@@ -51,6 +51,34 @@ userRecords = {
 	//this at all times (add while debugging)
 	userInfo.writeln(newInfo);
 	userInfo.close();
+    },
+    getDebuggers : function() {
+	var dbgFile = new File();
+	var debuggers = new Array();
+	var ouah;
+
+	dbgFile.name = "/sbbs/user/ddoc-debuggers";
+	if (!dbgFile.exists) {
+	  return -1;
+	}
+
+	try {
+	  dbgFile.open();
+
+	  while (var tmpLine = readln()) {
+	    ouah = tmpLine.split("\t", 2);
+	    debuggers[ouah[0]] = ouah[1];
+	  }
+	} catch (e) {
+	  console.putmsg(red + "Exception: " e.toString() + "\nCaught " +
+		"in userRecords.userDataIO.getDebuggers()\n");
+
+	  dbgFile.close();
+	  return -2;
+	}
+
+	dbgFile.close();
+	return debuggers;
     }
   },
   userDataUI : {
