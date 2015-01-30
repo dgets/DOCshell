@@ -21,7 +21,7 @@ load("load/dperuser.js");
 //pseudo-globals
 //let's leave the debugging to the sysops & cosysops, shall we?
 if ((user.alias == "Khelair") || (user.alias == "neuro") ||
-    (user.alias == "Xtal")) {
+    (user.alias == "Xtal") || (user.alias == "Ddoctest")) {
 	  const debugging = true;
 	} else {
 	  debugging = false;

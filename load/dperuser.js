@@ -112,6 +112,10 @@ userConfig = {
 		//quit out of here
 		stillAlahv = false;
 		break;
+	    case '?':
+		//help--derp
+		console.putmsg(this.cMenu);
+		break;
 	    default:
 		console.putmsg(excuse);
 		break;

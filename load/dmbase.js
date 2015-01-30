@@ -111,7 +111,6 @@ msg_base = {
 		  }
 		  docIface.log_str_n_char(this.log_header, 'n');
 		  if (debugging) {
-		    console.putmsg(red +
 			console.putmsg("xxxx DEBUGING  xxxx   dmbase.js" +
 				"    after to   docIface.log_str_n_char\n");
 		  }
