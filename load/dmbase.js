@@ -6,14 +6,11 @@
  * beta phase: 
  * started: 21sept14
  * finished:
- * 
- * Moving this to its own file as it's started becoming one hell of a
- * monolith.  It looks like I might've overlooked some functionality in
- * the Synchronet ssjs libraries that might be able to fix up some code
- * that'll now be redundant, like the word-wrap bit.  Need to look
- * through that a bit more.  Other than that, this is just a very
- * lobotomized text entry system, and the much simpler subsystems like a
- * newscan and shit.
+ *
+ * All routines for accessing the message base are ending up here.  I did 
+ * try to break it up a bit, but it's still got some monoliths forming in
+ * the structures, so there'll be another pass to break it down more once
+ * I get it through and into active beta testing. 
  */
 
 load("sbbsdefs.js");
@@ -112,7 +109,7 @@ msg_base = {
 		  docIface.log_str_n_char(this.log_header, 'n');
 		  if (debugging) {
 			console.putmsg("xxxx DEBUGING  xxxx   dmbase.js" +
-				"    after to   docIface.log_str_n_char\n");
+				"    after docIface.log_str_n_char\n");
 		  }
 		  console.putmsg("\n");
 		  break;
@@ -211,7 +208,6 @@ msg_base = {
         }
         console.putmsg("\n");
     }
-    //[left off] RIGHT FAHKIN' HEAH
 
   },
   //msg_base properties
@@ -225,7 +221,6 @@ msg_base = {
          "<w>ho's online\t<x>press msg\t<X>press on/off\n\n",
 
   //---+++***===msg_base methods follow===***+++---
-  //dispMsg(), scanSub(), removed uniMsgRead(): scanSub() 
   //should end up replacing most of newScan() [above] and some other
   //areas, I'm sure
 	/*
@@ -358,13 +353,8 @@ msg_base = {
 	  //in order to implement echicken's suggestion
 	  if (ecode2 == -1) {
 		//skip to next sub
-
-
-	  } else if (ecode2 == -2) {
-		//skip to next msg
-		while ((this.dispMsg(mBase, ++tmpPtr, true) < 0) {
-		}		  
-	  }
+		
+	  } 
 
 	  if (inc == 1) {
 	    sBoard.lead_read = tmpPtr;

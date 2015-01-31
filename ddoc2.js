@@ -70,7 +70,8 @@ docIface = {
   //		----++++****====menu methods====****++++----
   /*
    * summary:
-   *	Just a wrapper for console.getkey() at this point
+   *	Just a wrapper for console.getkey() at this point.  I honestly can't
+   * 	remember why I did this now; leaving it in case I remember
    * returns:
    *	Unmodified return value from console.getkey()
    */
@@ -377,7 +378,33 @@ docIface = {
 	console.putmsg(blue + high_intensity + "\n\nHope to see you " +
                 "again soon!\n\nPeace out!\n");
 
+    },
+	/*
+	 * summary:
+	 *	Searches the correct file in /sbbs/user for the proper
+	 *	block of information regarding the current sub/room and
+	 *	displays that information with proper DOC-ish heading
+	 *	information.
+	 */
+    dispRoomInfo : function() {
+	bbs.log_key("I");
+
+	if (debugging) {
+	  console.putmsg(red + "Entered 'i'nfo (dispRoomInfo()) in " +
+		"docIface.util\n");
+	}
+
+	//take care of the header
+	console.putmsg(green + high_intensity + "Forum Info\n\nForum " +
+		"moderator is " + cyan + "<not implemented> " + green +
+		" Total messages: " + red + "<not implemented>\n" +
+		green + "Forum info last updated: " + magenta +
+		"<not implemented> " + green + "by " + cyan +
+		"<not implemented>\n\n");
+
+	//here we'll actually pull the room info
     }
+	
   }
 }
 
