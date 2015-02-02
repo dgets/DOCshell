@@ -288,6 +288,8 @@ docIface = {
 	 *	If running non-confined, returns null
 	 */
     getRoomList : function(confined /*in the future, group here too*/) {
+	var debugging = true;
+
 	if (confined) {
 	  	//damn we don't need anything complex, durrr
 		if (debugging) {

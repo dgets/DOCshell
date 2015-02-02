@@ -27,16 +27,5 @@ My own BBS (still pending implementation of this DOCish interface [which
 will be coming very soon]) can be found at the following addresses:
 
 	* Tinfoil Tetrahedron BBS (telnet://tinfoil.synchro.net/)
-	* Tinfoil Tetrahedron BBS (secure via SSH: ssh://tinfoil.synchro.net/)
-	  _please note that SSH is currently unavailable_
-
-My original README.md contents follow:
-
-Just a wee bit of a project that I'm working on in order to make my
-fully-featured BBS suite a little bit friendlier to the people that I
-used to spend a lot of time on text media with.  It probably won't drag
-many of them over here, since our other nexii have disappeared, but who
-knows.  At the very least it's good experience for me in maintainable
-coding and JavaScript (not to mention JS with different custom
-libraries).
+	* Tinfoil Tetrahedron BBS (secure via SSH: ssh://tinfoil.synchro.net:8022/)
 

@@ -249,7 +249,12 @@ msg_base = {
         var mHdr = base.get_msg_header(ptr);
         var mBody = base.get_msg_body(ptr);
 
-	if ((mHdr === null) && (ptr == base.last_msg)) {
+	if (debugging) {
+	  console.putmsg(red + "ptr: " + ptr + "\tbase.last_msg: " +
+		base.last_msg + "\n");
+	}
+
+	if ((mHdr === null) && (ptr == (base.last_msg - 1))) {
 	  //this is where echicken's suggestion must go
 	  return -1;	//code for we're out of messages here, skip to
 			//next
@@ -337,11 +342,14 @@ msg_base = {
 		return 1;
 	  } else if ((inc == 1) && (tmpPtr >= mBase.last_msg)) {
 		//corrupt pointers, wtf?
-		console.putmsg(red + high_intensity + "Current " +
-		  "pointer exceeds last_msg pointer; this is bad."
-		  + "\n");
+		if (debugging) {
+		  console.putmsg(red + high_intensity + "Current " +
+		    "pointer exceeds last_msg pointer; this is bad."
+		    + "\n");
+		}
+		//docIface.nav.skip();
 		//insert debug logging to standard log here
-		return -3;
+		//return -3;
 	  } else if ((inc == -1) && (tmpPtr < mBase.first_msg)) {
 		console.putmsg(green + high_intensity +
 			"No preceeding messages\n");
@@ -350,10 +358,17 @@ msg_base = {
 
 	  //wut's up with the last param on this again?
 	  ecode2 = this.dispMsg(mBase, tmpPtr, true);
+	  if (debugging) {
+	    console.putmsg(red + "ecode2: " + ecode2 + "\n");
+	  }
+
 	  //in order to implement echicken's suggestion
 	  if (ecode2 == -1) {
 		//skip to next sub
-		
+		if (debugging) {
+		  console.putmsg(red + "Skipping\n");
+		}
+		docIface.nav.skip();	
 	  } 
 
 	  if (inc == 1) {
