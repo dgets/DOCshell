@@ -362,6 +362,12 @@ msg_base = {
 	    console.putmsg(red + "ecode2: " + ecode2 + "\n");
 	  }
 
+          //skip through any moar deleted/invalid for whatever
+          while (ecode2 == -2) {
+                tmpPtr += inc;
+                ecode2 = this.dispMsg(mBase, tmpPtr, true);
+          }
+
 	  //in order to implement echicken's suggestion
 	  if (ecode2 == -1) {
 		//skip to next sub
@@ -369,7 +375,7 @@ msg_base = {
 		  console.putmsg(red + "Skipping\n");
 		}
 		docIface.nav.skip();	
-	  } 
+	  }
 
 	  if (inc == 1) {
 	    sBoard.lead_read = tmpPtr;
