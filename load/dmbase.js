@@ -308,7 +308,7 @@ msg_base = {
 
 	if (debugging) {
 	  console.putmsg(red + "In scanSub(); forward = " + forward +
-		"\n");
+		"\tuser.cursub: " + user.cursub + "\n");
 	}
 
 	//open
@@ -374,7 +374,23 @@ msg_base = {
 		if (debugging) {
 		  console.putmsg(red + "Skipping\n");
 		}
-		docIface.nav.skip();	
+		docIface.nav.skip();
+	
+		//close the old mBase and open the next
+		try {
+		  mBase.close();
+		  mBase = new MsgBase(user.cursub);
+		} catch (e) {
+		  console.putmsg(red + "Error closing old mBase or " +
+		    "opening the new one after skip:\n" + e.message +
+		    "\nError logged\n\n");
+		  log("Error skipping through scanSub(): " +
+		    e.message);
+		}
+
+		//set everything to start reading in new sub
+		tmpPtr = mBase.scan_ptr; inc = 1; //forward by default
+		
 	  }
 
 	  if (inc == 1) {

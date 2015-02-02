@@ -181,6 +181,11 @@ docIface = {
 	    red + high_intensity + "Working with list:\n");
 	}
 
+	if (rList === 0) {
+	  console.putmsg(red + high_intensity + "Got a null " + 
+	    "for the list of rooms that was returned; wut?\n");
+	}
+
 	for each (rm in rList) {
 	  if (debugging) {
 	    console.putmsg(yellow + ndx++ + ": " + rm.name + 
@@ -209,16 +214,6 @@ docIface = {
 	   	break;
 	    }
 	  }
-	  //okay so if this works, we need to wipe out the if !success
-	  //clause below
-	  /*if ((ndx == (rList.length)) && (!success)) {
-	    if (debugging) {
-		console.putmsg(yellow + "Wrapping to Lobby> via " +
-		  "ndx & !success comparison code\n");
-	    }
-	    user.cursub = "Lobby";
-	    success = true;
-	  }*/
 
 	  //I know that's a horrible way to do this, it's just early in
 	  //the morning and I haven't had enough coffee to process it
@@ -226,12 +221,6 @@ docIface = {
 	  //(initially speaking of the method below this block)
 	}
 
-	/*if (!success) {
-	  if (debugging) {
-	    console.putmsg(yellow + "Wrapping to Lobby>\n");
-	  }
-	  user.cursub = "Lobby";
-	} */
     },
 	/*
 	 * summary:
