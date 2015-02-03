@@ -80,6 +80,12 @@ userRecords = {
 	}
 
 	dbgFile.close();
+
+	if (debugging) {
+	  console.putmsg(red + "working with: " + debuggers.toString() +
+		"\n");
+	}
+
 	return debuggers;
     }
   },

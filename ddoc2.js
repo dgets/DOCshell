@@ -20,12 +20,12 @@ load("load/dperuser.js");
 
 //pseudo-globals
 //let's leave the debugging to the sysops & cosysops, shall we?
-if ((user.alias == "Khelair") || (user.alias == "neuro") ||
+/*if ((user.alias == "Khelair") || (user.alias == "neuro") ||
     (user.alias == "Xtal") || (user.alias == "Ddoctest")) {
 	  const debugging = true;
 	} else {
 	  debugging = false;
-}
+*/}
 
 const excuse = "\n\nNot so fast . . .\n\n",
 	debugOnly = false, confine_messagebase = true, topebaseno = 6,
@@ -39,6 +39,22 @@ const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
 	normal = ctrl_a + "n";
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
+
+debuggerz = new Array();
+
+//new debugging test
+for each(dbgrz in debuggerz) {
+  if ((user.alias == dbgrz[0]) && (dbgrz[1] > 0)) {
+	const debugging = true;
+  } else {
+	const debugging = false;
+  }
+}
+/*
+ * obviously, with all of the other places that we've got debugging
+ * referenced, we need to go around and make them dependent upon this, 
+ * even before we start introducing granularity into the whole mixture
+ */
 
 docIface = {
   //top level menu
@@ -178,7 +194,8 @@ docIface = {
 	if (debugging) {
 	  console.putmsg(red + "Entered docIface.nav.skip(), " +
 	    "looking for: " + user.cursub + "\n" +
-	    red + high_intensity + "Working with list:\n");
+	    red + high_intensity + "Working with list:\n" +
+	    rList.toString());
 	}
 
 	if (rList === 0) {
@@ -328,6 +345,12 @@ docIface = {
 	  user.curgrp = "DystopianUtopia";
 	  user.cursub = "Lobby";
 	}
+
+	//also read in debuggers to this global (yeah the horror, etc)
+	debuggerz = userRecords.UserDataIO.getDebuggers();
+	//are we going to want to make this a more easily used format,
+	//or is this sufficient for now?
+
     },
 	/*
 	 * summary:
