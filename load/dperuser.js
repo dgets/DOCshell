@@ -21,6 +21,7 @@ userRecords = {
   //BBS system
 
   //	----++++****====userRecords properties====****++++----
+  userDir : "/sbbs/data/user/",
   maxInfoLines : 5,
   doingChars : 55,
 
@@ -39,11 +40,12 @@ userRecords = {
 	}
 
 	try {
-	  var userInfo = new File("user" + user.number + ".ddoc-info");
+	  var userInfo = new File(userDir + "user" + user.number + 
+				  ".ddoc-info");
 	} catch (e) {
 	  console.putmsg(red + "Error writing user" + user.number +
-		".ddoc-info to /sbbs/user/ directory\nException: " +
-		e.toString() + "\n");
+		".ddoc-info to /sbbs/data/user/ directory\nException: " +
+		e.toString() + "\n"); //use constant/property above l8r
 	  return -1;
 	}
 
@@ -57,7 +59,7 @@ userRecords = {
 	var debuggers = new Array();
 	var ouah;
 
-	dbgFile.name = "/sbbs/user/ddoc-debuggers";
+	dbgFile.name = userDir + "ddoc-debuggers";
 	if (!dbgFile.exists) {
 	  return -1;
 	}
