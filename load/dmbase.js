@@ -240,11 +240,6 @@ msg_base = {
 	  breaks = true;
 	}
 
-	if (debugging) {
-	  console.putmsg(red + "base: " + base.cfg.grp_name + "\nptr: "
-			 + ptr + "\nbreaks: " + breaks + "\n");
-	}
-
         //try/catch this
         var mHdr = base.get_msg_header(ptr);
         var mBody = base.get_msg_body(ptr);
@@ -374,7 +369,8 @@ msg_base = {
 		if (debugging) {
 		  console.putmsg(red + "Skipping\n");
 		}
-		docIface.nav.skip();
+		docIface.nav.skip(true);	//never forget it needs
+					//to know if confined or not!
 	
 		//close the old mBase and open the next
 		try {
