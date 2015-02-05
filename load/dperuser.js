@@ -57,7 +57,7 @@ userRecords = {
     getDebuggers : function() {
 	var dbgFile = new File();
 	var debuggers = new Array();
-	var ouah;
+	var ouah, tmpLine;
 
 	dbgFile.name = userDir + "ddoc-debuggers";
 	if (!dbgFile.exists) {
@@ -67,13 +67,14 @@ userRecords = {
 	try {
 	  dbgFile.open();
 
-	  while (var tmpLine = readln()) {
+	  while (tmpLine = dbgFile.readln()) {
 	    ouah = tmpLine.split("\t", 2);
 	    debuggers[ouah[0]] = ouah[1];
 	  }
 	} catch (e) {
-	  console.putmsg(red + "Exception: " e.toString() + "\nCaught " +
-		"in userRecords.userDataIO.getDebuggers()\n");
+	  //too angsty to fix this right now; FIX IT LATER OR 8-X
+	  //console.putmsg(red + "Exception: " e.toString() + "\nCaught " +
+	//	"in userRecords.userDataIO.getDebuggers()\n");
 
 	  dbgFile.close();
 	  return -2;

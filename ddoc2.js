@@ -25,7 +25,7 @@ load("load/dperuser.js");
 	  const debugging = true;
 	} else {
 	  debugging = false;
-*/}
+}*/
 
 const excuse = "\n\nNot so fast . . .\n\n",
 	debugOnly = false, confine_messagebase = true, topebaseno = 6,
@@ -45,9 +45,9 @@ debuggerz = new Array();
 //new debugging test
 for each(dbgrz in debuggerz) {
   if ((user.alias == dbgrz[0]) && (dbgrz[1] > 0)) {
-	const debugging = true;
+	debugging = true;
   } else {
-	const debugging = false;
+	debugging = false;
   }
 }
 /*
