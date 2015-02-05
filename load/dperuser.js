@@ -74,7 +74,7 @@ userRecords = {
 	} catch (e) {
 	  //too angsty to fix this right now; FIX IT LATER OR 8-X
 	  //console.putmsg(red + "Exception: " e.toString() + "\nCaught " +
-	//	"in userRecords.userDataIO.getDebuggers()\n");
+	  //	"in userRecords.userDataIO.getDebuggers()\n");
 
 	  dbgFile.close();
 	  return -2;

@@ -173,6 +173,9 @@ msg_base = {
           case 'x':     //express msg
             express.sendX();
             break;
+	  case 'l':	//logout
+	    docIface.util.quitDdoc();
+	    break; 
           default:
             if (debugging)
               console.putmsg("\nNot handled yet . . .\n\n");
@@ -376,19 +379,19 @@ msg_base = {
 	
 		//close the old mBase and open the next
 		try {
-		  if (debugging) {
-		    console.putmsg(red + "Entered try/catch for " +
-			"opening new messages base\n");
-		  }
-
 		  mBase.close();
 		  mBase = new MsgBase(newRmCode);
+		  if (debugging) {
+		    console.putmsg(red + "Opened: " + newRmCode +
+			" allegedly . . .\n");
+		  }
 		} catch (e) {
 		  console.putmsg(red + "Error closing old mBase or " +
 		    "opening the new one after skip:\n" + e.message +
 		    "\nError logged\n\n");
 		  log("Error skipping through scanSub(): " +
 		    e.message);
+		  return -3;
 		}
 
 		//set everything to start reading in new sub
