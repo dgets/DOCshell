@@ -356,7 +356,7 @@ docIface = {
 	}
 
 	//also read in debuggers to this global (yeah the horror, etc)
-	debuggerz = userRecords.UserDataIO.getDebuggers();
+	debuggerz = userRecords.userDataIO.getDebuggers();
 	//are we going to want to make this a more easily used format,
 	//or is this sufficient for now?
 

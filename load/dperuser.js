@@ -59,7 +59,7 @@ userRecords = {
 	var debuggers = new Array();
 	var ouah, tmpLine;
 
-	dbgFile.name = userDir + "ddoc-debuggers";
+	dbgFile.name = this.userDir + "ddoc-debuggers";
 	if (!dbgFile.exists) {
 	  return -1;
 	}
