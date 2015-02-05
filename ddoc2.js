@@ -186,6 +186,9 @@ docIface = {
 	 * confined:
 	 *	boolean depending on confinement status (currently
 	 *	ignored
+	 * returns:
+	 *	code for the room (in case other operations need to be
+	 *	performed upon that message base by the calling code)
 	 */
     skip : function(confined) {
 	var rList = docIface.util.getRoomList(confined);
@@ -227,6 +230,11 @@ docIface = {
 		user.cursub = "Lobby";
 		break;
 	    } else {
+		if (debugging) {
+		  console.putmsg(red + "Setting user.cursub to " +
+			user.cursub + "\n");
+		}
+
 		user.cursub = rList[ndx].name;
 	   	break;
 	    }
@@ -235,7 +243,8 @@ docIface = {
 	  //I know that's a horrible way to do this, it's just early in
 	  //the morning and I haven't had enough coffee to process it
 	  //better yet.  :P
-	  //(initially speaking of the method below this block)
+
+	  return rm.cfg.code;
 	}
 
     },

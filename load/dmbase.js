@@ -297,7 +297,8 @@ msg_base = {
 	 *	working on further shite
 	 */
   scanSub : function (sBoard, forward) {
-	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode, ecode2, inc;
+	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode, ecode2, inc,
+		    newRmCode;
 	var fuggit = false;	//because never start with 'fuggit'
 	var debugging = true;
 
@@ -351,7 +352,7 @@ msg_base = {
 		return 2;	//new value for bottoming out
 	  }
 
-	  //wut's up with the last param on this again?
+	  //last parameter is whether or not bases are confined
 	  ecode2 = this.dispMsg(mBase, tmpPtr, true);
 	  if (debugging) {
 	    console.putmsg(red + "ecode2: " + ecode2 + "\n");
@@ -369,13 +370,19 @@ msg_base = {
 		if (debugging) {
 		  console.putmsg(red + "Skipping\n");
 		}
-		docIface.nav.skip(true);	//never forget it needs
-					//to know if confined or not!
+		newRmCode = docIface.nav.skip(true);	
+		//never forget it needs to know if confined!
+		//god the ignorant debugging HORROR
 	
 		//close the old mBase and open the next
 		try {
+		  if (debugging) {
+		    console.putmsg(red + "Entered try/catch for " +
+			"opening new messages base\n");
+		  }
+
 		  mBase.close();
-		  mBase = new MsgBase(user.cursub);
+		  mBase = new MsgBase(newRmCode);
 		} catch (e) {
 		  console.putmsg(red + "Error closing old mBase or " +
 		    "opening the new one after skip:\n" + e.message +
