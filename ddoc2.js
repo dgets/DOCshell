@@ -207,8 +207,9 @@ docIface = {
 	}
 
 	for each (rm in rList) {
+	  ndx++;
 	  if (debugging) {
-	    console.putmsg(yellow + ndx++ + ": " + rm.name + 
+	    console.putmsg(yellow + ndx + ": " + rm.name + 
 		"\n");
 	  }
           if (success) {
