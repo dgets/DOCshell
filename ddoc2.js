@@ -365,7 +365,7 @@ docIface = {
 	//this is nao going to JSON
 
 	console.putmsg("debuggerz holds: " + debuggerz.toString() + "\n");
-	localdebug = JSON.parse(debuggerz){"debug"}{user.name};
+	localdebug = debuggerz.JSON.parse().debug.[user.name];
 	console.putmsg("localdebug holds: " + localdebug.toString() + "\n");
 
     },
