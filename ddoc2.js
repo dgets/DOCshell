@@ -217,7 +217,7 @@ docIface = {
 		user.cursub = "Lobby";
 		break;
 	    } else {
-		if (debugging) {
+		if (localdebug.navigation || localdebug.message_scan) {
 		  console.putmsg(red + "Setting user.cursub to " +
 			user.cursub + "\n");
 		}
@@ -230,6 +230,11 @@ docIface = {
 	  //I know that's a horrible way to do this, it's just early in
 	  //the morning and I haven't had enough coffee to process it
 	  //better yet.  :P
+
+	  if (localdebug.message_scan) {
+	    console.putmsg(red + "rm.cfg.code to return is: " +
+		rm.cfg.code + "\n");
+	  }
 
 	  return rm.cfg.code;
 	}
@@ -256,7 +261,7 @@ docIface = {
 	for each (var rm in rList) {
 	  if (rm.description.toUpperCase().indexOf(
 				srchStr.toUpperCase()) != -1) {
-		if (debugging) {
+		if (localdebug.misc) {
 		  console.putmsg("Success in chk4Room()\n");
 		}
 		return rm;	
@@ -290,11 +295,11 @@ docIface = {
 	 *	If running non-confined, returns null
 	 */
     getRoomList : function(confined /*in the future, group here too*/) {
-	var debugging = true;
+	//var debugging = true;
 
 	if (confined) {
 	  	//damn we don't need anything complex, durrr
-		if (debugging) {
+		if (localdebug.misc) {
 		  console.putmsg(red + "Working with sub list: " +
 			msg_area.grp_list[topebaseno].sub_list.toString() +
 			"\n");
@@ -345,20 +350,13 @@ docIface = {
 	docIface.util.preFileDir = user.curdir;
 
 	if (confined) {
-	  if (debugging) {
+	  if (localdebug.flow_control) {
 	    console.putmsg("Setting user.curgrp to DystopianUtopia\n");
 	    console.putmsg("Setting user.cursub to Lobby\n");
 	  }
 	  user.curgrp = "DystopianUtopia";
 	  user.cursub = "Lobby";
 	}
-
-	debuggerz = userRecords.userDataIO.getDebuggers();
-	//this is nao going to JSON
-
-	console.putmsg("debuggerz holds: " + debuggerz.toString() + "\n");
-	localdebug = debuggerz.JSON.parse().debug.[user.name];
-	console.putmsg("localdebug holds: " + localdebug.toString() + "\n");
 
     },
 	/*
@@ -373,7 +371,7 @@ docIface = {
 	bbs.log_str(user.name + " is leaving dDOC shell");
 	bbs.log_key("L");
 
-	if (debugging) {
+	if (localdebug.flow_control) {
 	  console.putmsg(red + "Restoring user.cursub: " + 
 	    docIface.util.preSubBoard +
 	    "\nbbs.curgrp: " + docIface.util.preMsgGroup + 
@@ -381,18 +379,6 @@ docIface = {
 	  console.putmsg(red + "\nRestoring bbs.* properties\n");
 	}
 
-	/*
-	user.cursub = preSubBoard;
-	user.curgrp = preMsgGroup;
-	user.curdir = preFileDir;
-	It turns out that the user.* properties are used for any user,
-	not necessarily logged in, that they last used; we're going to
-	be using bbs.* only in this shell
-	*/
-
-	//not sure which one of this is exactly accurate, but settings
-	//aren't getting saved after quitting the shell, so here's moar
-	//(with vestigial code that will have to be removed l8r)
 	//restore initial setings prior to exit
 	user.cursub = docIface.util.preSubBoard;
 	bbs.curgrp = docIface.util.preMsgGroup;
@@ -412,7 +398,7 @@ docIface = {
     dispRoomInfo : function() {
 	bbs.log_key("I");
 
-	if (debugging) {
+	if (localdebug.misc) {
 	  console.putmsg(red + "Entered 'i'nfo (dispRoomInfo()) in " +
 		"docIface.util\n");
 	}
@@ -445,7 +431,8 @@ docIface.util.initDdoc(confine_messagebase);
  * has no curgrp.  need to find out if bbs.curgrp is going to work, and
  * if not, how do we reverse lookup a group from a sub code name
  */
-if (confine_messagebase && (user.curgrp != topebaseno) && debugging) {
+if (confine_messagebase && (user.curgrp != topebaseno) && 
+    localdebug.flow_control) {
   //are we already in a dystopian area?
 	console.putmsg(red + "CurGrp: " + bbs.curgrp + normal + "\n" +
 		       "Trying a jump . . .\n");
@@ -457,7 +444,7 @@ if (confine_messagebase && (user.curgrp != topebaseno) && debugging) {
 if (!debugOnly) {
  /* the main program loop */
  while (stillAlive) {
-	if (debugging) {
+	if (localdebug.flow_control) {
 	  console.putmsg("Got " + user.cursub + " in user.cursub\n");
 	}
 
