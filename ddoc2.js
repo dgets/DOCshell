@@ -40,21 +40,24 @@ const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
-debuggerz = new Array();
+localdebug = null;
 
 //new debugging test
-for each(dbgrz in debuggerz) {
+/*for each(dbgrz in debuggerz) {
   if ((user.alias == dbgrz[0]) && (dbgrz[1] > 0)) {
 	debugging = true;
   } else {
 	debugging = false;
   }
-}
+} */
+
 /*
  * obviously, with all of the other places that we've got debugging
  * referenced, we need to go around and make them dependent upon this, 
  * even before we start introducing granularity into the whole mixture
  */
+
+//this is being phased out in lieu of JSON granular debugging being enabled
 
 docIface = {
   //top level menu
@@ -330,6 +333,8 @@ docIface = {
 	 *	confined
 	 */
     initDdoc : function(confined) {
+	var debuggerz;
+
 	if (confined) {
 		bbs.log_str(user.name + " is entering dDOC shell and " +
 			"confining to DystopianUtopia group");
@@ -356,10 +361,12 @@ docIface = {
 	  user.cursub = "Lobby";
 	}
 
-	//also read in debuggers to this global (yeah the horror, etc)
 	debuggerz = userRecords.userDataIO.getDebuggers();
-	//are we going to want to make this a more easily used format,
-	//or is this sufficient for now?
+	//this is nao going to JSON
+
+	console.putmsg("debuggerz holds: " + debuggerz.toString() + "\n");
+	localdebug = JSON.parse(debuggerz){"debug"}{user.name};
+	console.putmsg("localdebug holds: " + localdebug.toString() + "\n");
 
     },
 	/*

@@ -376,7 +376,12 @@ msg_base = {
 		newRmCode = docIface.nav.skip(true);	
 		//never forget it needs to know if confined!
 		//god the ignorant debugging HORROR
-	
+
+		if (debugging) {
+		  console.putmsg(red + "Got room code: " + newRmCode +
+			" returned from docIface.nav.skip();\n");
+		}
+
 		//close the old mBase and open the next
 		try {
 		  mBase.close();

@@ -56,8 +56,8 @@ userRecords = {
     },
     getDebuggers : function() {
 	var dbgFile = new File();
-	var debuggers = new Array();
-	var ouah, tmpLine;
+	var debuggers;
+	var tmpLine;
 
 	dbgFile.name = this.userDir + "ddoc-debuggers";
 	if (!dbgFile.exists) {
@@ -67,10 +67,7 @@ userRecords = {
 	try {
 	  dbgFile.open();
 
-	  while (tmpLine = dbgFile.readln()) {
-	    ouah = tmpLine.split("\t", 2);
-	    debuggers[ouah[0]] = ouah[1];
-	  }
+	  debuggers = JSON.parse(tmpLine);
 	} catch (e) {
 	  //too angsty to fix this right now; FIX IT LATER OR 8-X
 	  //console.putmsg(red + "Exception: " e.toString() + "\nCaught " +
