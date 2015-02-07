@@ -19,14 +19,6 @@ load("load/dexpress.js");
 load("load/dperuser.js");
 
 //pseudo-globals
-//let's leave the debugging to the sysops & cosysops, shall we?
-/*if ((user.alias == "Khelair") || (user.alias == "neuro") ||
-    (user.alias == "Xtal") || (user.alias == "Ddoctest")) {
-	  const debugging = true;
-	} else {
-	  debugging = false;
-}*/
-
 const excuse = "\n\nNot so fast . . .\n\n",
 	debugOnly = false, confine_messagebase = true, topebaseno = 6,
 	alwaysLogout = false, std_logging = true;
@@ -56,8 +48,6 @@ localdebug = null;
  * referenced, we need to go around and make them dependent upon this, 
  * even before we start introducing granularity into the whole mixture
  */
-
-//this is being phased out in lieu of JSON granular debugging being enabled
 
 docIface = {
   //top level menu
@@ -109,21 +99,8 @@ docIface = {
    */
   log_str_n_char : function(str, key) {
 	try {
-	  if (debugging) {
-	    console.putmsg(red + 
-		"xxxx DEBUGING  xxxx   ddoc2.js    prior to log_str\n");
-	  }
 	  bbs.log_str(str);
-	  if (debugging) {
-	    console.putmsg(red +
-		"xxxx DEBUGING  xxxx   ddoc2.js    between log_str and " + 
-		"log_key\n");
-	  }
 	  bbs.log_key(key);
-	  if (debugging) {
-	    console.putmsg(red +
-		"xxxx DEBUGING  xxxx   ddoc2.js    after log_key\n");
-	  }
 	} catch (e) {
 	  system.log("TTBBS Error " + e.description +
 		" when trying to save str+key to log");
@@ -163,7 +140,7 @@ docIface = {
 	  "name? -> ");
 	ouah = this.chk4Room(uChoice = console.getstr().toUpperCase());
 
-	if (debugging) {
+	if (localdebug.navigation) {
 	  console.putmsg("Got back " + ouah.name + " from chk4Room\n");
 	}
 
@@ -197,11 +174,16 @@ docIface = {
 	var rList = docIface.util.getRoomList(confined);
 	var ndx = 0, success = false;
 
-	if (debugging) {
+	//phasing this out for new granular debugging
+	/* if (debugging) {
 	  console.putmsg(red + "Entered docIface.nav.skip(), " +
 	    "looking for: " + user.cursub + "\n" +
 	    red + high_intensity + "Working with list:\n" +
 	    rList.toString());
+	} */
+	if (localdebug.navigation || localdebug.message_scan) {
+	  console.putmsg(red + "Entered docIface.nav.skip(), " +
+	    "looking for: " + user.cursub + "\n");
 	}
 
 	if (rList === 0) {
@@ -211,21 +193,22 @@ docIface = {
 
 	for each (rm in rList) {
 	  ndx++;
-	  if (debugging) {
+	  if (localdebug.navigation || localdebug.message_scan) {
 	    console.putmsg(yellow + ndx + ": " + rm.name + 
 		"\n");
 	  }
-          if (success) {
-              if (debugging) {
+          if (success || (rm.name.indexOf(user.cursub) == 0)) {
+              if (localdebug.navigation || localdebug.message_scan) {
                 console.putmsg(yellow + "Skipping to " +
                   rm.name + "\n");
               }
               user.cursub = rm.name;
               break;
           }
+
 	  //let's try out the experimental technology
 	  if (rm.name.indexOf(user.cursub) == 0) {
-	    if (debugging) {
+	    if (localdebug.navigation || localdebug.message_scan) {
 	      console.putmsg(yellow + "Found current sub " +
 		user.cursub + " in the list\n");
 	    }
@@ -335,6 +318,13 @@ docIface = {
     initDdoc : function(confined) {
 	var debuggerz;
 
+        debuggerz = userRecords.userDataIO.getDebuggers();
+        //this is nao going to JSON
+
+        console.putmsg("debuggerz holds: " + debuggerz.toString() + "\n");
+        localdebug = debuggerz.JSON.parse().debug.[user.name];
+        console.putmsg("localdebug holds: " + localdebug.toString() + "\n");
+
 	if (confined) {
 		bbs.log_str(user.name + " is entering dDOC shell and " +
 			"confining to DystopianUtopia group");
@@ -342,12 +332,14 @@ docIface = {
 		bbs.log_str(user.name + " entering dDOC shell");
 	}
 
-	if (debugging) {
+	//phasing out for new granular debugging
+	/*if (debugging) {
 	  console.putmsg(red + "Debugging:\n" + high_intensity +
 	    "user.cursub:\t" + user.cursub + "\nuser.curdir:\t" +
 	    user.curdir + "\nbbs.curgrp:\t" + bbs.curgrp + 
 	    "\nbbs.cursub:\t" + bbs.cursub + "\n");
-	}
+	}*/
+
 	docIface.util.preSubBoard = user.cursub;
 	docIface.util.preMsgGroup = bbs.curgrp;
 	docIface.util.preFileDir = user.curdir;
