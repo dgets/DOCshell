@@ -401,7 +401,7 @@ msg_base = {
 
 		//set everything to start reading in new sub
 		tmpPtr = mBase.scan_ptr; inc = 1; //forward by default
-		
+		ecode2 = 0;
 	  }
 
 	  if (inc == 1) {
