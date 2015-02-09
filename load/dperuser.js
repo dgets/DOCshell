@@ -67,7 +67,7 @@ userRecords = {
 
 	try {
 	  dbgFile.open();
-	  tmpLine = dbgFile.readln();
+	  tmpLine = dbgFile.read();
 
 	  debuggers = tmpLine.JSON.parse();
 	} catch (e) {
