@@ -13,6 +13,7 @@
  */
 
 //includes
+load("synchronet-json.js");
 load("load/dmbase.js");
 load("load/dpoast.js");
 load("load/dexpress.js");
@@ -321,18 +322,14 @@ docIface = {
 	 *	confined
 	 */
     initDdoc : function(confined) {
-	var debuggerz;
-
-        debuggerz = userRecords.userDataIO.getDebuggers();
+        localdebug = userRecords.userDataIO.getDebuggers();
         //this is nao going to JSON
 
-        //console.putmsg("debuggerz holds: " + debuggerz.toString() + "\n");
-        localdebug = JSON.parse(debuggerz).debug[user.name];
         console.putmsg("localdebug holds: " + localdebug.toString() + "\n");
 
 	if (confined) {
 		bbs.log_str(user.name + " is entering dDOC shell and " +
-			"confining to DystopianUtopia group");
+			"confined to DystopianUtopia group");
 	} else {
 		bbs.log_str(user.name + " entering dDOC shell");
 	}

@@ -22,6 +22,7 @@ userRecords = {
 
   //	----++++****====userRecords properties====****++++----
   userDir : "/sbbs/data/user/",
+  debuggersFile : "ddoc-debuggers",
   maxInfoLines : 5,
   doingChars : 55,
 
@@ -56,26 +57,25 @@ userRecords = {
     },
     getDebuggers : function() {
 	var dbgFile = new File();
-	var debuggers;
 	var tmpLine;
+	var debugging = true;
 
-	//debugging straight out
-	console.putmsg(blue + high_intensity + "using the filespec: " +
-		userRecords.userDir + "ddoc-debuggers\n");
-
-	dbgFile.name = userRecords.userDir + "ddoc-debuggers";
+	dbgFile.name = userRecords.userDir + debuggersFile;
 
 	try {
 	  dbgFile.open();
-	  tmpLine = dbgFile.read();
+	  tmpLine = dbgFile.readAll();
 
-	  debuggers = tmpLine.JSON.parse();
+	  console.putmsg(yellow + tmpLine + "\n");
+
+	  userData = JSON.parse(tmpLine);
 	} catch (e) {
 	  //too angsty to fix this right now; FIX IT LATER OR 8-X
 	  //console.putmsg(red + "Exception: " e.toString() + "\nCaught " +
 	  //	"in userRecords.userDataIO.getDebuggers()\n");
 
-	  console.putmsg("Caught: " + e.message + "\n");
+	  console.putmsg("Caught: " + e.message + "\t" + "#: " + e.number +
+		"\tError: " + e.name + "\n");
 	  dbgFile.close();
 	  return -2;
 	}
@@ -87,8 +87,66 @@ userRecords = {
 		"\n");
 	}
 
-	return debuggers;
+	return userData[user.name].debug;
+    },
+    writeDebugger(uname, opts) {
+	var genUserFile = new File();
+	var blob, blobGuts;
+
+	genUserFile.name = userRecords.userDir + debuggersFile;
+
+	try {
+	  genUserFile.open();
+	} catch (e) {
+	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
+		"\tError: " + e.name + "\nReturning w/error\n");
+	  genUserFile.close();
+	  return -1;
+	}
+
+	try {
+	  blob = genUserFile.readAll();
+	} catch (e) {
+	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
+		"\tError: " + e.name + "\nReturning w/error\n");
+	  return -2;
+	} finally {
+	  genUserFile.close();
+	}
+
+	try {
+	  blobGuts = JSON.parse(blob);
+	  blobGuts[user.name] = opts;
+	  blob = JSON.stringify(blobGuts);
+	} catch (e) {
+	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
+		"\tError: " + e.name + "\nReturning w/error\n");
+	  return -4;
+	}
+
+	try {
+	  genUserFile.open();
+	} catch (e) {
+	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
+		"\tError: " + e.name + "\nReturning w/error\n");
+	  genUserFile.close();
+	  return -3;
+	}
+
+	try {
+	  genUserFile.write(blob);
+	} catch (e) {
+	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
+		"\tError: " + e.name + "\nReturning w/error\n");
+	  //genUserFile.close();
+	  return -5;
+	} finally {
+	  genUserFile.close();
+	}
+
+	return 0;
     }
+
   },
   userDataUI : {
     //pushing/pulling output from the user (sorry, I can't stop using that
@@ -109,6 +167,36 @@ userRecords = {
 
 	return uInp;
     },
+    queryDebugSettings(uname) {
+	var availableOpts = { 
+		"flow_control" 		:	"false",
+		"message_posting"	:	"false",
+		"message_scan"		:	"false",
+		"instant_messaging"	:	"false",
+		"navigation"		:	"false",
+		"file_io"		:	"false",
+		"misc"			:	"false"
+	}
+	var opt, done = false;
+
+	console.putmsg(yellow + high_intensity + "Oont nao vhe vhill " +
+	  "set " + uname + "'s debugging options.\n\n");
+
+	while (!done) {
+	  for each (opt in availableOpts.keys()) {
+	    if (console.yesno("Would you like to help debugging " +
+			      opt + "? ")) {
+	      availableOpts[opt] = true;
+	    }
+	  }
+
+	  if (console.noyes("Do you need to go through these again? ")) {
+		done = true;
+	  } 
+
+	  userRecords.userDataIO.writeDebugger(uname, availableOpts);
+    },
+
     displayInfo : function() {
 
     }
