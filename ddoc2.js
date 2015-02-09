@@ -326,8 +326,8 @@ docIface = {
         debuggerz = userRecords.userDataIO.getDebuggers();
         //this is nao going to JSON
 
-        //console.putmsg("debuggerz holds: " + debuggerz.toString() + "\n");
-        localdebug = JSON.parse(debuggerz).debug[user.name];
+        console.putmsg("debuggerz holds: " + debuggerz.toString() + "\n");
+        localdebug = debuggerz.JSON.parse().debug[user.name];
         console.putmsg("localdebug holds: " + localdebug.toString() + "\n");
 
 	if (confined) {

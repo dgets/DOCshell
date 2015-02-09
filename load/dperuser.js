@@ -59,17 +59,23 @@ userRecords = {
 	var debuggers;
 	var tmpLine;
 
-	dbgFile.name = this.userDir + "ddoc-debuggers";
+	//debugging straight out
+	console.putmsg(blue + high_intensity + "using the filespec: " +
+		userRecords.userDir + "ddoc-debuggers\n");
+
+	dbgFile.name = userRecords.userDir + "ddoc-debuggers";
 
 	try {
 	  dbgFile.open();
+	  tmpLine = dbgFile.readln();
 
-	  debuggers = JSON.parse(tmpLine);
+	  debuggers = tmpLine.JSON.parse();
 	} catch (e) {
 	  //too angsty to fix this right now; FIX IT LATER OR 8-X
 	  //console.putmsg(red + "Exception: " e.toString() + "\nCaught " +
 	  //	"in userRecords.userDataIO.getDebuggers()\n");
 
+	  console.putmsg("Caught: " + e.message + "\n");
 	  dbgFile.close();
 	  return -2;
 	}
