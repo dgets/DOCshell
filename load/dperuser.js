@@ -60,9 +60,6 @@ userRecords = {
 	var tmpLine;
 
 	dbgFile.name = this.userDir + "ddoc-debuggers";
-	if (!dbgFile.exists) {
-	  return -1;
-	}
 
 	try {
 	  dbgFile.open();
