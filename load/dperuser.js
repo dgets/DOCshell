@@ -14,6 +14,8 @@
  * other than those bits that I remember.
  */
 
+load("synchronet-json.js");
+
 var debugging = true;
 
 userRecords = {
@@ -60,7 +62,7 @@ userRecords = {
 	var tmpLine;
 	var debugging = true;
 
-	dbgFile.name = userRecords.userDir + debuggersFile;
+	dbgFile.name = userRecords.userDir + userRecords.debuggersFile;
 
 	try {
 	  dbgFile.open();
@@ -89,11 +91,11 @@ userRecords = {
 
 	return userData[user.name].debug;
     },
-    writeDebugger(uname, opts) {
+    writeDebugger : function(uname, opts) {
 	var genUserFile = new File();
 	var blob, blobGuts;
 
-	genUserFile.name = userRecords.userDir + debuggersFile;
+	genUserFile.name = userRecords.userDir + userRecords.debuggersFile;
 
 	try {
 	  genUserFile.open();
@@ -167,7 +169,7 @@ userRecords = {
 
 	return uInp;
     },
-    queryDebugSettings(uname) {
+    queryDebugSettings : function(uname) {
 	var availableOpts = { 
 		"flow_control" 		:	"false",
 		"message_posting"	:	"false",
@@ -194,9 +196,9 @@ userRecords = {
 		done = true;
 	  } 
 
-	  userRecords.userDataIO.writeDebugger(uname, availableOpts);
+	  this.userRecords.userDataIO.writeDebugger(uname, availableOpts);
+        }
     },
-
     displayInfo : function() {
 
     }
