@@ -33,6 +33,8 @@ const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
 localdebug = null;
+debugFields = {"flow_control", "message_posting", "message_scan",
+		"instant_messaging", "navigation", "file_io", "misc"};
 
 //new debugging test
 /*for each(dbgrz in debuggerz) {
@@ -321,10 +323,28 @@ docIface = {
 	 *	confined
 	 */
     initDdoc : function(confined) {
-        localdebug = userRecords.userDataIO.getDebuggers();
-        //this is nao going to JSON
+	try {
+          localdebug = userRecords.userDataIO.getDebuggers();
+        } catch (e) {
+	  console.putmsg(red + "Error: " + e.message + "\t#: " + e.number +
+	    "\tName: " + e.name + "\n");
+	}
 
-        console.putmsg("localdebug holds: " + localdebug.toString() + "\n");
+	if (localdebug != null) {
+          console.putmsg("localdebug holds: " + localdebug.toString() + "\n");
+	} else {
+	  //call the configuration setting if security access allows
+	  //NOTE: This is just an interim solution; there's probably something
+	  //better to do with it later on
+	  if (user.security.level >= 70) {
+		userRecords.userDataIO.writeDebugger(user.name,
+			userRecords.userDataUI.getInfo());
+	  } else {
+		for each (dbgProp in debugFields) {
+			localDebug[dbgProp] = false;
+		}
+	  }
+	}
 
 	if (confined) {
 		bbs.log_str(user.name + " is entering dDOC shell and " +
