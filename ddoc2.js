@@ -13,7 +13,6 @@
  */
 
 //includes
-load("synchronet-json.js");
 load("load/dmbase.js");
 load("load/dpoast.js");
 load("load/dexpress.js");

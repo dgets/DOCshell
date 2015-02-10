@@ -14,8 +14,6 @@
  * other than those bits that I remember.
  */
 
-load("synchronet-json.js");
-
 var debugging = true;
 
 userRecords = {
@@ -36,6 +34,16 @@ userRecords = {
     //pulling or pushing the information stored in the user profile/info
 
     //	---++++****====userDataIO methods====****++++----
+	/*
+	 * summary:
+	 *	saveInfo() takes your passed text and saves it to
+	 *	the user dir under a file called user#.ddoc-info
+	 * newInfo:
+	 *	array of the new lines of text to save as the user's
+	 *	current info string
+	 * returns:
+	 *	-1 upon error writing, else 0
+	 */
     saveInfo : function(newInfo) {
 	if (newInfo.length == 0) {
 	  console.putmsg(red + high_intensity + "No new info found\n");
@@ -56,10 +64,21 @@ userRecords = {
 	//this at all times (add while debugging)
 	userInfo.writeln(newInfo);
 	userInfo.close();
+
+	return 0;
     },
+	/*
+	 * summary:
+	 *	method retrieves the debugging statistics for the
+	 *	current user
+	 * returns:
+	 *	the per-user sub-object starting after .debug; thus
+	 *	basically a list of properties w/boolean values as to
+	 *	whether or not they are debugging each type of code
+	 */
     getDebuggers : function() {
 	var dbgFile = new File();
-	var tmpLine;
+	var tmpLine = new String();
 	var debugging = true;
 
 	dbgFile.name = userRecords.userDir + userRecords.debuggersFile;
@@ -87,6 +106,25 @@ userRecords = {
 
 	return userData[user.name].debug;
     },
+	/*
+	 * summary:
+	 *	method reads in the current list of per-user options,
+	 *	parses them into an object, changes whatever options are
+	 *	currently being utilized by that user, and re-writes the
+	 *	JSON blob back to the file with changes made
+	 * uname:
+	 *	user whose data is being changed
+	 * opts:
+	 *	object full of the user's options to be changed to
+	 * returns:
+	 *	-1 for error opening the per-user data file
+	 *	-2 for error reading from the per-user data file
+	 *	-3 for error re-opening file after closing in the
+	 *	   preceding 'finally' block
+	 *	-4 for error parsing the JSON
+	 *	-5 for error writing the blob back to disk
+	 *	0 for alles ist sehr gut
+	 */
     writeDebugger : function(uname, opts) {
 	var genUserFile = new File();
 	var blob, blobGuts;
@@ -151,6 +189,13 @@ userRecords = {
     //terminology now)
 
     //	  ----++++****====userDataUI methods====****++++----
+	/*
+	 * summary:
+	 *	obtains a new list of lines of text to utilize as the
+	 *	info field from the user
+	 * returns:
+	 *	this (up to 5 line) array of user info text
+	 */
     getInfo : function() {
 	var uInp = new Array(), cntr = 0;
 
@@ -165,6 +210,15 @@ userRecords = {
 
 	return uInp;
     },
+	/*
+	 * summary:
+	 *	queries the user for whether or not they want the true
+	 *	or false value set on each debugging option; security
+	 *	level checking will have to be put in here at some point
+	 *	before beta deployment
+	 * uname:
+	 *	name of the user whose debug flags are being set
+	 */
     queryDebugSettings : function(uname) {
 	var availableOpts = { 
 		"flow_control" 		:	"false",
@@ -182,6 +236,7 @@ userRecords = {
 
 	while (!done) {
 	  for each (opt in availableOpts.keys()) {
+	    //so yeah this can be taken care of a lot more efficiently :|
 	    if (console.yesno("Would you like to help debugging " +
 			      opt + "? ")) {
 	      availableOpts[opt] = true;
@@ -212,6 +267,10 @@ userConfig = {
   cConfPrompt : high_intensity + yellow + "Change config -> ",
 
   //	----++++****====userConfig methods====****++++----
+	/*
+	 * summary:
+	 *	menu choice response for user configuration options
+	 */
   reConfigure : function() {
 	var stillAlahv = true, uResponse = null, ecode = null;
 
