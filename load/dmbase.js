@@ -113,6 +113,9 @@ msg_base = {
 		  }
 		  console.putmsg("\n");
 		  break;
+		case 'l':
+		  docIface.util.quitDdoc();
+		  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
                   //console.putmsg(msg_base.mprompt);

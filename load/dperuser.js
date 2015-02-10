@@ -72,10 +72,6 @@ userRecords = {
 
 	  userData = JSON.parse(tmpLine);
 	} catch (e) {
-	  //too angsty to fix this right now; FIX IT LATER OR 8-X
-	  //console.putmsg(red + "Exception: " e.toString() + "\nCaught " +
-	  //	"in userRecords.userDataIO.getDebuggers()\n");
-
 	  console.putmsg("Caught: " + e.message + "\t" + "#: " + e.number +
 		"\tError: " + e.name + "\n");
 	  dbgFile.close();
