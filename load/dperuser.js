@@ -91,6 +91,7 @@ userRecords = {
 
 	  userData = JSON.parse(tmpLine);
 	} catch (e) {
+	  console.putmsg(red + "In getDebuggers():\n");
 	  console.putmsg("Caught: " + e.message + "\t" + "#: " + e.number +
 		"\tError: " + e.name + "\n");
 	  dbgFile.close();
@@ -129,6 +130,7 @@ userRecords = {
 	try {
 	  genUserFile.open();
 	} catch (e) {
+	  console.putmsg(red + "In writeDebugger():\n");
 	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
 		"\tError: " + e.name + "\nReturning w/error\n");
 	  genUserFile.close();
@@ -138,6 +140,7 @@ userRecords = {
 	try {
 	  blob = genUserFile.readAll();
 	} catch (e) {
+	  console.putmsg(red + "In writeDebugger() (#2):\n");
 	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
 		"\tError: " + e.name + "\nReturning w/error\n");
 	  return -2;
@@ -150,6 +153,7 @@ userRecords = {
 	  blobGuts[user.name] = opts;
 	  blob = JSON.stringify(blobGuts);
 	} catch (e) {
+	  console.putmsg(red + "In writeDebugger() (#3):\n");
 	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
 		"\tError: " + e.name + "\nReturning w/error\n");
 	  return -4;
@@ -158,6 +162,7 @@ userRecords = {
 	try {
 	  genUserFile.open();
 	} catch (e) {
+	  console.putmsg(red + "In writeDebugger() (#4):\n");
 	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
 		"\tError: " + e.name + "\nReturning w/error\n");
 	  genUserFile.close();
@@ -167,6 +172,7 @@ userRecords = {
 	try {
 	  genUserFile.write(blob);
 	} catch (e) {
+	  console.putmsg(green + "In writeDebugger() (#5):\n");
 	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
 		"\tError: " + e.name + "\nReturning w/error\n");
 	  //genUserFile.close();
