@@ -347,6 +347,8 @@ docIface = {
 	  }
 	}
 
+	console.putmsg("localDebug: " + localDebug.toString() + "\n");
+
 	if (confined) {
 		bbs.log_str(user.name + " is entering dDOC shell and " +
 			"confined to DystopianUtopia group");

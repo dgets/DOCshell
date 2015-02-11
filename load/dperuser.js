@@ -89,7 +89,7 @@ userRecords = {
 	  console.putmsg(red + "tmpLine: " + tmpLine + "\n");
 	  console.putmsg(yellow + tmpLine + "\n");
 
-	  userData = JSON.parse(tmpLine[0]);
+	  userData = JSON.parse(tmpLine);
 	} catch (e) {
 	  console.putmsg("Caught: " + e.message + "\t" + "#: " + e.number +
 		"\tError: " + e.name + "\n");
@@ -98,11 +98,6 @@ userRecords = {
 	}
 
 	dbgFile.close();
-
-	if (debugging) {
-	  console.putmsg(red + "working with: " + debuggers.toString() +
-		"\n");
-	}
 
 	return userData[user.name].debug;
     },
