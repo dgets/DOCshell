@@ -22,7 +22,7 @@ userRecords = {
 
   //	----++++****====userRecords properties====****++++----
   userDir : "/sbbs/data/user/",
-  debuggersFile : "ddoc-debuggers",
+  debuggersFile : "ddocdbgr",
   maxInfoLines : 5,
   doingChars : 55,
 
@@ -77,19 +77,19 @@ userRecords = {
 	 *	whether or not they are debugging each type of code
 	 */
     getDebuggers : function() {
-	var dbgFile = new File();
-	var tmpLine = new String();
+	var dbgFile = new File(userRecords.userDir + 
+			       userRecords.debuggersFile);
+	var tmpLine;
 	var debugging = true;
 
-	dbgFile.name = userRecords.userDir + userRecords.debuggersFile;
-
 	try {
-	  dbgFile.open();
-	  tmpLine = dbgFile.readAll();
+	  dbgFile.open("r");
+	  tmpLine = dbgFile.readln();
 
+	  console.putmsg(red + "tmpLine: " + tmpLine + "\n");
 	  console.putmsg(yellow + tmpLine + "\n");
 
-	  userData = JSON.parse(tmpLine);
+	  userData = JSON.parse(tmpLine[0]);
 	} catch (e) {
 	  console.putmsg("Caught: " + e.message + "\t" + "#: " + e.number +
 		"\tError: " + e.name + "\n");

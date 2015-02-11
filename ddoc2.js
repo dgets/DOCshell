@@ -33,8 +33,8 @@ const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
 localdebug = null;
-debugFields = {"flow_control", "message_posting", "message_scan",
-		"instant_messaging", "navigation", "file_io", "misc"};
+debugFields = ["flow_control", "message_posting", "message_scan",
+		"instant_messaging", "navigation", "file_io", "misc"];
 
 //new debugging test
 /*for each(dbgrz in debuggerz) {
@@ -326,6 +326,7 @@ docIface = {
 	try {
           localdebug = userRecords.userDataIO.getDebuggers();
         } catch (e) {
+	  console.putmsg(red + high_intensity + "In initDdoc:\n");
 	  console.putmsg(red + "Error: " + e.message + "\t#: " + e.number +
 	    "\tName: " + e.name + "\n");
 	}
