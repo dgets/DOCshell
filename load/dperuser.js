@@ -242,8 +242,9 @@ userRecords = {
 		done = true;
 	  } 
 
-	  this.userRecords.userDataIO.writeDebugger(uname, availableOpts);
         }
+
+	this.userRecords.userDataIO.writeDebugger(uname, availableOpts);
     },
     displayInfo : function() {
 

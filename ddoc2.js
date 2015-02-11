@@ -338,8 +338,7 @@ docIface = {
 	  //NOTE: This is just an interim solution; there's probably something
 	  //better to do with it later on
 	  if (user.security.level >= 70) {
-		userRecords.userDataIO.writeDebugger(user.name,
-			userRecords.userDataUI.getInfo());
+		userRecords.userDataIO.queryDebugSettings(user.name);
 	  } else {
 		for each (dbgProp in debugFields) {
 			localDebug[dbgProp] = false;
@@ -355,14 +354,6 @@ docIface = {
 	} else {
 		bbs.log_str(user.name + " entering dDOC shell");
 	}
-
-	//phasing out for new granular debugging
-	/*if (debugging) {
-	  console.putmsg(red + "Debugging:\n" + high_intensity +
-	    "user.cursub:\t" + user.cursub + "\nuser.curdir:\t" +
-	    user.curdir + "\nbbs.curgrp:\t" + bbs.curgrp + 
-	    "\nbbs.cursub:\t" + bbs.cursub + "\n");
-	}*/
 
 	docIface.util.preSubBoard = user.cursub;
 	docIface.util.preMsgGroup = bbs.curgrp;
