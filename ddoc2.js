@@ -29,21 +29,12 @@ const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
         white = ctrl_a + "w", red = ctrl_a + "r", cyan = ctrl_a + "c",
         magenta = ctrl_a + "m", high_intensity = ctrl_a + "h",
 	normal = ctrl_a + "n";
+const debugFields = ["flow_control", "message_posting", "message_scan",
+		     "instant_messaging", "navigation", "file_io", "misc"];
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
-localdebug = null;
-debugFields = ["flow_control", "message_posting", "message_scan",
-		"instant_messaging", "navigation", "file_io", "misc"];
-
-//new debugging test
-/*for each(dbgrz in debuggerz) {
-  if ((user.alias == dbgrz[0]) && (dbgrz[1] > 0)) {
-	debugging = true;
-  } else {
-	debugging = false;
-  }
-} */
+localdebug = null, userData = null;
 
 /*
  * obviously, with all of the other places that we've got debugging
