@@ -306,9 +306,9 @@ msg_base = {
 	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode, ecode2, inc,
 		    newRmCode;
 	var fuggit = false;	//because never start with 'fuggit'
-	var debugging = true;
 
-	if (debugging) {
+	if (localdebug.message_scan) {
+	  console.putmsg("Debugging for message scan active.\n");
 	  console.putmsg(red + "In scanSub(); forward = " + forward +
 		"\tuser.cursub: " + user.cursub + "\n");
 	}
@@ -332,9 +332,7 @@ msg_base = {
 	}
 
 	while (!fuggit) {
-	  debugging = true;
-	 
-	  if (debugging) {
+	  if (localdebug.message_scan) {
 	    console.putmsg(red + "in while--> tmpPtr: " + tmpPtr + "\n");
 	  }
  
@@ -344,7 +342,7 @@ msg_base = {
 		return 1;
 	  } else if ((inc == 1) && (tmpPtr >= mBase.last_msg)) {
 		//corrupt pointers, wtf?
-		if (debugging) {
+		if (localdebug.message_scan) {
 		  console.putmsg(red + high_intensity + "Current " +
 		    "pointer exceeds last_msg pointer; this is bad."
 		    + "\n");
@@ -360,7 +358,7 @@ msg_base = {
 
 	  //last parameter is whether or not bases are confined
 	  ecode2 = this.dispMsg(mBase, tmpPtr, true);
-	  if (debugging) {
+	  if (localdebug.message_scan) {
 	    console.putmsg(red + "ecode2: " + ecode2 + "\n");
 	  }
 
@@ -373,14 +371,14 @@ msg_base = {
 	  //in order to implement echicken's suggestion
 	  if (ecode2 == -1) {
 		//skip to next sub
-		if (debugging) {
+		if (localdebug.message_scan) {
 		  console.putmsg(red + "Skipping\n");
 		}
 		newRmCode = docIface.nav.skip(true);	
 		//never forget it needs to know if confined!
 		//god the ignorant debugging HORROR
 
-		if (debugging) {
+		if (localdebug.message_scan) {
 		  console.putmsg(red + "Got room code: " + newRmCode +
 			" returned from docIface.nav.skip();\n");
 		}
@@ -389,7 +387,7 @@ msg_base = {
 		try {
 		  mBase.close();
 		  mBase = new MsgBase(newRmCode);
-		  if (debugging) {
+		  if (localdebug.message_scan) {
 		    console.putmsg(red + "Opened: " + newRmCode +
 			" allegedly . . .\n");
 		  }
@@ -423,7 +421,7 @@ msg_base = {
 	  }
 	 
 	  tmpPtr += inc;
-	  if (debugging) {
+	  if (localdebug.message_scan) {
 	    console.putmsg(red + "tmpPtr += " + inc + " = " + tmpPtr +
 		"\nfuggit: " + fuggit + "\n");
 	  }
