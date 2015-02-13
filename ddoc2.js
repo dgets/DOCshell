@@ -330,7 +330,7 @@ docIface = {
 	  //better to do with it later on
 	  if (user.security.level >= 70) {
 		localdebug = 
-			userRecords.userDataUI.queryDebugSettings(user.name);
+			userRecords.userDataUI.queryDebugSettings(user.alias);
 	  } else {
 		for each (dbgProp in debugFields) {
 			localdebug.debug[dbgProp] = false;
@@ -341,10 +341,10 @@ docIface = {
 	console.putmsg("localdebug: " + localdebug.toString() + "\n");
 
 	if (confined) {
-		bbs.log_str(user.name + " is entering dDOC shell and " +
+		bbs.log_str(user.alias + " is entering dDOC shell and " +
 			"confined to DystopianUtopia group");
 	} else {
-		bbs.log_str(user.name + " entering dDOC shell");
+		bbs.log_str(user.alias + " entering dDOC shell");
 	}
 
 	docIface.util.preSubBoard = user.cursub;
@@ -370,7 +370,7 @@ docIface = {
 	 *	out of scope and needing a better solution.
 	 */
     quitDdoc : function() {
-	bbs.log_str(user.name + " is leaving dDOC shell");
+	bbs.log_str(user.alias + " is leaving dDOC shell");
 	bbs.log_key("L");
 
 	if (localdebug.flow_control) {

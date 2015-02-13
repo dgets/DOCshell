@@ -107,8 +107,12 @@ userRecords = {
 	    tmpLine = dbgFile.readln();
 	    if ((tmpLine != null) && (tmpLine.charAt(0) != '\n')) {
 		userData = JSON.parse(tmpLine);
-		if (userData.user == user.name) {
+		if (userData.user == user.alias) {
 		  console.putmsg(red + "Selected: " + tmpLine + "\n");
+		  dbgFile.close();
+		  //userRecords.userDataUI.displayDebugFlags();
+		  localdebug = userData.debug;
+		  return userData["debug"];
 		}
 	    }
 	  } catch (e) {
@@ -124,7 +128,8 @@ userRecords = {
 
 	userRecords.userDataUI.displayDebugFlags();
 
-	/* while ((userData != user.name) && (tmpLine != null)) {
+	/* 
+	while ((userData != user.name) && (tmpLine != null)) {
 	  try {
 	    tmpLine = dbgFile.readln();
 	    userData = JSON.parse(tmpLine);
@@ -136,11 +141,14 @@ userRecords = {
 	    tmpLine = null;
 	    return 0;
 	  }
-	} */
+	} 
 
 	dbgFile.close();
 
+	console.putmsg(userData.debug + " being passed back\n");
+
 	return userData.debug;
+	*/
     },
 	/*
 	 * summary:
@@ -190,7 +198,7 @@ userRecords = {
 
 	try {
 	  blobGuts = JSON.parse(blob);
-	  blobGuts[user.name] = opts;
+	  blobGuts[user.alias] = opts;
 	  blob = JSON.stringify(blobGuts);
 	} catch (e) {
 	  console.putmsg(red + "In writeDebugger() (#3):\n");
@@ -276,7 +284,7 @@ userRecords = {
 	  "set " + uname + "'s debugging options.\n\n");
 
 	while (!done) {
-	  for each (opt in availableOpts.keys()) {
+	  for (opt in availableOpts) {
 	    //so yeah this can be taken care of a lot more efficiently :|
 	    if (console.yesno("Would you like to help debugging " +
 			      opt + "? ")) {
@@ -290,7 +298,8 @@ userRecords = {
 
         }
 
-	this.userRecords.userDataIO.writeDebugger(uname, availableOpts);
+	userRecords.userDataIO.writeDebugger(uname, availableOpts);
+	return availableOpts;
     },
     displayDebugFlags : function() {
 	for each (opt in localdebug.keys()) {
