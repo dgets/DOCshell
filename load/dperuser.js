@@ -87,8 +87,8 @@ userRecords = {
 	  dbgFile.open("r");
 	  tmpLine = dbgFile.readln();
 
-	  console.putmsg(red + "tmpLine: " + tmpLine + "\n");
-	  console.putmsg(yellow + tmpLine + "\n");
+	  /* console.putmsg(red + "tmpLine: " + tmpLine + "\n");
+	  console.putmsg(yellow + tmpLine + "\n"); */
 
 	  userData = JSON.parse(tmpLine);
 	} catch (e) {
@@ -99,10 +99,18 @@ userRecords = {
 	  return -2;
 	}
 
-	while ((!dbgFile.eof) && (userData.user != user.name)) {
+	console.putmsg("Looking for " + user.alias + ", currently have: " +
+		userData.user + "\n");
+
+	while ((!dbgFile.eof) && (userData.user != user.alias)) {
 	  try {
 	    tmpLine = dbgFile.readln();
-	    userData = JSON.parse(tmpLine);
+	    if ((tmpLine != null) && (tmpLine.charAt(0) != '\n')) {
+		userData = JSON.parse(tmpLine);
+		if (userData.user == user.name) {
+		  console.putmsg(red + "Selected: " + tmpLine + "\n");
+		}
+	    }
 	  } catch (e) {
 	    console.putmsg(red + "Error reading tmpLine (2nd+ try):\n" +
 		"Caught: " + e.message + "\t#: " + e.number + "\tError: " +
