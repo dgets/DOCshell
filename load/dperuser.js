@@ -74,7 +74,8 @@ userRecords = {
 	 * returns:
 	 *	the per-user sub-object starting after .debug; thus
 	 *	basically a list of properties w/boolean values as to
-	 *	whether or not they are debugging each type of code
+	 *	whether or not they are debugging each type of code.
+	 *	Negative values, as usual, are indicative of error caught
 	 */
     getDebuggers : function() {
 	var dbgFile = new File(userRecords.userDir + 
@@ -98,9 +99,38 @@ userRecords = {
 	  return -2;
 	}
 
+	while ((!dbgFile.eof) && (userData.user != user.name)) {
+	  try {
+	    tmpLine = dbgFile.readln();
+	    userData = JSON.parse(tmpLine);
+	  } catch (e) {
+	    console.putmsg(red + "Error reading tmpLine (2nd+ try):\n" +
+		"Caught: " + e.message + "\t#: " + e.number + "\tError: " +
+		e.name + "\n");
+	    console.putmsg(red + high_intensity + "Got JSON: " +
+		userData.toString() + "\n\n");
+	    dbgFile.close();
+	    return -3;
+	  }
+	}
+
+	/* while ((userData != user.name) && (tmpLine != null)) {
+	  try {
+	    tmpLine = dbgFile.readln();
+	    userData = JSON.parse(tmpLine);
+	  } catch (e) {
+	    console.putmsg(red + "Error reading tmpLine (later):\n" +
+		"Caught: " + e.message + "\t#: " + e.number + "\tError: " +
+		e.name + "\n");
+	    dbgFile.close();
+	    tmpLine = null;
+	    return 0;
+	  }
+	} */
+
 	dbgFile.close();
 
-	return userData[user.name].debug;
+	return userData.debug;
     },
 	/*
 	 * summary:
@@ -204,7 +234,7 @@ userRecords = {
 		", up to 5 lines\n\n");
 
 	while ((uInp[cntr] != "\r") && (uInp[cntr] != "\n") &&
-	       (uInp.length < maxInfoLines)) {
+	       (uInp.length < userRecords.maxInfoLines)) {
 	  console.putmsg(green + high_intensity + ">");
 	  console.getstr(uInp[cntr++], 77);
 	}

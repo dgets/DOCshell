@@ -329,15 +329,16 @@ docIface = {
 	  //NOTE: This is just an interim solution; there's probably something
 	  //better to do with it later on
 	  if (user.security.level >= 70) {
-		userRecords.userDataIO.queryDebugSettings(user.name);
+		localdebug = 
+			userRecords.userDataIO.queryDebugSettings(user.name);
 	  } else {
 		for each (dbgProp in debugFields) {
-			localDebug[dbgProp] = false;
+			localdebug.debug[dbgProp] = false;
 		}
 	  }
 	}
 
-	console.putmsg("localDebug: " + localDebug.toString() + "\n");
+	console.putmsg("localdebug: " + localdebug.toString() + "\n");
 
 	if (confined) {
 		bbs.log_str(user.name + " is entering dDOC shell and " +
