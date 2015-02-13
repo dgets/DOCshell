@@ -330,7 +330,7 @@ docIface = {
 	  //better to do with it later on
 	  if (user.security.level >= 70) {
 		localdebug = 
-			userRecords.userDataIO.queryDebugSettings(user.name);
+			userRecords.userDataUI.queryDebugSettings(user.name);
 	  } else {
 		for each (dbgProp in debugFields) {
 			localdebug.debug[dbgProp] = false;

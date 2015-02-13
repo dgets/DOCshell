@@ -122,6 +122,8 @@ userRecords = {
 	  }
 	}
 
+	userRecords.userDataUI.displayDebugFlags();
+
 	/* while ((userData != user.name) && (tmpLine != null)) {
 	  try {
 	    tmpLine = dbgFile.readln();
@@ -289,6 +291,12 @@ userRecords = {
         }
 
 	this.userRecords.userDataIO.writeDebugger(uname, availableOpts);
+    },
+    displayDebugFlags : function() {
+	for each (opt in localdebug.keys()) {
+	  console.putmsg(yellow + "Flag: " + high_intensity + opt + normal +
+	    yellow + "\t\tValue: " + high_intensity + localdebug[opt] + "\n");
+	}
     },
     displayInfo : function() {
 
