@@ -318,12 +318,32 @@ msg_base = {
 
 	return mBase;
   },
+  /*
+   * summary:
+   *	makes sure that scanSub() is within proper bounds when looking
+   *	for new messages
+   * mBase:
+   *	current (opened) message base
+   * inc:
+   *	increment value; 1 for forward, -1 for reverse read/scan
+   * tp:
+   *	tmpPtr in scanSub() code; shows current position in the message
+   *	base
+   * return:
+   *	null for error, 1 for last message indicated/needing to jump
+   *	to the next sub/room, 0 for legitimate message pointer
+   *
+   * NOTE: It appears that perhaps there is a bug here in the fact
+   *	   that there is nothing returned for success; this was before
+   *	   adding the return value of 0 at the end
+   */
   verifyBounds : function(mBase, inc, tp) {
           //make sure that we're within proper bounds
           if ((inc == 1) && (tp == mBase.last_msg)) {
             if (localdebug.message_scan) {
 		console.putmsg(red + "tp: " + tp + "\tinc: " + inc +
-		  "\tmBase.last_msg: " + mBase.last_msg + "\n");
+		  "\tmBase.last_msg: " + mBase.last_msg + "\tmBase.code: " +
+		  mBase.code + "\tmBase.is_open: " + mBase.is_open + "\n");
                 console.putmsg("Hit last message, returning 1\n");
             }
             return 1;
@@ -336,6 +356,8 @@ msg_base = {
                 "messages\n");
             return null;
           }
+
+	  return 0;	//valid pointer indicated
   },
 	/*
 	 * summary:
@@ -361,6 +383,7 @@ msg_base = {
 	}
 
 	mBase = this.openNewMBase(sBoard.code);
+
 	if (mBase === null) {
 	  if (localdebug.message_scan) {
 		console.putmsg("Error in openNewMBase()\n");
@@ -383,7 +406,13 @@ msg_base = {
 	  //make sure that we're within proper bounds
 	  ecode = this.verifyBounds(mBase, inc, tmpPtr);
 	  if ((ecode === null) || (ecode == 1)) { return ecode; }
-	  else {
+	  else if (ecode == 0) {
+	    //we have a valid message pointer; continue
+	    if (localdebug.message_scan) {
+		console.putmsg(yellow + "Valid pointer indicated by " +
+			"verifyBounds()\n"
+	    }
+	  } else {
 	    console.putmsg(red + "Bogus code back from verifyBounds()\n");
 	    return null;
 	  }
