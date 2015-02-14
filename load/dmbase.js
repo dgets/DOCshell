@@ -290,6 +290,34 @@ msg_base = {
 	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr) +
 	" remaining)] " + green + high_intensity + "Read cmd -> ");
   },
+  /*
+   * summary:
+   *	Opens a new message base (modularizing)
+   * mb:
+   *	Code of the new message base to open
+   * return:
+   *	new message base object (already open)
+   */
+  openNewMBase : function(mb) {
+        try {  
+	  //take care of this in calling code
+          //mBase.close();
+          mBase = new MsgBase(mb);
+          if (localdebug.message_scan) {
+            console.putmsg(red + "Opened: " + mb +
+        	           " allegedly . . .\n");
+          }
+        } catch (e) {
+          console.putmsg(red + "Error closing old mBase or " +
+            "opening the new one after skip:\n" + e.message +
+            "\nError logged\n\n");
+          log("Error skipping through scanSub(): " +
+            e.message);
+          return -3;
+        }
+
+	return mBase;
+  },
 	/*
 	 * summary:
 	 *	Sequentially scans for new messages within one
@@ -313,7 +341,8 @@ msg_base = {
 		"\tuser.cursub: " + user.cursub + "\n");
 	}
 
-	//open
+	//open	-- not modularizing this one just yet in order to
+	//debug more easily; will be handled at some point soon
 	try {
 	  mBase.open();
 	} catch (e) {
@@ -326,8 +355,14 @@ msg_base = {
 
 	tmpPtr = sBoard.scan_ptr;
 	if (forward) {
+	  if (localdebug.message_scan) {
+	    console.putmsg("inc: 1\n");
+	  }
 	  inc = 1;
 	} else {
+	  if (localdebug.message_scan) {
+	    console.putmsg("inc: -1\n");
+	  }
 	  inc = -1;
 	}
 
@@ -342,12 +377,11 @@ msg_base = {
 		return 1;
 	  } else if ((inc == 1) && (tmpPtr >= mBase.last_msg)) {
 		//corrupt pointers, wtf?
-		if (localdebug.message_scan) {
-		  console.putmsg(red + high_intensity + "Current " +
+		console.putmsg(red + high_intensity + "Current " +
 		    "pointer exceeds last_msg pointer; this is bad."
 		    + "\n");
-		}
-		//docIface.nav.skip();
+		docIface.nav.skip();
+
 		//insert debug logging to standard log here
 		//return -3;
 	  } else if ((inc == -1) && (tmpPtr < mBase.first_msg)) {
@@ -363,9 +397,21 @@ msg_base = {
 	  }
 
           //skip through any moar deleted/invalid for whatever
-          while (ecode2 == -2) {
-                tmpPtr += inc;
-                ecode2 = this.dispMsg(mBase, tmpPtr, true);
+          while ((ecode2 == -2) && (tmpPtr >= mBase.last_msg)) {
+      		if (localdebug.message_scan) {
+		  console.putmsg("In ecode -2 & tmpPtr > last_msg 'while'" +
+			" -- calling docIface.nav.skip()\n");
+		}
+
+		newRmCode = docIface.nav.skip();
+
+                //tmpPtr += inc;
+
+		//we probably need to open the new mBase...
+		mBase.close();
+		mBase = this.openNewMBase(newRmCode);
+
+                //ecode2 = this.dispMsg(mBase, tmpPtr, true);
           }
 
 	  //in order to implement echicken's suggestion
@@ -384,21 +430,8 @@ msg_base = {
 		}
 
 		//close the old mBase and open the next
-		try {
-		  mBase.close();
-		  mBase = new MsgBase(newRmCode);
-		  if (localdebug.message_scan) {
-		    console.putmsg(red + "Opened: " + newRmCode +
-			" allegedly . . .\n");
-		  }
-		} catch (e) {
-		  console.putmsg(red + "Error closing old mBase or " +
-		    "opening the new one after skip:\n" + e.message +
-		    "\nError logged\n\n");
-		  log("Error skipping through scanSub(): " +
-		    e.message);
-		  return -3;
-		}
+		mBase.close();
+		mBase = this.openNewMBase(newRmCode);
 
 		//set everything to start reading in new sub
 		tmpPtr = mBase.scan_ptr; inc = 1; //forward by default
