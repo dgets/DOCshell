@@ -296,7 +296,7 @@ msg_base = {
    * mb:
    *	Code of the new message base to open
    * return:
-   *	new message base object (already open)
+   *	new message base object (already open), or 'null' for error
    */
   openNewMBase : function(mb) {
         try {  
@@ -313,164 +313,123 @@ msg_base = {
             "\nError logged\n\n");
           log("Error skipping through scanSub(): " +
             e.message);
-          return -3;
+          return null;
         }
 
 	return mBase;
   },
+  verifyBounds : function(mBase, inc, tp) {
+          //make sure that we're within proper bounds
+          if ((inc == 1) && (tp == mBase.last_msg)) {
+            if (localdebug.message_scan) {
+		console.putmsg(red + "tp: " + tp + "\tinc: " + inc +
+		  "\tmBase.last_msg: " + mBase.last_msg + "\n");
+                console.putmsg("Hit last message, returning 1\n");
+            }
+            return 1;
+          } else if ((inc == 1) && (tp >= mBase.last_msg)) {
+            console.putmsg(red + "Over last_msg; this should not " +
+                "ever happen.  :|\n");
+            return null;
+          } else if ((inc == -1) && (tp < mBase.first_msg)) {
+            console.putmsg(green + high_intensity + "No preceeding " +
+                "messages\n");
+            return null;
+          }
+  },
 	/*
 	 * summary:
 	 *	Sequentially scans for new messages within one
-	 *	particular sub-board
+	 *	particular sub-board; don't forget to add the support
+	 *	for whether confined or not after this is beta working
 	 * sBoard: String
 	 *	Sub-board's internal code
 	 * forward: Boolean
 	 *	true for forward read & converse
 	 * return:
-	 *	negative for errors; 1 to move on to the next sub, still
-	 *	working on further shite
+	 *	null/negative for errors; 1 to move on to the next sub, 
+	 *	still working on further shite
 	 */
-  scanSub : function (sBoard, forward) {
-	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode, ecode2, inc,
-		    newRmCode;
-	var fuggit = false;	//because never start with 'fuggit'
+  scanSub : function(sBoard, forward) {
+	var mBase, tmpPtr, ecode, ecode2, inc;
+	var fuggit = false;
 
 	if (localdebug.message_scan) {
-	  console.putmsg("Debugging for message scan active.\n");
-	  console.putmsg(red + "In scanSub(); forward = " + forward +
-		"\tuser.cursub: " + user.cursub + "\n");
+	  console.putmsg("Entered scanSub(); forward = " + forward +
+	    "\tuser.cursub: " + user.cursub + "\tsBoard.code: " +
+	    sBoard.code + "\n");
 	}
 
-	//open	-- not modularizing this one just yet in order to
-	//debug more easily; will be handled at some point soon
-	try {
-	  mBase.open();
-	} catch (e) {
-	  console.putmsg(red + "Error opening " + sBoard.name +
-	    ": " + e.message + "\nError logged.  Feel free to " +
-	    "pester the SysOp.\n");
-	  log("Error opening " + sBoard.name + ": " + e.message);
-	  return -1;
+	mBase = this.openNewMBase(sBoard.code);
+	if (mBase === null) {
+	  if (localdebug.message_scan) {
+		console.putmsg("Error in openNewMBase()\n");
+	  } 
+	  return null;
 	}
 
-	tmpPtr = sBoard.scan_ptr;
-	if (forward) {
-	  if (localdebug.message_scan) {
-	    console.putmsg("inc: 1\n");
-	  }
-	  inc = 1;
-	} else {
-	  if (localdebug.message_scan) {
-	    console.putmsg("inc: -1\n");
-	  }
-	  inc = -1;
+	tmpPtr = sBoard.scan_ptr;	//is this right?
+	if (forward) { inc = 1; } else { inc = -1; }
+	if (localdebug.message_scan) {
+	  console.putmsg("Inc: " + inc + "\tbased on 'forward'\n");
 	}
 
 	while (!fuggit) {
 	  if (localdebug.message_scan) {
-	    console.putmsg(red + "in while--> tmpPtr: " + tmpPtr + "\n");
-	  }
- 
-	  if ((inc == 1) && (tmpPtr == mBase.last_msg)) {
-		//no new, skip to next in external flow to n/sub
-		console.putmsg(green + high_intensity + "Next\n");
-		return 1;
-	  } else if ((inc == 1) && (tmpPtr >= mBase.last_msg)) {
-		//corrupt pointers, wtf?
-		console.putmsg(red + high_intensity + "Current " +
-		    "pointer exceeds last_msg pointer; this is bad."
-		    + "\n");
-		docIface.nav.skip();
-
-		//insert debug logging to standard log here
-		//return -3;
-	  } else if ((inc == -1) && (tmpPtr < mBase.first_msg)) {
-		console.putmsg(green + high_intensity +
-			"No preceeding messages\n");
-		return 2;	//new value for bottoming out
+	    console.putmsg(red + "In main scanSub() loop\ttmpPtr: " +
+		tmpPtr + "\n");
 	  }
 
-	  //last parameter is whether or not bases are confined
-	  ecode2 = this.dispMsg(mBase, tmpPtr, true);
-	  if (localdebug.message_scan) {
-	    console.putmsg(red + "ecode2: " + ecode2 + "\n");
+	  //make sure that we're within proper bounds
+	  ecode = this.verifyBounds(mBase, inc, tmpPtr);
+	  if ((ecode === null) || (ecode == 1)) { return ecode; }
+	  else {
+	    console.putmsg(red + "Bogus code back from verifyBounds()\n");
+	    return null;
 	  }
 
-          //skip through any moar deleted/invalid for whatever
-          while ((ecode2 == -2) && (tmpPtr >= mBase.last_msg)) {
-      		if (localdebug.message_scan) {
-		  console.putmsg("In ecode -2 & tmpPtr > last_msg 'while'" +
-			" -- calling docIface.nav.skip()\n");
-		}
+	  ecode = this.dispMsg(mBase, tmpPtr, true);
 
-		newRmCode = docIface.nav.skip();
+	  //this loop may be the source of a double display issue or
+	  //something of the sort
+	  while (ecode == -2) {
+	    //skip through deleted/invalid messages
+	    if (localdebug.message_scan) {
+		console.putmsg(red + "In scanSub(), ecode = -2, skipping " +
+		  "current message (invalid/deleted)\n");
+	    }
 
-                //tmpPtr += inc;
-
-		//we probably need to open the new mBase...
-		mBase.close();
-		mBase = this.openNewMBase(newRmCode);
-
-                //ecode2 = this.dispMsg(mBase, tmpPtr, true);
-          }
-
-	  //in order to implement echicken's suggestion
-	  if (ecode2 == -1) {
-		//skip to next sub
-		if (localdebug.message_scan) {
-		  console.putmsg(red + "Skipping\n");
-		}
-		newRmCode = docIface.nav.skip(true);	
-		//never forget it needs to know if confined!
-		//god the ignorant debugging HORROR
-
-		if (localdebug.message_scan) {
-		  console.putmsg(red + "Got room code: " + newRmCode +
-			" returned from docIface.nav.skip();\n");
-		}
-
-		//close the old mBase and open the next
-		mBase.close();
-		mBase = this.openNewMBase(newRmCode);
-
-		//set everything to start reading in new sub
-		tmpPtr = mBase.scan_ptr; inc = 1; //forward by default
-		ecode2 = 0;
-	  }
-
-	  if (inc == 1) {
-	    sBoard.lead_read = tmpPtr;
-	  }
-	  ecode = this.read_cmd.rcChoice(mBase, (tmpPtr));
-	  if (ecode == 1) {
-	    fuggit = true;
-	    break;	//not sure if this is strictly necessary still
-	  } else if (ecode == 2) {
-	    if (inc == 1) {
-		inc = -1;
+	    tmpPtr += inc;
+	    if (tmpPtr <= mBase.last_msg) {
+		ecode = this.dispMsg(mBase, tmpPtr, true);
 	    } else {
-		inc = 1;
+		if (localdebug.message_scan) {
+		  console.putmsg(red + "Hit end of sub/room\n");
+		}
+		return 1;
 	    }
 	  }
-	 
-	  tmpPtr += inc;
-	  if (localdebug.message_scan) {
-	    console.putmsg(red + "tmpPtr += " + inc + " = " + tmpPtr +
-		"\nfuggit: " + fuggit + "\n");
+
+	  ecode = this.read_cmd.rcChoice(mBase, tmpPtr);
+	  if (ecode == 1) {
+	    fuggit = true;
+	  } else if (ecode == 2) {
+	    if (inc == 1) { inc = -1; } else { inc = 1; }
 	  }
 
-	  ecode = null;
+	  tmpPtr += inc;
+	  if (localdebug.message_scan) {
+	    console.putmsg(red + "End of scanSub() main loop\n" +
+		"tmpPtr: " + tmpPtr + "\tinc: " + inc + "\tfuggit: " +
+		fuggit + "\n");
+	  }
+
 	}
 
-	//close
-	try {
-	  mBase.close();
-	} catch (e) {
-	  console.putmsg(red + "Error closing " + sBoard.name + ": " +
-	    e.message + "\nError logged.  Feel free to pester the " +
-	    "SysOp.\n");
-	  log("Error opening " + sBoard.name + ": " + e.message);
-	  return -2;
+	mBase.close();
+	if (localdebug.message_scan) {
+	  console.putmsg(red + "Closed mBase: " + mBase.code + "\n");
 	}
+	return -2;
   }
 }
