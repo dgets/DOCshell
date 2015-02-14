@@ -404,13 +404,13 @@ msg_base = {
 	  }
 
 	  //make sure that we're within proper bounds
-	  ecode = this.verifyBounds(mBase, inc, tmpPtr);
+	  ecode = this.verifyBounds(sBoard, inc, tmpPtr);
 	  if ((ecode === null) || (ecode == 1)) { return ecode; }
 	  else if (ecode == 0) {
 	    //we have a valid message pointer; continue
 	    if (localdebug.message_scan) {
 		console.putmsg(yellow + "Valid pointer indicated by " +
-			"verifyBounds()\n"
+			"verifyBounds()\n");
 	    }
 	  } else {
 	    console.putmsg(red + "Bogus code back from verifyBounds()\n");
@@ -429,7 +429,7 @@ msg_base = {
 	    }
 
 	    tmpPtr += inc;
-	    if (tmpPtr <= mBase.last_msg) {
+	    if (tmpPtr <= sBoard.last_msg) {
 		ecode = this.dispMsg(mBase, tmpPtr, true);
 	    } else {
 		if (localdebug.message_scan) {
@@ -457,7 +457,7 @@ msg_base = {
 
 	mBase.close();
 	if (localdebug.message_scan) {
-	  console.putmsg(red + "Closed mBase: " + mBase.code + "\n");
+	  console.putmsg(red + "Closed mBase: " + sBoard.code + "\n");
 	}
 	return -2;
   }
