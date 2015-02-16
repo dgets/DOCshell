@@ -86,6 +86,9 @@ userRecords = {
 	  return true;
 	}
 
+	if (debugging) {
+	  console.putmsg("This appears to be okay JSON.\n");
+	}
 	return false;
     },
 	/*
@@ -113,7 +116,7 @@ userRecords = {
 	  /* console.putmsg(red + "tmpLine: " + tmpLine + "\n");
 	  console.putmsg(yellow + tmpLine + "\n"); */
 
-	  if (!isInvalidJSON(tmpLine, debugging) {
+	  if (!this.isInvalidJSON(tmpLine, debugging)) {
 	    userData = JSON.parse(tmpLine);
 	  }
 	} catch (e) {
@@ -132,7 +135,7 @@ userRecords = {
 	while ((!dbgFile.eof) && (userData.user != user.alias)) {
 	  try {
 	    tmpLine = dbgFile.readln();
-	    if (isInvalidJSON(tmpLine, debugging)) {
+	    if (this.isInvalidJSON(tmpLine, debugging)) {
 		continue;
 	    }
 	    if ((tmpLine != null) && (tmpLine.charAt(0) != '\n')) {
