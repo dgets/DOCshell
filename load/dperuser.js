@@ -69,6 +69,27 @@ userRecords = {
     },
 	/*
 	 * summary:
+	 *	method determines whether or not the line under question
+	 *	is bogus or not
+	 * line:
+	 *	unparsed line text to work with
+	 * debugging:
+	 *	true for debugging, false if otherwise
+	 * returns:
+	 *	true if short/blank line or comment (starts with '#')
+	 */
+    isInvalidJSON : function(line, debugging) {
+	if ((line.length < 3) || (tmpLine.charAt(0) == '#')) {
+	  if (debugging) {
+		console.putmsg(red + "Skipping line in ddocdbgr\n");
+	  }
+	  return true;
+	}
+
+	return false;
+    },
+	/*
+	 * summary:
 	 *	method retrieves the debugging statistics for the
 	 *	current user
 	 * returns:
@@ -92,7 +113,9 @@ userRecords = {
 	  /* console.putmsg(red + "tmpLine: " + tmpLine + "\n");
 	  console.putmsg(yellow + tmpLine + "\n"); */
 
-	  userData = JSON.parse(tmpLine);
+	  if (!isInvalidJSON(tmpLine, debugging) {
+	    userData = JSON.parse(tmpLine);
+	  }
 	} catch (e) {
 	  console.putmsg(red + "In getDebuggers():\n");
 	  console.putmsg("Caught: " + e.message + "\t" + "#: " + e.number +
@@ -109,12 +132,8 @@ userRecords = {
 	while ((!dbgFile.eof) && (userData.user != user.alias)) {
 	  try {
 	    tmpLine = dbgFile.readln();
-	    if ((tmpLine.length < 2) || (tmpLine.charAt(0) == '#')) {
-		//skip short (blankish?) lines or comments
+	    if (isInvalidJSON(tmpLine, debugging)) {
 		continue;
-		if (debugging) {
-		  console.putmsg(red + "skipping line in ddocdbgr\n");
-		}
 	    }
 	    if ((tmpLine != null) && (tmpLine.charAt(0) != '\n')) {
 		userData = JSON.parse(tmpLine);
@@ -125,6 +144,10 @@ userRecords = {
 		  //userRecords.userDataUI.displayDebugFlags();
 		  localdebug = userData.debug;
 		  return userData["debug"];
+		} else {
+		  if (debugging) {
+		    console.putmsg("Skipping record for: " + tmpLine + "\n");
+		  }
 		}
 	    }
 	  } catch (e) {
@@ -154,13 +177,13 @@ userRecords = {
 	    return 0;
 	  }
 	} 
+	*/
 
 	dbgFile.close();
 
 	console.putmsg(userData.debug + " being passed back\n");
 
 	return userData.debug;
-	*/
     },
 	/*
 	 * summary:
