@@ -227,6 +227,7 @@ msg_base = {
          "<w>ho's online\t<x>press msg\t<X>press on/off\n\n",
 
   //---+++***===msg_base methods follow===***+++---
+
   //should end up replacing most of newScan() [above] and some other
   //areas, I'm sure
 	/*
@@ -234,12 +235,14 @@ msg_base = {
 	 *	Displays message with or without pauses
 	 * base: MsgBase object
 	 *	Open message base object currently being read
+	 * sBoard:
+	 *	object to read properties from like last_msg
 	 * ptr: Integer
 	 *	Current message index #
 	 * break: Boolean
 	 *	true for screen pauses
 	 */
-  dispMsg : function(base, ptr, breaks) {
+  dispMsg : function(base, sBoard, ptr, breaks) {
 	var debugging = true;	//we're good here -- LIES!!!
 
         if (breaks != false) { 
@@ -250,12 +253,12 @@ msg_base = {
         var mHdr = base.get_msg_header(ptr);
         var mBody = base.get_msg_body(ptr);
 
-	if (debugging) {
+	if (localdebug.message_scan) {
 	  console.putmsg(red + "ptr: " + ptr + "\tbase.last_msg: " +
-		base.last_msg + "\n");
+		sBoard.last_msg + "\n");
 	}
 
-	if ((mHdr === null) && (ptr == (base.last_msg - 1))) {
+	if ((mHdr === null) && (ptr == sBoard.last_msg)) {
 	  //this is where echicken's suggestion must go
 	  return -1;	//code for we're out of messages here, skip to
 			//next
@@ -378,7 +381,7 @@ msg_base = {
 
 	if (localdebug.message_scan) {
 	  console.putmsg("Entered scanSub(); forward = " + forward +
-	    "\tuser.cursub: " + user.cursub + "\tsBoard.code: " +
+	    "  user.cursub: " + user.cursub + "\nsBoard.code: " +
 	    sBoard.code + "\n");
 	}
 
@@ -417,7 +420,7 @@ msg_base = {
 	    return null;
 	  }
 
-	  ecode = this.dispMsg(mBase, tmpPtr, true);
+	  ecode = this.dispMsg(mBase, sBoard, tmpPtr, true);
 
 	  //this loop may be the source of a double display issue or
 	  //something of the sort
@@ -430,7 +433,7 @@ msg_base = {
 
 	    tmpPtr += inc;
 	    if (tmpPtr <= sBoard.last_msg) {
-		ecode = this.dispMsg(mBase, tmpPtr, true);
+		ecode = this.dispMsg(mBase, sBoard, tmpPtr, true);
 	    } else {
 		if (localdebug.message_scan) {
 		  console.putmsg(red + "Hit end of sub/room\n");

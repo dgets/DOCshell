@@ -323,7 +323,8 @@ docIface = {
 	}
 
 	if (localdebug != null) {
-          console.putmsg("localdebug holds: " + localdebug.toString() + "\n");
+          console.putmsg("localdebug.message_scan holds: " + 
+		localdebug.message_scan + "\n");
 	} else {
 	  //call the configuration setting if security access allows
 	  //NOTE: This is just an interim solution; there's probably something
@@ -338,7 +339,7 @@ docIface = {
 	  }
 	}
 
-	console.putmsg("localdebug: " + localdebug.toString() + "\n");
+	//console.putmsg("localdebug: " + localdebug.toString() + "\n");
 
 	if (confined) {
 		bbs.log_str(user.alias + " is entering dDOC shell and " +

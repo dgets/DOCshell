@@ -81,7 +81,9 @@ userRecords = {
 	var dbgFile = new File(userRecords.userDir + 
 			       userRecords.debuggersFile);
 	var tmpLine;
-	var debugging = true;
+	var debugging = true;	//this is the only place we'll keep hardcoded
+				//debugging active since it is at work before
+				//this file is loaded
 
 	try {
 	  dbgFile.open("r");
@@ -99,15 +101,25 @@ userRecords = {
 	  return -2;
 	}
 
+	//this is no longer strictly necessary, but we may need it again
+	//as more users are added
 	console.putmsg("Looking for " + user.alias + ", currently have: " +
 		userData.user + "\n");
 
 	while ((!dbgFile.eof) && (userData.user != user.alias)) {
 	  try {
 	    tmpLine = dbgFile.readln();
+	    if ((tmpLine.length < 2) || (tmpLine.charAt(0) == '#')) {
+		//skip short (blankish?) lines or comments
+		continue;
+		if (debugging) {
+		  console.putmsg(red + "skipping line in ddocdbgr\n");
+		}
+	    }
 	    if ((tmpLine != null) && (tmpLine.charAt(0) != '\n')) {
 		userData = JSON.parse(tmpLine);
-		if (userData.user == user.alias) {
+		if ((userData.user == user.alias) &&
+		    (debugging)) {
 		  console.putmsg(red + "Selected: " + tmpLine + "\n");
 		  dbgFile.close();
 		  //userRecords.userDataUI.displayDebugFlags();
