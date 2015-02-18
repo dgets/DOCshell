@@ -93,6 +93,42 @@ userRecords = {
     },
 	/*
 	 * summary:
+	 *	method attempts to read a line from the dbgFile (testing
+	 *	for eof is handled outside); tests it to make sure it's
+	 *	not too short or a comment, and returns userData, if the
+	 *	parse goes through alright
+	 * dbgFile:
+	 *	the currently open file object utilized for reading the
+	 *	per-user data from (needs to be renamed, btw)
+	 * returns:
+	 *	userData object on success, null if bogus JSON (too
+	 *	short/comment), -1 if an exception is thrown
+	 */
+    getNTestLine : function(dbgFile) {
+	//wow I think I found the error right off the bat, too
+	var tmpLine, userData;
+	var debugging = true;
+
+	try {
+	  tmpLine = dbgFile.readln(readlnMax);
+	  if (this.isInvalidJSON(tmpLine, debugging)) {
+	    return null;
+	  }
+	  userData = JSON.parse(tmpLine);
+	} catch (e) {
+	  console.putmsg(red + "In getNTestLine():\nError trying " +
+	    "to read/parse tmpLine: " + e.message + "\t#: " + e.number +
+	    "\tError: " + e.name + "\n");
+	  console.putmsg(red + high_intensity + "Got tmpLine: " +
+	    tmpLine + "\nParsed to: " + userData.toString() + "\n\n");
+	  dbgFile.close();
+	  return -1;
+	}
+
+	return userData;
+    },
+	/*
+	 * summary:
 	 *	method retrieves the debugging statistics for the
 	 *	current user
 	 * returns:
@@ -101,7 +137,7 @@ userRecords = {
 	 *	whether or not they are debugging each type of code.
 	 *	Negative values, as usual, are indicative of error caught
 	 */
-    getDebuggers : function() {
+    getUserInfo : function() {
 	var dbgFile = new File(userRecords.userDir + 
 			       userRecords.debuggersFile);
 	var tmpLine;
@@ -111,14 +147,19 @@ userRecords = {
 
 	try {
 	  dbgFile.open("r");
-	  tmpLine = dbgFile.readln();
+	  tmpLine = dbgFile.readln(readlnMax);
+	  //this has been extended since we'll include 'i'nfo in here, too
 
-	  /* console.putmsg(red + "tmpLine: " + tmpLine + "\n");
-	  console.putmsg(yellow + tmpLine + "\n"); */
-
-	  if (!this.isInvalidJSON(tmpLine, debugging)) {
-	    userData = JSON.parse(tmpLine);
+	  if (debugging) {
+	    console.putmsg(red + "tmpLine: " + tmpLine + "\n");
+	    console.putmsg(yellow + tmpLine + "\n"); 
 	  }
+
+	  /* do {
+	    userData = JSON.parse(tmpLine);
+	  } while (this.isInvalidJSON(tmpLine, debugging)); */
+	  //totally a flawed construct above; rewrite this the right way
+
 	} catch (e) {
 	  console.putmsg(red + "In getDebuggers():\n");
 	  console.putmsg("Caught: " + e.message + "\t" + "#: " + e.number +
@@ -129,63 +170,24 @@ userRecords = {
 
 	//this is no longer strictly necessary, but we may need it again
 	//as more users are added
-	console.putmsg("Looking for " + user.alias + ", currently have: " +
-		userData.user + "\n");
+	console.putmsg("Looking for " + user.alias + "\n"); 
+		/* ", currently have: " +
+		userData.user + "\n"); 		not valid here yet */
 
-	while ((!dbgFile.eof) && (userData.user != user.alias)) {
-	  try {
-	    tmpLine = dbgFile.readln();
-	    if (this.isInvalidJSON(tmpLine, debugging)) {
-		continue;
-	    }
-	    if ((tmpLine != null) && (tmpLine.charAt(0) != '\n')) {
-		userData = JSON.parse(tmpLine);
-		if ((userData.user == user.alias) &&
-		    (debugging)) {
-		  console.putmsg(red + "Selected: " + tmpLine + "\n");
-		  dbgFile.close();
-		  //userRecords.userDataUI.displayDebugFlags();
-		  localdebug = userData.debug;
-		  return userData["debug"];
-		} else {
-		  if (debugging) {
-		    console.putmsg("Skipping record for: " + tmpLine + "\n");
-		  }
-		}
-	    }
-	  } catch (e) {
-	    console.putmsg(red + "Error reading tmpLine (2nd+ try):\n" +
-		"Caught: " + e.message + "\t#: " + e.number + "\tError: " +
-		e.name + "\n");
-	    console.putmsg(red + high_intensity + "Got JSON: " +
-		userData.toString() + "\n\n");
-	    dbgFile.close();
-	    return -3;
-	  }
+	userData = this.getNTestLine(dbgFile);
+	while (((userData == null) || (userData.name != user.alias)) &&
+	       (!dbgFile.eof)) {
+	  userData = this.getNTestLine(dbgFile);
+	  if (userData == -1) { break; }
 	}
+	if (userData == -1) {
+	  return -3;
+	}
+	dbgFile.close();
 
 	userRecords.userDataUI.displayDebugFlags();
 
-	/* 
-	while ((userData != user.name) && (tmpLine != null)) {
-	  try {
-	    tmpLine = dbgFile.readln();
-	    userData = JSON.parse(tmpLine);
-	  } catch (e) {
-	    console.putmsg(red + "Error reading tmpLine (later):\n" +
-		"Caught: " + e.message + "\t#: " + e.number + "\tError: " +
-		e.name + "\n");
-	    dbgFile.close();
-	    tmpLine = null;
-	    return 0;
-	  }
-	} 
-	*/
-
-	dbgFile.close();
-
 	console.putmsg(userData.debug + " being passed back\n");
-
 	return userData.debug;
     },
 	/*

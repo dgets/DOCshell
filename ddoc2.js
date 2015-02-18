@@ -31,6 +31,7 @@ const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
 	normal = ctrl_a + "n";
 const debugFields = ["flow_control", "message_posting", "message_scan",
 		     "instant_messaging", "navigation", "file_io", "misc"];
+const readlnMax = 1536;
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
@@ -315,7 +316,7 @@ docIface = {
 	 */
     initDdoc : function(confined) {
 	try {
-          localdebug = userRecords.userDataIO.getDebuggers();
+          localdebug = userRecords.userDataIO.getUserInfo();
         } catch (e) {
 	  console.putmsg(red + high_intensity + "In initDdoc:\n");
 	  console.putmsg(red + "Error: " + e.message + "\t#: " + e.number +
