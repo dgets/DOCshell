@@ -245,7 +245,8 @@ userRecords = {
 	 */
     writeDebugger : function(uname, opts) {
 	var genUserFile = new File();
-	var blob, blobGuts;
+	var blob = new Array();
+	var blobGuts;
 
 	genUserFile.name = userRecords.userDir + userRecords.debuggersFile;
 
@@ -255,12 +256,10 @@ userRecords = {
 	  return -1;
 	}
 
-	//using this as a blob will not work with the current per-user
-	//structure
 	try {
-	  blob = genUserFile.readAll();
+	  blob = genUserFile.readAll(readlnMax);
 	} catch (e) {
-	  console.putmsg(red + "In writeDebugger() (#2):\n");
+	  console.putmsg(red + "In writeDebugger():\n");
 	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
 		"\tError: " + e.name + "\nReturning w/error\n");
 	  return -2;
@@ -268,6 +267,23 @@ userRecords = {
 	  genUserFile.close();
 	}
 
+	for each(var chunk in blob) {
+	  try {
+	    blobGuts = JSON.parse(blob);
+	  } catch (e) {
+	    console.putmsg(red + "In writeDebugger() (#2):\n" +
+		"Caught: " + e.message + "\t#: " + e.number + "\tError: " +
+		e.name + "\nReturning w/error\n");
+	    return -4;
+	  }
+
+	  if (blobGuts.user == user.alias) {
+	    //we have a match, por dios
+
+	  }
+	}
+
+	/* rewriting this with the above for/each block
 	try {
 	  blobGuts = JSON.parse(blob);
 	  blobGuts[user.alias] = opts;
@@ -277,7 +293,7 @@ userRecords = {
 	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
 		"\tError: " + e.name + "\nReturning w/error\n");
 	  return -4;
-	}
+	} */
 
 	//we should just be able to rewrite this now since we opened
 	//it w/r+ (not sure how to do this yet, going to comment out
