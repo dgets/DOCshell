@@ -145,7 +145,16 @@ userRecords = {
 				//debugging active since it is at work before
 				//this file is loaded
 
-	try {
+	dbgFile = this.openFileWrap(dbgFile, "r");
+	if (dbgFile == null) {
+	  return -2;
+	}
+	tmpLine = dbgFile.readln(readlnMax);
+	if (debugging) {
+	  console.putmsg(red + "tmpLine: " + tmpLine + "\n");
+	}
+	  
+	/*try {
 	  dbgFile.open("r");
 	  tmpLine = dbgFile.readln(readlnMax);
 	  //this has been extended since we'll include 'i'nfo in here, too
@@ -153,20 +162,20 @@ userRecords = {
 	  if (debugging) {
 	    console.putmsg(red + "tmpLine: " + tmpLine + "\n");
 	    console.putmsg(yellow + tmpLine + "\n"); 
-	  }
+	  } */
 
 	  /* do {
 	    userData = JSON.parse(tmpLine);
 	  } while (this.isInvalidJSON(tmpLine, debugging)); */
 	  //totally a flawed construct above; rewrite this the right way
 
-	} catch (e) {
+	/* } catch (e) {
 	  console.putmsg(red + "In getDebuggers():\n");
 	  console.putmsg("Caught: " + e.message + "\t" + "#: " + e.number +
 		"\tError: " + e.name + "\n");
 	  dbgFile.close();
 	  return -2;
-	}
+	} */
 
 	//this is no longer strictly necessary, but we may need it again
 	//as more users are added
@@ -189,6 +198,31 @@ userRecords = {
 
 	console.putmsg(userData.debug + " being passed back\n");
 	return userData.debug;
+    },
+	/*
+	 * summary:
+	 *	method is a wrapper for opening a file of any particular
+	 *	mode; serves as a wrapper for the try/catch shit to not
+	 *	be so redundant in code
+	 * fname:
+	 *	filename/path to open
+	 * mode:
+	 *	Synchronet API's mode specification for File.open()
+	 * return:
+	 *	Returns null for error, open file object for success
+	 */
+    openFileWrap : function(fObj, mode) {
+	try {
+	  fObj.open(mode)
+	} catch (e) {
+	  console.putmsg(red + "In openFileWrap():\n");
+          console.putmsg("Caught: " + e.message + "\t#: " + e.number +
+                "\tError: " + e.name + "\nReturning w/error\n");
+          fObj.close();
+	  return null;
+	}
+
+	return fObj;
     },
 	/*
 	 * summary:
@@ -215,16 +249,14 @@ userRecords = {
 
 	genUserFile.name = userRecords.userDir + userRecords.debuggersFile;
 
-	try {
-	  genUserFile.open();
-	} catch (e) {
-	  console.putmsg(red + "In writeDebugger():\n");
-	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
-		"\tError: " + e.name + "\nReturning w/error\n");
-	  genUserFile.close();
+
+	if ((genUserFile = 
+		this.openFileWrap(genUserFile, "r+")) == null) {
 	  return -1;
 	}
 
+	//using this as a blob will not work with the current per-user
+	//structure
 	try {
 	  blob = genUserFile.readAll();
 	} catch (e) {
@@ -247,6 +279,10 @@ userRecords = {
 	  return -4;
 	}
 
+	//we should just be able to rewrite this now since we opened
+	//it w/r+ (not sure how to do this yet, going to comment out
+	//until I'm sure about all of this
+	/*
 	try {
 	  genUserFile.open();
 	} catch (e) {
@@ -267,6 +303,12 @@ userRecords = {
 	  return -5;
 	} finally {
 	  genUserFile.close();
+	} */
+
+	genUserFile.close();
+	if (debugging) {
+	  console.putmsg(yellow + "Didn't write shit because I'm " +
+	    "still working on doing that w/r+ mode\n");
 	}
 
 	return 0;
