@@ -279,21 +279,17 @@ userRecords = {
 
 	  if (blobGuts.user == user.alias) {
 	    //we have a match, por dios
-
+	    blobGuts.debug = opts;
+	    try {
+		blob = JSON.stringify(blobGuts);
+	    } catch (e) {
+		console.putmsg("Changing blob got: " + e.message +
+		  "\t#: " + e.number + "\tError: " + e.name + 
+		  "\nReturning w/error\n");
+		return -5;
+	    }
 	  }
 	}
-
-	/* rewriting this with the above for/each block
-	try {
-	  blobGuts = JSON.parse(blob);
-	  blobGuts[user.alias] = opts;
-	  blob = JSON.stringify(blobGuts);
-	} catch (e) {
-	  console.putmsg(red + "In writeDebugger() (#3):\n");
-	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
-		"\tError: " + e.name + "\nReturning w/error\n");
-	  return -4;
-	} */
 
 	//we should just be able to rewrite this now since we opened
 	//it w/r+ (not sure how to do this yet, going to comment out
