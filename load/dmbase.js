@@ -306,6 +306,7 @@ msg_base = {
 	  //take care of this in calling code
           //mBase.close();
           mBase = new MsgBase(mb);
+	  mBase.open();
           if (localdebug.message_scan) {
             console.putmsg(red + "Opened: " + mb +
         	           " allegedly . . .\n");
@@ -385,9 +386,9 @@ msg_base = {
 	    sBoard.code + "\n");
 	}
 
-	//mBase = this.openNewMBase(sBoard.code);
-	var mBase = new MsgBase(sBoard.code);
-	mBase.open();
+	mBase = this.openNewMBase(sBoard.code);
+	/* var mBase = new MsgBase(sBoard.code);
+	mBase.open(); */
 
 	if (mBase === null) {
 	  if (localdebug.message_scan) {
