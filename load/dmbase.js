@@ -376,8 +376,8 @@ msg_base = {
 	 *	still working on further shite
 	 */
   scanSub : function(sBoard, forward) {
-	var mBase, tmpPtr, ecode, ecode2, inc;
-	var fuggit = false;
+	var tmpPtr, ecode, ecode2, inc;
+	var fuggit = false, tmpDebugging = true;
 
 	if (localdebug.message_scan) {
 	  console.putmsg("Entered scanSub(); forward = " + forward +
@@ -385,7 +385,9 @@ msg_base = {
 	    sBoard.code + "\n");
 	}
 
-	mBase = this.openNewMBase(sBoard.code);
+	//mBase = this.openNewMBase(sBoard.code);
+	var mBase = new MsgBase(sBoard.code);
+	mBase.open();
 
 	if (mBase === null) {
 	  if (localdebug.message_scan) {
@@ -395,6 +397,13 @@ msg_base = {
 	}
 
 	tmpPtr = sBoard.scan_ptr;	//is this right?
+	if (tmpDebugging) {
+	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
+	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
+	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
+	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
+	}
+	
 	if (forward) { inc = 1; } else { inc = -1; }
 	if (localdebug.message_scan) {
 	  console.putmsg("Inc: " + inc + "\tbased on 'forward'\n");
@@ -437,6 +446,8 @@ msg_base = {
 	    } else {
 		if (localdebug.message_scan) {
 		  console.putmsg(red + "Hit end of sub/room\n");
+		  console.putmsg(red + "Previous errors (if any): " +
+		    mBase.error + "\n");
 		}
 		return 1;
 	    }
