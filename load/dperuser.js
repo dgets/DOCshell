@@ -79,7 +79,7 @@ userRecords = {
 	 *	true if short/blank line or comment (starts with '#')
 	 */
     isInvalidJSON : function(line, debugging) {
-	if ((line.length < 3) || (tmpLine.charAt(0) == '#')) {
+	if ((line.length < 3) || (line.charAt(0) == '#')) {
 	  if (debugging) {
 		console.putmsg(red + "Skipping line in ddocdbgr\n");
 	  }
@@ -149,34 +149,11 @@ userRecords = {
 	if (dbgFile == null) {
 	  return -2;
 	}
-	tmpLine = dbgFile.readln(readlnMax);
+	/*tmpLine = dbgFile.readln(readlnMax);
 	if (debugging) {
 	  console.putmsg(red + "tmpLine: " + tmpLine + "\n");
-	}
+	}*/
 	  
-	/*try {
-	  dbgFile.open("r");
-	  tmpLine = dbgFile.readln(readlnMax);
-	  //this has been extended since we'll include 'i'nfo in here, too
-
-	  if (debugging) {
-	    console.putmsg(red + "tmpLine: " + tmpLine + "\n");
-	    console.putmsg(yellow + tmpLine + "\n"); 
-	  } */
-
-	  /* do {
-	    userData = JSON.parse(tmpLine);
-	  } while (this.isInvalidJSON(tmpLine, debugging)); */
-	  //totally a flawed construct above; rewrite this the right way
-
-	/* } catch (e) {
-	  console.putmsg(red + "In getDebuggers():\n");
-	  console.putmsg("Caught: " + e.message + "\t" + "#: " + e.number +
-		"\tError: " + e.name + "\n");
-	  dbgFile.close();
-	  return -2;
-	} */
-
 	//this is no longer strictly necessary, but we may need it again
 	//as more users are added
 	console.putmsg("Looking for " + user.alias + "\n"); 
