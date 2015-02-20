@@ -101,7 +101,7 @@ userRecords = {
 	 *	the currently open file object utilized for reading the
 	 *	per-user data from (needs to be renamed, btw)
 	 * returns:
-	 *	userData object on success, null if bogus JSON (too
+	 *	userData object on success, 0 if bogus JSON (too
 	 *	short/comment), -1 if an exception is thrown
 	 */
     getNTestLine : function(dbgFile) {
@@ -112,7 +112,7 @@ userRecords = {
 	try {
 	  tmpLine = dbgFile.readln(readlnMax);
 	  if (this.isInvalidJSON(tmpLine, debugging)) {
-	    return null;
+	    return 0;
 	  }
 	  userData = JSON.parse(tmpLine);
 	} catch (e) {
@@ -147,6 +147,9 @@ userRecords = {
 
 	dbgFile = this.openFileWrap(dbgFile, "r");
 	if (dbgFile == null) {
+	  if (debugging) {
+	    console.putmsg(red + "Error opening dbgFile!\n");
+	  }
 	  return -2;
 	}
 	/*tmpLine = dbgFile.readln(readlnMax);
@@ -161,11 +164,29 @@ userRecords = {
 		userData.user + "\n"); 		not valid here yet */
 
 	userData = this.getNTestLine(dbgFile);
-	while (((userData == null) || (userData.name != user.alias)) &&
-	       (!dbgFile.eof)) {
-	  userData = this.getNTestLine(dbgFile);
-	  if (userData == -1) { break; }
+	if (debugging) {
+	  var ouah = 1;
+	  console.putmsg(yellow + "Got: " + userData.toString() + " in the " +
+		"first iteration through.\n");
 	}
+
+	/* while (!dbgFile.eof) {
+	  if (debugging) {
+	    console.putmsg(cyan + "Got this far (not eof)\n");
+	  } */
+
+	  while ((userData === 0) || (userData.name != user.alias)) {
+		userData = this.getNTestLine(dbgFile);
+		if (debugging) {
+		  console.putmsg(yellow + "Iteration #: " + ouah++ +
+		    " got: " + userData.toString() + "\n");
+		}
+	    if (userData == -1) { break; }
+	  }
+
+	//}
+
+	//wut?
 	if (userData == -1) {
 	  return -3;
 	}
