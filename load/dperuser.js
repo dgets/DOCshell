@@ -91,6 +91,11 @@ userRecords = {
 	}
 	return false;
     },
+    getNTestException : function(message, num) {
+        this.name = "getNTestLine() exception";
+        this.message = message;
+        this.num = num; 
+    },
 	/*
 	 * summary:
 	 *	method attempts to read a line from the dbgFile (testing
@@ -122,7 +127,8 @@ userRecords = {
 	  console.putmsg(red + high_intensity + "Got tmpLine: " +
 	    tmpLine + "\nParsed to: " + userData.toString() + "\n\n");
 	  dbgFile.close();
-	  return -1;
+	  throw new getNTestException("Error reading/parsing tmpLine", 1);
+	  return null;
 	}
 
 	return userData;
@@ -152,10 +158,6 @@ userRecords = {
 	  }
 	  return -2;
 	}
-	/*tmpLine = dbgFile.readln(readlnMax);
-	if (debugging) {
-	  console.putmsg(red + "tmpLine: " + tmpLine + "\n");
-	}*/
 	  
 	//this is no longer strictly necessary, but we may need it again
 	//as more users are added
@@ -163,12 +165,18 @@ userRecords = {
 		/* ", currently have: " +
 		userData.user + "\n"); 		not valid here yet */
 
-	userData = this.getNTestLine(dbgFile);
-	if (debugging) {
+	try {
+		userData = this.getNTestLine(dbgFile);
+	} catch (e) {
+		console.putmsg(yellow + "Got exception from getNTestLine " +
+		  "in the first iteration");
+	}
+
+	/* if (debugging) {
 	  var ouah = 1;
 	  console.putmsg(yellow + "Got: " + userData.toString() + " in the " +
 		"first iteration through.\n");
-	}
+	} */
 
 	/* while (!dbgFile.eof) {
 	  if (debugging) {
@@ -176,7 +184,21 @@ userRecords = {
 	  } */
 
 	  while ((userData === 0) || (userData.name != user.alias)) {
-		userData = this.getNTestLine(dbgFile);
+		try {
+			userData = this.getNTestLine(dbgFile);
+		} catch (e) {
+			if (debugging) {
+			  console.putmsg(yellow + "getNTestLine exception " +
+			    "in loop\n");
+			}
+			if (e.number == 1) {
+			  userData = -1;
+			  break;	//not sure the logic behind this
+			}
+		}
+	  }
+
+	  /*
 		if (debugging) {
 		  console.putmsg(yellow + "Iteration #: " + ouah++ +
 		    " got: " + userData.toString() + "\n");
@@ -184,11 +206,13 @@ userRecords = {
 	    if (userData == -1) { break; }
 	  }
 
+	  */
+
 	//}
 
 	//wut?
 	if (userData == -1) {
-	  return -3;
+	  return -3;	//change this out with an exception also
 	}
 	dbgFile.close();
 
