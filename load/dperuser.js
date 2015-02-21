@@ -204,11 +204,15 @@ userRecords = {
 		}
 	}
 
+	dbgFile.close();
+	if (userData.name == user.alias) {
+	  return userData.debug;
+	}
+
 	//wut?
 	if (userData == -1) {
 	  return -3;	//change this out with an exception also
 	}
-	dbgFile.close();
 
 	userRecords.userDataUI.displayDebugFlags();
 

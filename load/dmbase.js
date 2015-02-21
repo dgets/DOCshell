@@ -273,7 +273,7 @@ msg_base = {
 	  throw new this.dispMsgException("Invalid message slot", 1);
 	  return;
 	} else if (mHdr === null) {
-	  throw this.dispMsgException("Out of messages in current sub", 2);
+	  throw new this.dispMsgException("Out of messages in current sub", 2);
 	  return;	//not really sure if this is needed or not :|
 	}
 
