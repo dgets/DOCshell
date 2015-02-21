@@ -265,10 +265,10 @@ msg_base = {
 
 	if (localdebug.message_scan) {
 	  console.putmsg(red + "ptr: " + ptr + "\tbase.last_msg: " +
-		sBoard.last_msg + "\n");
+		base.last_msg + "\n");
 	}
 
-	if ((mHdr === null) && (ptr == sBoard.last_msg)) {
+	if ((mHdr === null) && (ptr == base.last_msg)) {
 	  //this is where echicken's suggestion must go
 	  throw new this.dispMsgException("Invalid message slot", 1);
 	  return;
@@ -335,6 +335,15 @@ msg_base = {
   },
   /*
    * summary:
+   *	method exists for returning as exception
+   */
+   verifyBoundsException : function(msg, num) {
+	this.name = "verifyBoundsException";
+	this.message = msg;
+	this.number = num;
+    },
+  /*
+   * summary:
    *	makes sure that scanSub() is within proper bounds when looking
    *	for new messages
    * mBase:
@@ -361,14 +370,17 @@ msg_base = {
 		  mBase.code + "\tmBase.is_open: " + mBase.is_open + "\n");
                 console.putmsg("Hit last message, returning 1\n");
             }
+	    throw new this.verifyBoundsException("Last message pointer", 1);
             return 1;
           } else if ((inc == 1) && (tp >= mBase.last_msg)) {
             console.putmsg(red + "Over last_msg; this should not " +
                 "ever happen.  :|\n");
+	    throw new this.verifyBoundsException("Over last msg (wtf)", 2);
             return null;
           } else if ((inc == -1) && (tp < mBase.first_msg)) {
             console.putmsg(green + high_intensity + "No preceeding " +
                 "messages\n");
+	    throw new this.verifyBoundsException("No preceding messages", 2);
             return null;
           }
 
@@ -398,8 +410,6 @@ msg_base = {
 	}
 
 	mBase = this.openNewMBase(sBoard.code);
-	/* var mBase = new MsgBase(sBoard.code);
-	mBase.open(); */
 
 	if (mBase === null) {
 	  if (localdebug.message_scan) {
@@ -428,7 +438,18 @@ msg_base = {
 	  }
 
 	  //make sure that we're within proper bounds
-	  ecode = this.verifyBounds(sBoard, inc, tmpPtr);
+	  try {
+	    ecode = this.verifyBounds(sBoard, inc, tmpPtr);
+	  } catch (e) {
+	    if (tmpDebugging) {
+		console.putmsg("Exception: " + e.name + "\tMsg: " +
+		  e.message + "\t#: " + e.number + "\n");
+	    }
+
+	    //if (
+	  }
+
+	  /*
 	  if ((ecode === null) || (ecode == 1)) { return ecode; }
 	  else if (ecode == 0) {
 	    //we have a valid message pointer; continue
@@ -440,6 +461,7 @@ msg_base = {
 	    console.putmsg(red + "Bogus code back from verifyBounds()\n");
 	    return null;
 	  }
+	  */
 
 	  try {
 		this.dispMsg(mBase, sBoard, tmpPtr, true);

@@ -168,13 +168,6 @@ docIface = {
 	var rList = docIface.util.getRoomList(confined);
 	var ndx = 0, success = false;
 
-	//phasing this out for new granular debugging
-	/* if (debugging) {
-	  console.putmsg(red + "Entered docIface.nav.skip(), " +
-	    "looking for: " + user.cursub + "\n" +
-	    red + high_intensity + "Working with list:\n" +
-	    rList.toString());
-	} */
 	if (localdebug.navigation || localdebug.message_scan) {
 	  console.putmsg(red + "Entered docIface.nav.skip(), " +
 	    "looking for: " + user.cursub + "\n");
@@ -391,6 +384,7 @@ docIface = {
 	console.putmsg(blue + high_intensity + "\n\nHope to see you " +
                 "again soon!\n\nPeace out!\n");
 
+	bbs.logout();
     },
 	/*
 	 * summary:
