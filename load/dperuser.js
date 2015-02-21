@@ -91,10 +91,14 @@ userRecords = {
 	}
 	return false;
     },
+	/*
+	 * summary:
+	 *	method exists to be returned via exception throws
+	 */
     getNTestException : function(message, num) {
         this.name = "getNTestLine() exception";
         this.message = message;
-        this.num = num; 
+        this.number = num; 
     },
 	/*
 	 * summary:
@@ -116,7 +120,12 @@ userRecords = {
 
 	try {
 	  tmpLine = dbgFile.readln(readlnMax);
+	  if (dbgFile.eof) {
+	    throw new this.getNTestException("EOF", 2);
+	    return 1;
+	  }
 	  if (this.isInvalidJSON(tmpLine, debugging)) {
+	    throw new this.getNTestException("Invalid JSON", 3);
 	    return 0;
 	  }
 	  userData = JSON.parse(tmpLine);
@@ -127,8 +136,8 @@ userRecords = {
 	  console.putmsg(red + high_intensity + "Got tmpLine: " +
 	    tmpLine + "\nParsed to: " + userData.toString() + "\n\n");
 	  dbgFile.close();
-	  throw new getNTestException("Error reading/parsing tmpLine", 1);
-	  return null;
+	  throw new this.getNTestException("Error reading/parsing tmpLine", 1);
+	  return tmpLine;
 	}
 
 	return userData;
@@ -169,21 +178,14 @@ userRecords = {
 		userData = this.getNTestLine(dbgFile);
 	} catch (e) {
 		console.putmsg(yellow + "Got exception from getNTestLine " +
-		  "in the first iteration");
+		  "in the first iteration\n");
 	}
 
-	/* if (debugging) {
-	  var ouah = 1;
-	  console.putmsg(yellow + "Got: " + userData.toString() + " in the " +
-		"first iteration through.\n");
-	} */
+	if (debugging) {
+	  console.putmsg("userData.name holds: " + userData.name + "\n");
+	}
 
-	/* while (!dbgFile.eof) {
-	  if (debugging) {
-	    console.putmsg(cyan + "Got this far (not eof)\n");
-	  } */
-
-	  while ((userData === 0) || (userData.name != user.alias)) {
+	while ((userData === 0) || (userData.name != user.alias)) {
 		try {
 			userData = this.getNTestLine(dbgFile);
 		} catch (e) {
@@ -193,22 +195,14 @@ userRecords = {
 			}
 			if (e.number == 1) {
 			  userData = -1;
-			  break;	//not sure the logic behind this
+			  //break;	//not sure the logic behind this
+			}
+			if (e.number == 2) {
+			  //we're done with the file
+			  break;
 			}
 		}
-	  }
-
-	  /*
-		if (debugging) {
-		  console.putmsg(yellow + "Iteration #: " + ouah++ +
-		    " got: " + userData.toString() + "\n");
-		}
-	    if (userData == -1) { break; }
-	  }
-
-	  */
-
-	//}
+	}
 
 	//wut?
 	if (userData == -1) {
