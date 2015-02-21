@@ -226,6 +226,13 @@ msg_base = {
          "<i>nfo (forum)\n<n>ext\t\t<p>rofile author\t<s>top\n" +
          "<w>ho's online\t<x>press msg\t<X>press on/off\n\n",
 
+  //--+++***===exceptions===***+++---
+  dispMsgException : function(message, num) {
+	this.name = "dispMsg exception";
+	this.message = message;
+	this.num = num;
+  },
+
   //---+++***===msg_base methods follow===***+++---
 
   //should end up replacing most of newScan() [above] and some other
@@ -241,6 +248,9 @@ msg_base = {
 	 *	Current message index #
 	 * break: Boolean
 	 *	true for screen pauses
+	 *
+	 * NOTE: Currently utilizing this method to test and implement
+	 *	 proper throwing of an exception to catch issues
 	 */
   dispMsg : function(base, sBoard, ptr, breaks) {
 	var debugging = true;	//we're good here -- LIES!!!
@@ -260,10 +270,11 @@ msg_base = {
 
 	if ((mHdr === null) && (ptr == sBoard.last_msg)) {
 	  //this is where echicken's suggestion must go
-	  return -1;	//code for we're out of messages here, skip to
-			//next
+	  throw new this.dispMsgException("Invalid message slot", 1);
+	  return;
 	} else if (mHdr === null) {
-	  return -2;	//just increment the pointer and try again
+	  throw this.dispMsgException("Out of messages in current sub", 2);
+	  return;	//not really sure if this is needed or not :|
 	}
 
         if (breaks) {
@@ -430,11 +441,29 @@ msg_base = {
 	    return null;
 	  }
 
-	  ecode = this.dispMsg(mBase, sBoard, tmpPtr, true);
+	  try {
+		this.dispMsg(mBase, sBoard, tmpPtr, true);
+	  } catch (e) {
+		if (localdebug.message_scan) {
+		  console.putmsg(yellow + "Got exception name: " +
+		    e.name + "\tMsg: " + e.message + "\n\tNum: " +
+		    e.number + "\n");
+		}
+
+		//patch code for testing
+		if (e.number == 2) {
+		  ecode = -2;
+		} else if (e.number == 1) {
+		  ecode = -1;
+		}
+	  }
 
 	  //this loop may be the source of a double display issue or
 	  //something of the sort
-	  while (ecode == -2) {
+	  //NOTE: changed this loop to a conditional in order to test
+	  //	  with the above patchcode without going into an infinite
+	  //	  loop
+	  if (ecode == -2) {
 	    //skip through deleted/invalid messages
 	    if (localdebug.message_scan) {
 		console.putmsg(red + "In scanSub(), ecode = -2, skipping " +
