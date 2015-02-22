@@ -135,6 +135,18 @@ poast = {
                   //fall through to continue w/entry here, too
                   break;
                 case 'S':
+		  //screw those old error codes
+		  try {
+			this.mWrite(mTxt, base, recip);
+		  } catch (e) {
+			log(LOG_WARN, "Err writing to " + base.name);
+                        console.putmsg(red + "There was a problem " +
+                                       "writing to " + base.name +
+                                       "\nSorry; error is logged.\n");
+			done = true;
+		  }
+		  break;
+		  /*
                   if (this.mWrite(mTxt, base, recip) < 0) {
                     console.putmsg(red + "There was a problem " +
                                    "writing to " + base.name +
@@ -149,6 +161,7 @@ poast = {
                   }
 		  done = true;
                   break;
+		  */
                 /* case 'X':
                  * just skipping this right now since I'm impatient
                  * about losing all of the recoding this morning and
@@ -161,7 +174,16 @@ poast = {
             }
           }
         } while (!done);
-    },  
+    }, 
+	/*
+	 * summary:
+	 *	method exists for returning exception from mWrite()
+	 */
+    mWriteException : function(message, num) {
+	this.name = "mWriteException";
+	this.message = message;
+	this.number = num;
+    },
         /*
          * summary:
          *      Writes appropriate message header & body data to the
@@ -236,13 +258,14 @@ poast = {
 	   * at local users.
 	   */
 
-
+	  //need to move this out into separate code
           try {
             dMB.open();
           } catch (e) {
             console.putmsg(red + "Error opening: " + high_intensity +
                 mBase.subnum + normal + "\n");
             log("dDOC err opening: " + mBase.subnum + "; " + e.message);
+	    throw new mWriteException(e.message, e.number);
             return -1;
           }
 
@@ -270,6 +293,7 @@ poast = {
                 mBase.subnum + normal + "\n");
             log("dDOC err saving msg to: " + mBase.subnum + "; " 
 		+ e.message);
+	    throw new mWriteException(e.message, e.number);
             return -2;
           }
 
@@ -279,6 +303,7 @@ poast = {
             console.putmsg(red + "Error closing: " + high_intensity +
                 mBase.subnum + normal + "\n");
             log("dDOC err closing: " + mBase.subnum + "; " + e.message);
+	    throw new mWriteException(e.message, e.number);
             return -3;
           }
           return 0;
