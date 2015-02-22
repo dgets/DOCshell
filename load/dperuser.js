@@ -140,6 +140,7 @@ userRecords = {
 	  return tmpLine;
 	}
 
+	//this should be global already; we can look at this more later
 	return userData;
     },
 	/*
@@ -182,10 +183,10 @@ userRecords = {
 	}
 
 	if (debugging) {
-	  console.putmsg("userData.name holds: " + userData.name + "\n");
+	  console.putmsg("userData.user holds: " + userData.user + "\n");
 	}
 
-	while ((userData === 0) || (userData.name != user.alias)) {
+	while ((userData === 0) || (userData.user != user.alias)) {
 		try {
 			userData = this.getNTestLine(dbgFile);
 		} catch (e) {
@@ -205,7 +206,7 @@ userRecords = {
 	}
 
 	dbgFile.close();
-	if (userData.name == user.alias) {
+	if (userData.user == user.alias) {
 	  return userData.debug;
 	}
 
