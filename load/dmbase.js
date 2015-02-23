@@ -176,7 +176,7 @@ msg_base = {
 	    docIface.util.quitDdoc();
 	    break; 
           default:
-            if (debugging)
+            if (localdebug.navigation)
               console.putmsg("\nNot handled yet . . .\n\n");
             break;
         }
@@ -194,7 +194,7 @@ msg_base = {
         //we can fuck with multi-columns later
         if (!confined) {
          for each (uMsgGrp in msg_area.grp_list) {
-          if (debugging) {
+          if (localdebug.navigation) {
                 console.putmsg(uMsgGrp.description + "\n\n");
           }
           for each (uGrpSub in uMsgGrp.sub_list) {
@@ -249,7 +249,7 @@ msg_base = {
 	 *	 proper throwing of an exception to catch issues
 	 */
   dispMsg : function(base, sBoard, ptr, breaks) {
-	var debugging = true;	//we're good here -- LIES!!!
+	//var debugging = true;	//we're good here -- LIES!!!
 
         if (breaks != false) { 
 	  breaks = true;
@@ -406,7 +406,7 @@ msg_base = {
 	 */
   scanSub : function(sBoard, forward) {
 	var tmpPtr, ecode, ecode2, inc;
-	var fuggit = false, tmpDebugging = true;
+	var fuggit = false;	//, tmpDebugging = true;
 
 	if (localdebug.message_scan) {
 	  console.putmsg("Entered scanSub(); forward = " + forward +
@@ -425,7 +425,7 @@ msg_base = {
 	}
 
 	tmpPtr = sBoard.scan_ptr;	//is this right?
-	if (tmpDebugging) {
+	if (localdebug.message_scan) {
 	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
 	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
 	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
@@ -448,7 +448,7 @@ msg_base = {
 	  try {
 	    ecode = this.verifyBounds(sBoard, inc, tmpPtr);
 	  } catch (e) {
-	    if (tmpDebugging) {
+	    if (localdebug.message_scan) {
 		console.putmsg("Exception: " + e.name + "\tMsg: " +
 		  e.message + "\t#: " + e.number + "\n");
 	    }

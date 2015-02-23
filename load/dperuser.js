@@ -198,16 +198,26 @@ userRecords = {
 		}
 	}
 
+	/*
 	if (debugging) {
 	  console.putmsg("userData.user holds: " + userData.user + "\n");
 	}
+	*/
 
-	while ((userData === 0) || (userData.user != user.alias)) {
+	while (userData.user != user.alias) {
+		if (debugging) {
+		  console.putmsg(yellow + "Testing for: " + user.alias +
+		    "\nAgainst: " + userData.user + "\n");
+		}
 		try {
 			userData = this.getNTestLine(dbgFile);
 			if (debugging) {
-			  console.putmsg(green + "userData: " +
-			    userData.toString() + "\n");
+			  console.putmsg(green + "userData.user: " +
+			    userData.user + "\n");
+			  if (userData.user == user.alias) {
+			    console.putmsg(green + high_intensity +
+				"Got match!\n");
+			  }
 			}
 		} catch (e) {
 			if (debugging) {
@@ -448,7 +458,7 @@ userRecords = {
 	return availableOpts;
     },
     displayDebugFlags : function() {
-	for each (opt in localdebug.keys()) {
+	for each (opt in Object.keys(localdebug)) {
 	  console.putmsg(yellow + "Flag: " + high_intensity + opt + normal +
 	    yellow + "\t\tValue: " + high_intensity + localdebug[opt] + "\n");
 	}

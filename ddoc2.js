@@ -35,7 +35,7 @@ const readlnMax = 1536;
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
-localdebug = null, userData = null;
+localdebug = null;	// don't need --> , userData = null;
 
 /*
  * obviously, with all of the other places that we've got debugging
@@ -317,8 +317,9 @@ docIface = {
 	}
 
 	if (localdebug != null) {
-          console.putmsg("localdebug.message_scan holds: " + 
-		localdebug.message_scan + "\n");
+	  userRecords.userDataUI.displayDebugFlags();
+          /*console.putmsg("localdebug.message_scan holds: " + 
+		localdebug.message_scan + "\n"); */
 	} /* else {
 	  //call the configuration setting if security access allows
 	  //NOTE: This is just an interim solution; there's probably something
