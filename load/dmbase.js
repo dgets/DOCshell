@@ -264,7 +264,8 @@ msg_base = {
 		base.last_msg + "\n");
 	}
 
-	if ((mHdr === null) && (ptr == base.last_msg)) {
+	//changed this to 'or'
+	if ((mHdr === null) || (ptr == base.last_msg)) {
 	  //this is where echicken's suggestion must go
 	  throw new this.dispMsgException("Invalid message slot", 1);
 	  return;
@@ -445,15 +446,19 @@ msg_base = {
 	  }
 
 	  //make sure that we're within proper bounds
+	  //kudos to @Ntwitch for seeing that sBoard needed to be
+	  //replaced by mBase
 	  try {
-	    ecode = this.verifyBounds(sBoard, inc, tmpPtr);
+	    ecode = this.verifyBounds(mBase, inc, tmpPtr);
 	  } catch (e) {
 	    if (localdebug.message_scan) {
 		console.putmsg("Exception: " + e.name + "\tMsg: " +
-		  e.message + "\t#: " + e.number + "\n");
+		  e.message + "\t#: " + e.number + "\necode: " +
+		  ecode + "\n");
 	    }
 
-	    //if (
+	    
+
 	  }
 
 	  /*
@@ -502,7 +507,7 @@ msg_base = {
 	    }
 
 	    tmpPtr += inc;
-	    if (tmpPtr <= sBoard.last_msg) {
+	    if (tmpPtr <= mBase.last_msg) {
 		ecode = this.dispMsg(mBase, sBoard, tmpPtr, true);
 	    } else {
 		if (localdebug.message_scan) {
