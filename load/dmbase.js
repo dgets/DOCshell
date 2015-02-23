@@ -157,7 +157,12 @@ msg_base = {
           case 'n':     //read new
 	    //NOTE: we'll need an enclosing loop to route through
 	    //separate sub-boards now
-	    msg_base.scanSub(msg_area.sub[bbs.cursub_code], true);
+	    try {
+		msg_base.scanSub(msg_area.sub[bbs.cursub_code], true);
+	    } catch (e) {
+		console.putmsg(yellow + "Ename: " + e.name + "\tMsg: " +
+		  e.message + "\t#: " + e.number + "\n");
+	    }
             //console.getkey();
             break;
           case 'k':     //list scanned bases
@@ -386,6 +391,15 @@ msg_base = {
 
 	  return 0;	//valid pointer indicated
   },
+  /*
+   * summary:
+   *	method exists to provide exception to throw
+   */
+  scanSubException : function(message, num) {
+	this.name = "scanSub() exception";
+	this.message = message;
+	this.number = num;
+  },
 	/*
 	 * summary:
 	 *	Sequentially scans for new messages within one
@@ -415,6 +429,7 @@ msg_base = {
 	  if (localdebug.message_scan) {
 		console.putmsg("Error in openNewMBase()\n");
 	  } 
+	  throw new scanSubException("Error in openNewMBase()", 1);
 	  return null;
 	}
 
@@ -431,6 +446,7 @@ msg_base = {
 	  console.putmsg("Inc: " + inc + "\tbased on 'forward'\n");
 	}
 
+	//primary message scan loop
 	while (!fuggit) {
 	  if (localdebug.message_scan) {
 	    console.putmsg(red + "In main scanSub() loop\ttmpPtr: " +
@@ -476,7 +492,9 @@ msg_base = {
 		if (e.number == 2) {
 		  ecode = -2;
 		} else if (e.number == 1) {
-		  ecode = -1;
+		  //let's see if we can't just finish this right now
+		  throw new scanSubException("Done with messages", 2);
+		  return 0;	//completed
 		}
 	  }
 
@@ -501,6 +519,7 @@ msg_base = {
 		  console.putmsg(red + "Previous errors (if any): " +
 		    mBase.error + "\n");
 		}
+		throw new scanSubException("Hit end of sub/room", 3);
 		return 1;
 	    }
 	  }
@@ -525,6 +544,7 @@ msg_base = {
 	if (localdebug.message_scan) {
 	  console.putmsg(red + "Closed mBase: " + sBoard.code + "\n");
 	}
+	throw new scanSubException("Done with message scan", 4);
 	return -2;
   }
 }
