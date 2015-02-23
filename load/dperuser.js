@@ -145,6 +145,15 @@ userRecords = {
     },
 	/*
 	 * summary:
+	 *	method exists to hold exception to throw from getUserInfo()
+	 */
+    getUserInfoException : function(message, num) {
+	this.name = "getUserInfoException";
+	this.message = message;
+	this.number = num;
+    },
+	/*
+	 * summary:
 	 *	method retrieves the debugging statistics for the
 	 *	current user
 	 * returns:
@@ -178,8 +187,15 @@ userRecords = {
 	try {
 		userData = this.getNTestLine(dbgFile);
 	} catch (e) {
-		console.putmsg(yellow + "Got exception from getNTestLine " +
-		  "in the first iteration\n");
+		if (e.number == 3) {
+		  //it'll always get this w/current file contents
+		  /*console.putmsg(yellow + "Got exception from getNTestLine " +
+		    "in the first iteration\n"); */
+		} else {
+		  console.putmsg(yellow + "Exception in first iteration: " +
+		    e.name + "\nMsg: " + e.message + "\t#: " + e.number +
+		    "\n");
+		}
 	}
 
 	if (debugging) {
@@ -189,6 +205,10 @@ userRecords = {
 	while ((userData === 0) || (userData.user != user.alias)) {
 		try {
 			userData = this.getNTestLine(dbgFile);
+			if (debugging) {
+			  console.putmsg(green + "userData: " +
+			    userData.toString() + "\n");
+			}
 		} catch (e) {
 			if (debugging) {
 			  console.putmsg(yellow + "getNTestLine exception " +
@@ -202,6 +222,17 @@ userRecords = {
 			  //we're done with the file
 			  break;
 			}
+		}
+	}
+
+	//necessary?
+	if (userData.user == user.alias) {
+		//so we should be holding the current & correct JSON
+		try {
+		  userData = JSON.parse(tmpLine);
+		} catch (e) {
+		  console.putmsg(red + "Ename: " + e.name + "\tMsg: " +
+		    e.message + "\t#: " + e.number + "\n");
 		}
 	}
 
@@ -422,9 +453,9 @@ userRecords = {
 	    yellow + "\t\tValue: " + high_intensity + localdebug[opt] + "\n");
 	}
     },
-    displayInfo : function() {
+/*    displayInfo : function() {
 
-    }
+    } */
 
   }
 
