@@ -324,8 +324,10 @@ docIface = {
 	  //NOTE: This is just an interim solution; there's probably something
 	  //better to do with it later on
 	  if (user.security.level >= 70) {
-		localdebug = 
-			userRecords.userDataUI.queryDebugSettings(user.alias);
+		console.putmsg(red + "Not changing debugging settings as " +
+		  "this is being called via bogus logic currently\n");
+		//localdebug = 
+			//userRecords.userDataUI.queryDebugSettings(user.alias);
 	  } else {
 		for each (dbgProp in debugFields) {
 			localdebug.debug[dbgProp] = false;
