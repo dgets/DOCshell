@@ -319,7 +319,7 @@ docIface = {
 	if (localdebug != null) {
           console.putmsg("localdebug.message_scan holds: " + 
 		localdebug.message_scan + "\n");
-	} else {
+	} /* else {
 	  //call the configuration setting if security access allows
 	  //NOTE: This is just an interim solution; there's probably something
 	  //better to do with it later on
@@ -334,6 +334,10 @@ docIface = {
 		}
 	  }
 	}
+
+	removing this currently because we don't want to waste time in this
+	bogus routine when we're not even readding debuggers correctly
+	*/
 
 	//console.putmsg("localdebug: " + localdebug.toString() + "\n");
 

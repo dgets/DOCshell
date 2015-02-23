@@ -101,16 +101,7 @@ msg_base = {
 		case ' ':
 		case 'n':
 		  valid = true; hollaBack = 0;
-		  if (debugging) {
-		    console.putmsg(red +
-			"xxxx DEBUGING  xxxx   dmbase.js    prior to " +
-			"  docIface.log_str_n_char\n");
-		  }
 		  docIface.log_str_n_char(this.log_header, 'n');
-		  if (debugging) {
-			console.putmsg("xxxx DEBUGING  xxxx   dmbase.js" +
-				"    after docIface.log_str_n_char\n");
-		  }
 		  console.putmsg("\n");
 		  break;
 		case 'l':
