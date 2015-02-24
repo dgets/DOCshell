@@ -174,7 +174,7 @@ docIface = {
 	  return -2;
 	} else {
 	  //let's go
-	  bbs.log_str("Jumped to " + setSub(ouah));
+	  bbs.log_str("Jumped to " + this.setSub(ouah));
 	}
     },
 	/*
@@ -216,7 +216,7 @@ docIface = {
                 console.putmsg(yellow + "Skipping to " +
                   rm.name + "\n");
               }
-              setSub(rm);
+              this.setSub(rm);
               break;
           }
 
@@ -228,7 +228,7 @@ docIface = {
 	    }
 	    success = true;
 	    if (ndx == rList.length) {
-		setSub(rList[0]);
+		this.setSub(rList[0]);
 		break;
 	    } else {
 		if (localdebug.navigation || localdebug.message_scan) {
@@ -236,7 +236,7 @@ docIface = {
 			user.cursub + "\n");
 		}
 
-		setSub(rList[ndx]);
+		this.setSub(rList[ndx]);
 	   	break;
 	    }
 	  }
