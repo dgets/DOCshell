@@ -179,11 +179,11 @@ poast = {
 	 * summary:
 	 *	method exists for returning exception from mWrite()
 	 */
-    mWriteException : function(message, num) {
+    /*mWriteException : function(message, num) {
 	this.name = "mWriteException";
 	this.message = message;
 	this.number = num;
-    },
+    },*/
         /*
          * summary:
          *      Writes appropriate message header & body data to the
@@ -265,8 +265,10 @@ poast = {
             console.putmsg(red + "Error opening: " + high_intensity +
                 mBase.subnum + normal + "\n");
             log("dDOC err opening: " + mBase.subnum + "; " + e.message);
-	    throw new mWriteException(e.message, e.number);
-            return -1;
+	    throw new docIface.dDocException("mWriteException",
+			e.message, e.number);
+	    //throw new mWriteException(e.message, e.number);
+            //return -1;
           }
 
 	  if (debugging) {
@@ -293,8 +295,10 @@ poast = {
                 mBase.subnum + normal + "\n");
             log("dDOC err saving msg to: " + mBase.subnum + "; " 
 		+ e.message);
-	    throw new mWriteException(e.message, e.number);
-            return -2;
+	    throw new docIface.dDocException("mWriteException", e.message,
+			e.number);
+	    //throw new mWriteException(e.message, e.number);
+            //return -2;
           }
 
           try {
@@ -303,8 +307,10 @@ poast = {
             console.putmsg(red + "Error closing: " + high_intensity +
                 mBase.subnum + normal + "\n");
             log("dDOC err closing: " + mBase.subnum + "; " + e.message);
-	    throw new mWriteException(e.message, e.number);
-            return -3;
+	    throw new docIface.dDocException("mWriteException", e.message,
+			e.number);
+	    //throw new mWriteException(e.message, e.number);
+            //return -3;
           }
           return 0;
     },

@@ -73,6 +73,16 @@ docIface = {
   //		----++++****====menu methods====****++++----
   /*
    * summary:
+   *      global level method exists in order to reduce redundant code by
+   *      creating one global level method for exception throwing
+   */
+  dDocException : function(name, msg, num) {
+        this.name = name;
+        this.message = msg;
+        this.number = num;
+  },
+  /*
+   * summary:
    *	Just a wrapper for console.getkey() at this point.  I honestly can't
    * 	remember why I did this now; leaving it in case I remember
    * returns:
