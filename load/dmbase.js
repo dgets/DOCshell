@@ -223,11 +223,6 @@ msg_base = {
          "<w>ho's online\t<x>press msg\t<X>press on/off\n\n",
 
   //--+++***===exceptions===***+++---
-  /*dispMsgException : function(message, num) {
-	this.name = "dispMsg exception";
-	this.message = message;
-	this.num = num;
-  },*/
 
   //---+++***===msg_base methods follow===***+++---
 
@@ -269,13 +264,9 @@ msg_base = {
 	  //this is where echicken's suggestion must go
 	  throw new docIface.dDocException("dispMsgException",
 			"Invalid message slot", 1);
-	  //throw new this.dispMsgException("Invalid message slot", 1);
-	  //return;
 	} else if (mHdr === null) {
 	  throw new docIface.dDocException("dispMsgException",
 			"Out of messages in current sub", 2);
-	  //throw new this.dispMsgException("Out of messages in current sub", 2);
-	  //return;	//not really sure if this is needed or not :|
 	}
 
         if (breaks) {
@@ -338,11 +329,6 @@ msg_base = {
    * summary:
    *	method exists for returning as exception
    */
-   /*verifyBoundsException : function(msg, num) {
-	this.name = "verifyBoundsException";
-	this.message = msg;
-	this.number = num;
-    },*/
   /*
    * summary:
    *	makes sure that scanSub() is within proper bounds when looking
@@ -373,22 +359,16 @@ msg_base = {
             }
 	    throw new docIface.dDocException("verifyBoundsException",
 			"Last message pointer", 1);
-	    //throw new this.verifyBoundsException("Last message pointer", 1);
-            //return 1;
           } else if ((inc == 1) && (tp >= mBase.last_msg)) {
             console.putmsg(red + "Over last_msg; this should not " +
                 "ever happen.  :|\n");
 	    throw new docIface.dDocException("verifyBoundsException",
 			"Over last msg (wtf)", 2);
-	    //throw new this.verifyBoundsException("Over last msg (wtf)", 2);
-            //return null;
           } else if ((inc == -1) && (tp < mBase.first_msg)) {
             console.putmsg(green + high_intensity + "No preceeding " +
                 "messages\n");
 	    throw new docIface.dDocException("verifyBoundsException",
 			"No preceding messages", 3);
-	    //throw new this.verifyBoundsException("No preceding messages", 2);
-            //return null;
           }
 
 	  return 0;	//valid pointer indicated
@@ -397,11 +377,6 @@ msg_base = {
    * summary:
    *	method exists to provide exception to throw
    */
-  /*scanSubException : function(message, num) {
-	this.name = "scanSub() exception";
-	this.message = message;
-	this.number = num;
-  }, */
 	/*
 	 * summary:
 	 *	Sequentially scans for new messages within one
@@ -433,8 +408,6 @@ msg_base = {
 	  } 
 	  throw new docIface.dDocException("scanSubException",
 			"Error in openNewMBase()", 1);
-	  //throw new scanSubException("Error in openNewMBase()", 1);
-	  //return null;
 	}
 
 	tmpPtr = sBoard.scan_ptr;	//is this right?
@@ -503,8 +476,6 @@ msg_base = {
 		  //let's see if we can't just finish this right now
 		  throw new docIface.dDocException("scanSubException",
 				"Done with messages", 2);
-		  //throw new scanSubException("Done with messages", 2);
-		  //return 0;	//completed
 		}
 	  }
 
@@ -531,8 +502,6 @@ msg_base = {
 		}
 		throw new docIface.dDocException("scanSubException",
 				"Hit end of sub/room", 3);
-		//throw new scanSubException("Hit end of sub/room", 3);
-		//return 1;
 	    }
 	  }
 
@@ -558,7 +527,5 @@ msg_base = {
 	}
 	throw new docIface.dDocException("scanSubException",
 			"Done with message scan", 4);
-	//throw new scanSubException("Done with message scan", 4);
-	//return -2;
   }
 }

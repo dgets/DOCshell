@@ -95,11 +95,6 @@ userRecords = {
 	 * summary:
 	 *	method exists to be returned via exception throws
 	 */
-    /* getNTestException : function(message, num) {
-        this.name = "getNTestLine() exception";
-        this.message = message;
-        this.number = num; 
-    }, */
 	/*
 	 * summary:
 	 *	method attempts to read a line from the dbgFile (testing
@@ -123,12 +118,10 @@ userRecords = {
 	  if (dbgFile.eof) {
 	    throw new docIface.dDocException("getNTextException",
 			"EOF", 1);
-	    //return 1;
 	  }
 	  if (this.isInvalidJSON(tmpLine, debugging)) {
 	    throw new docIface.dDocException("getNTextException",
 			"Invalid JSON", 2);
-	    //return 0;
 	  }
 	  userData = JSON.parse(tmpLine);
 	} catch (e) {
@@ -140,8 +133,6 @@ userRecords = {
 	  dbgFile.close();
 	  throw new docIface.dDocException("getNTextException", 
 			"Error reading/parsing tmpLine", 3);
-	  //throw new this.getNTestException("Error reading/parsing tmpLine", 1);
-	  //return tmpLine;
 	}
 
 	//this should be global already; we can look at this more later
@@ -151,11 +142,6 @@ userRecords = {
 	 * summary:
 	 *	method exists to hold exception to throw from getUserInfo()
 	 */
-    getUserInfoException : function(message, num) {
-	this.name = "getUserInfoException";
-	this.message = message;
-	this.number = num;
-    },
 	/*
 	 * summary:
 	 *	method retrieves the debugging statistics for the
