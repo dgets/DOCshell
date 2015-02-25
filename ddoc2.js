@@ -126,6 +126,24 @@ docIface = {
   nav : {
 	/*
 	 * summary:
+	 *	Properly sets the bbs. and user. cursub/curgrp for a given
+	 *	room.
+	 * room:
+	 *	The msg_area.grp_list[].sub_list[] element of the room to jump to.
+	 * returns:
+	 *	String of the human-readable sub name.
+	 */
+    setSub : function(room) {
+	if (room === null) return "";
+	
+	bbs.curgrp = room.grp_number;
+	bbs.cursub = room.index;
+	user.cursub = bbs.cursub_code;
+	
+	return room.name;
+    },
+	/*
+	 * summary:
 	 *	Displays the prompt for a string to search for in the
 	 *	available message sub-boards, executes a call to the
 	 *	functionality to search for it and find it, and jumps to
@@ -156,8 +174,7 @@ docIface = {
 	  return -2;
 	} else {
 	  //let's go
-	  user.cursub = ouah.name;	//try/catch?
-	  bbs.log_str("Jumped to " + ouah.name);
+	  bbs.log_str("Jumped to " + this.setSub(ouah));
 	}
     },
 	/*
@@ -199,7 +216,7 @@ docIface = {
                 console.putmsg(yellow + "Skipping to " +
                   rm.name + "\n");
               }
-              user.cursub = rm.name;
+              this.setSub(rm);
               break;
           }
 
@@ -211,7 +228,7 @@ docIface = {
 	    }
 	    success = true;
 	    if (ndx == rList.length) {
-		user.cursub = "Lobby";
+		this.setSub(rList[0]);
 		break;
 	    } else {
 		if (localdebug.navigation || localdebug.message_scan) {
@@ -219,7 +236,7 @@ docIface = {
 			user.cursub + "\n");
 		}
 
-		user.cursub = rList[ndx].name;
+		this.setSub(rList[ndx]);
 	   	break;
 	    }
 	  }
@@ -328,8 +345,6 @@ docIface = {
 
 	if (localdebug != null) {
 	  userRecords.userDataUI.displayDebugFlags();
-          /*console.putmsg("localdebug.message_scan holds: " + 
-		localdebug.message_scan + "\n"); */
 	} /* else {
 	  //call the configuration setting if security access allows
 	  //NOTE: This is just an interim solution; there's probably something
@@ -354,22 +369,23 @@ docIface = {
 
 	if (confined) {
 		bbs.log_str(user.alias + " is entering dDOC shell and " +
-			"confined to DystopianUtopia group");
+			"confined to " + msg_area.grp_list[topebaseno].name + 
+			" group");
 	} else {
 		bbs.log_str(user.alias + " entering dDOC shell");
 	}
 
-	docIface.util.preSubBoard = user.cursub;
+	docIface.util.preSubBoard = bbs.cursub;
 	docIface.util.preMsgGroup = bbs.curgrp;
-	docIface.util.preFileDir = user.curdir;
+	docIface.util.preFileDir = bbs.curdir;
 
 	if (confined) {
 	  if (localdebug.flow_control) {
-	    console.putmsg("Setting user.curgrp to DystopianUtopia\n");
-	    console.putmsg("Setting user.cursub to Lobby\n");
+	    console.putmsg("Moving user to " + 
+		msg_area.grp_list[topebaseno].name + 
+		msg_area.grp_list[topebaseno].sub_list[0] + "\n");
 	  }
-	  user.curgrp = "DystopianUtopia";
-	  user.cursub = "Lobby";
+	  docIface.nav.setSub(msg_area.grp_list[topebaseno].sub_list[0]);
 	}
 
     },
@@ -386,17 +402,17 @@ docIface = {
 	bbs.log_key("L");
 
 	if (localdebug.flow_control) {
-	  console.putmsg(red + "Restoring user.cursub: " + 
-	    docIface.util.preSubBoard +
-	    "\nbbs.curgrp: " + docIface.util.preMsgGroup + 
-	    "\nuser.curdir: " + docIface.util.preFileDir + "\n");
-	  console.putmsg(red + "\nRestoring bbs.* properties\n");
+	  console.putmsg(red + "\nRestoring bbs.* properties:\n" + 
+	    " bbs.cursub: " + docIface.util.preSubBoard + "\n" + 
+	    " bbs.curgrp: " + docIface.util.preMsgGroup + "\n" + 
+	    " bbs.curdir: " + docIface.util.preFileDir + "\n");
 	}
 
-	//restore initial setings prior to exit
-	user.cursub = docIface.util.preSubBoard;
+	//restore initial settings prior to exit
+	bbs.cursub = docIface.util.preSubBoard;
+	user.cursub = bbs.cursub_code;
 	bbs.curgrp = docIface.util.preMsgGroup;
-	user.curdir = docIface.util.preFileDir;
+	bbs.curdir = docIface.util.preFileDir;
 
 	console.putmsg(blue + high_intensity + "\n\nHope to see you " +
                 "again soon!\n\nPeace out!\n");
@@ -464,9 +480,8 @@ if (!debugOnly) {
 	}
 
 	//dynamic prompt
-	dprompt = yellow + high_intensity + user.cursub
-	  //msg_area.grp_list[bbs.curgrp].sub_list[user.cursub]
-	  + "> ";
+	dprompt = yellow + high_intensity + msg_area.sub[user.cursub].name +
+		  "> ";
 
 	//maintenance
 	bbs.main_cmds++;

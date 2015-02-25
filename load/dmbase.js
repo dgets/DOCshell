@@ -32,8 +32,7 @@ msg_base = {
          */
   read_cmd : {
         rcMenu : "\n" + green + high_intensity +
-          "<?> help         <a>gain           <A>gain (no More" +
-          "prompt)\n" +
+          "<?> help         <a>gain           <A>gain (no More prompt)\n" +
           "<b>ack           <D>elete msg      <e>nter msg\n" +
           "<E>nter (upload) <h>elp            <i>nfo (forum)\n" +
           "<n>ext           <p>rofile author  <s>top\n" +
@@ -109,13 +108,8 @@ msg_base = {
 		  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
-                  //console.putmsg(msg_base.mprompt);
-                  //uchoice = console.getkey();
                   break;
             }
-
-          //write the prompt again here, durrr; other flow control
-          //issues, as well, here probably
           }
 
         return hollaBack;
@@ -154,7 +148,6 @@ msg_base = {
 		console.putmsg(yellow + "Ename: " + e.name + "\tMsg: " +
 		  e.message + "\t#: " + e.number + "\n");
 	    }
-            //console.getkey();
             break;
           case 'k':     //list scanned bases
             this.listKnown(confined);
@@ -176,8 +169,9 @@ msg_base = {
 	    docIface.util.quitDdoc();
 	    break; 
           default:
-            if (localdebug.navigation)
+            if (localdebug.navigation) {
               console.putmsg("\nNot handled yet . . .\n\n");
+	    }
             break;
         }
     },
@@ -223,11 +217,6 @@ msg_base = {
          "<w>ho's online\t<x>press msg\t<X>press on/off\n\n",
 
   //--+++***===exceptions===***+++---
-  /*dispMsgException : function(message, num) {
-	this.name = "dispMsg exception";
-	this.message = message;
-	this.num = num;
-  },*/
 
   //---+++***===msg_base methods follow===***+++---
 
@@ -249,8 +238,6 @@ msg_base = {
 	 *	 proper throwing of an exception to catch issues
 	 */
   dispMsg : function(base, sBoard, ptr, breaks) {
-	//var debugging = true;	//we're good here -- LIES!!!
-
         if (breaks != false) { 
 	  breaks = true;
 	}
@@ -265,17 +252,16 @@ msg_base = {
 	}
 
 	//changed this to 'or'
+	//NOTE: There is a chance that 'ptr' and/or base.last_msg are
+	//not the correct values, thus causing some of the issues in
+	//message scanning that we're having
 	if ((mHdr === null) || (ptr == base.last_msg)) {
 	  //this is where echicken's suggestion must go
 	  throw new docIface.dDocException("dispMsgException",
 			"Invalid message slot", 1);
-	  //throw new this.dispMsgException("Invalid message slot", 1);
-	  //return;
 	} else if (mHdr === null) {
 	  throw new docIface.dDocException("dispMsgException",
 			"Out of messages in current sub", 2);
-	  //throw new this.dispMsgException("Out of messages in current sub", 2);
-	  //return;	//not really sure if this is needed or not :|
 	}
 
         if (breaks) {
@@ -299,8 +285,7 @@ msg_base = {
 	 */
   doMPrompt : function() {
     console.putmsg(yellow + high_intensity + user.cursub + "> msg #" +
-	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr +
-	" (" +
+	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr + " (" +
 	(msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
 	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr) +
 	" remaining)] " + green + high_intensity + "Read cmd -> ");
@@ -336,15 +321,6 @@ msg_base = {
   },
   /*
    * summary:
-   *	method exists for returning as exception
-   */
-   /*verifyBoundsException : function(msg, num) {
-	this.name = "verifyBoundsException";
-	this.message = msg;
-	this.number = num;
-    },*/
-  /*
-   * summary:
    *	makes sure that scanSub() is within proper bounds when looking
    *	for new messages
    * mBase:
@@ -373,22 +349,16 @@ msg_base = {
             }
 	    throw new docIface.dDocException("verifyBoundsException",
 			"Last message pointer", 1);
-	    //throw new this.verifyBoundsException("Last message pointer", 1);
-            //return 1;
           } else if ((inc == 1) && (tp >= mBase.last_msg)) {
             console.putmsg(red + "Over last_msg; this should not " +
                 "ever happen.  :|\n");
 	    throw new docIface.dDocException("verifyBoundsException",
 			"Over last msg (wtf)", 2);
-	    //throw new this.verifyBoundsException("Over last msg (wtf)", 2);
-            //return null;
           } else if ((inc == -1) && (tp < mBase.first_msg)) {
             console.putmsg(green + high_intensity + "No preceeding " +
                 "messages\n");
 	    throw new docIface.dDocException("verifyBoundsException",
 			"No preceding messages", 3);
-	    //throw new this.verifyBoundsException("No preceding messages", 2);
-            //return null;
           }
 
 	  return 0;	//valid pointer indicated
@@ -397,11 +367,6 @@ msg_base = {
    * summary:
    *	method exists to provide exception to throw
    */
-  /*scanSubException : function(message, num) {
-	this.name = "scanSub() exception";
-	this.message = message;
-	this.number = num;
-  }, */
 	/*
 	 * summary:
 	 *	Sequentially scans for new messages within one
@@ -433,8 +398,6 @@ msg_base = {
 	  } 
 	  throw new docIface.dDocException("scanSubException",
 			"Error in openNewMBase()", 1);
-	  //throw new scanSubException("Error in openNewMBase()", 1);
-	  //return null;
 	}
 
 	tmpPtr = sBoard.scan_ptr;	//is this right?
@@ -469,7 +432,9 @@ msg_base = {
 		  ecode + "\n");
 	    }
 
-	    
+	    if (e.number == 1) {	//out of messages
+		return null;	//change this to a non-hack if it works
+	    }
 
 	  }
 
@@ -497,14 +462,12 @@ msg_base = {
 		}
 
 		//patch code for testing
-		if (e.number == 2) {
+		if (e.number == 1) {
+		  ecode = -1;
+		} else if (e.number == 2) {
 		  ecode = -2;
-		} else if (e.number == 1) {
-		  //let's see if we can't just finish this right now
 		  throw new docIface.dDocException("scanSubException",
 				"Done with messages", 2);
-		  //throw new scanSubException("Done with messages", 2);
-		  //return 0;	//completed
 		}
 	  }
 
@@ -531,9 +494,10 @@ msg_base = {
 		}
 		throw new docIface.dDocException("scanSubException",
 				"Hit end of sub/room", 3);
-		//throw new scanSubException("Hit end of sub/room", 3);
-		//return 1;
 	    }
+	  } else if (ecode == -1) {
+	    tmpPtr += inc;
+	    continue;
 	  }
 
 	  ecode = this.read_cmd.rcChoice(mBase, tmpPtr);
@@ -558,7 +522,5 @@ msg_base = {
 	}
 	throw new docIface.dDocException("scanSubException",
 			"Done with message scan", 4);
-	//throw new scanSubException("Done with message scan", 4);
-	//return -2;
   }
 }
