@@ -345,8 +345,6 @@ docIface = {
 
 	if (localdebug != null) {
 	  userRecords.userDataUI.displayDebugFlags();
-          /*console.putmsg("localdebug.message_scan holds: " + 
-		localdebug.message_scan + "\n"); */
 	} /* else {
 	  //call the configuration setting if security access allows
 	  //NOTE: This is just an interim solution; there's probably something
@@ -371,7 +369,8 @@ docIface = {
 
 	if (confined) {
 		bbs.log_str(user.alias + " is entering dDOC shell and " +
-			"confined to " + msg_area.grp_list[topebaseno].name + " group");
+			"confined to " + msg_area.grp_list[topebaseno].name + 
+			" group");
 	} else {
 		bbs.log_str(user.alias + " entering dDOC shell");
 	}
@@ -382,7 +381,9 @@ docIface = {
 
 	if (confined) {
 	  if (localdebug.flow_control) {
-	    console.putmsg("Moving user to " + msg_area.grp_list[topebaseno].name + msg_area.grp_list[topebaseno].sub_list[0] + "\n");
+	    console.putmsg("Moving user to " + 
+		msg_area.grp_list[topebaseno].name + 
+		msg_area.grp_list[topebaseno].sub_list[0] + "\n");
 	  }
 	  docIface.nav.setSub(msg_area.grp_list[topebaseno].sub_list[0]);
 	}
@@ -479,9 +480,8 @@ if (!debugOnly) {
 	}
 
 	//dynamic prompt
-	dprompt = yellow + high_intensity + user.cursub
-	  //msg_area.grp_list[bbs.curgrp].sub_list[user.cursub]
-	  + "> ";
+	dprompt = yellow + high_intensity + msg_area.sub[user.cursub].name +
+		  "> ";
 
 	//maintenance
 	bbs.main_cmds++;
