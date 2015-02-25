@@ -32,8 +32,7 @@ msg_base = {
          */
   read_cmd : {
         rcMenu : "\n" + green + high_intensity +
-          "<?> help         <a>gain           <A>gain (no More" +
-          "prompt)\n" +
+          "<?> help         <a>gain           <A>gain (no More prompt)\n" +
           "<b>ack           <D>elete msg      <e>nter msg\n" +
           "<E>nter (upload) <h>elp            <i>nfo (forum)\n" +
           "<n>ext           <p>rofile author  <s>top\n" +
@@ -109,13 +108,8 @@ msg_base = {
 		  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
-                  //console.putmsg(msg_base.mprompt);
-                  //uchoice = console.getkey();
                   break;
             }
-
-          //write the prompt again here, durrr; other flow control
-          //issues, as well, here probably
           }
 
         return hollaBack;
@@ -154,7 +148,6 @@ msg_base = {
 		console.putmsg(yellow + "Ename: " + e.name + "\tMsg: " +
 		  e.message + "\t#: " + e.number + "\n");
 	    }
-            //console.getkey();
             break;
           case 'k':     //list scanned bases
             this.listKnown(confined);
@@ -176,8 +169,9 @@ msg_base = {
 	    docIface.util.quitDdoc();
 	    break; 
           default:
-            if (localdebug.navigation)
+            if (localdebug.navigation) {
               console.putmsg("\nNot handled yet . . .\n\n");
+	    }
             break;
         }
     },
@@ -244,8 +238,6 @@ msg_base = {
 	 *	 proper throwing of an exception to catch issues
 	 */
   dispMsg : function(base, sBoard, ptr, breaks) {
-	//var debugging = true;	//we're good here -- LIES!!!
-
         if (breaks != false) { 
 	  breaks = true;
 	}
@@ -260,6 +252,9 @@ msg_base = {
 	}
 
 	//changed this to 'or'
+	//NOTE: There is a chance that 'ptr' and/or base.last_msg are
+	//not the correct values, thus causing some of the issues in
+	//message scanning that we're having
 	if ((mHdr === null) || (ptr == base.last_msg)) {
 	  //this is where echicken's suggestion must go
 	  throw new docIface.dDocException("dispMsgException",
@@ -290,8 +285,7 @@ msg_base = {
 	 */
   doMPrompt : function() {
     console.putmsg(yellow + high_intensity + user.cursub + "> msg #" +
-	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr +
-	" (" +
+	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr + " (" +
 	(msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
 	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr) +
 	" remaining)] " + green + high_intensity + "Read cmd -> ");
@@ -325,10 +319,6 @@ msg_base = {
 
 	return mBase;
   },
-  /*
-   * summary:
-   *	method exists for returning as exception
-   */
   /*
    * summary:
    *	makes sure that scanSub() is within proper bounds when looking
@@ -442,7 +432,9 @@ msg_base = {
 		  ecode + "\n");
 	    }
 
-	    
+	    if (e.number == 1) {	//out of messages
+		return null;	//change this to a non-hack if it works
+	    }
 
 	  }
 
@@ -470,10 +462,10 @@ msg_base = {
 		}
 
 		//patch code for testing
-		if (e.number == 2) {
+		if (e.number == 1) {
+		  ecode = -1;
+		} else if (e.number == 2) {
 		  ecode = -2;
-		} else if (e.number == 1) {
-		  //let's see if we can't just finish this right now
 		  throw new docIface.dDocException("scanSubException",
 				"Done with messages", 2);
 		}
@@ -503,6 +495,9 @@ msg_base = {
 		throw new docIface.dDocException("scanSubException",
 				"Hit end of sub/room", 3);
 	    }
+	  } else if (ecode == -1) {
+	    tmpPtr += inc;
+	    continue;
 	  }
 
 	  ecode = this.read_cmd.rcChoice(mBase, tmpPtr);
