@@ -251,10 +251,11 @@ msg_base = {
 		base.last_msg + "\n");
 	}
 
-	//changed this to 'or'
-	//NOTE: There is a chance that 'ptr' and/or base.last_msg are
-	//not the correct values, thus causing some of the issues in
-	//message scanning that we're having
+	if (ptr < 0) {
+	  throw new docIface.dDocException("dispMsgException",
+			"At start of messages", 3);
+	}
+	
 	if ((mHdr === null) || (ptr == base.last_msg)) {
 	  //this is where echicken's suggestion must go
 	  throw new docIface.dDocException("dispMsgException",
@@ -457,15 +458,13 @@ msg_base = {
 	  } catch (e) {
 		if (localdebug.message_scan) {
 		  console.putmsg(yellow + "Got exception name: " +
-		    e.name + "\tMsg: " + e.message + "\n\tNum: " +
+		    e.name + "\tMsg: " + e.message + "\nNum: " +
 		    e.number + "\n");
 		}
 
 		//patch code for testing
-		if (e.number == 1) {
-		  ecode = -1;
-		} else if (e.number == 2) {
-		  ecode = -2;
+		ecode = e.number;
+		if (e.number == 2) {
 		  throw new docIface.dDocException("scanSubException",
 				"Done with messages", 2);
 		}
@@ -476,7 +475,7 @@ msg_base = {
 	  //NOTE: changed this loop to a conditional in order to test
 	  //	  with the above patchcode without going into an infinite
 	  //	  loop
-	  if (ecode == -2) {
+	  if (ecode == 2) {
 	    //skip through deleted/invalid messages
 	    if (localdebug.message_scan) {
 		console.putmsg(red + "In scanSub(), ecode = -2, skipping " +
@@ -484,20 +483,28 @@ msg_base = {
 	    }
 
 	    tmpPtr += inc;
-	    if (tmpPtr <= mBase.last_msg) {
+	    if (tmpPtr >= mBase.last_msg) {
 		ecode = this.dispMsg(mBase, sBoard, tmpPtr, true);
-	    } else {
+	    } else if (tmpPtr < 0) {
 		if (localdebug.message_scan) {
-		  console.putmsg(red + "Hit end of sub/room\n");
-		  console.putmsg(red + "Previous errors (if any): " +
-		    mBase.error + "\n");
+		  console.putmsg(red + "Hit beginning of sub/room\n" +
+		    "Previous errors (if any): " + mBase.error + "\n");
 		}
 		throw new docIface.dDocException("scanSubException",
-				"Hit end of sub/room", 3);
+				"Hit message 0", 3);
+	    } else {
+		if (localdebug.message_scan) {
+		  console.putmsg(red + "Hit end of sub/room\n" +
+		    "Previous errors (if any): " + mBase.error + "\n");
+		}
+		throw new docIface.dDocException("scanSubException",
+				"Hit end of sub/room", 4);
 	    }
-	  } else if (ecode == -1) {
+	  } else if (ecode == 1) {
 	    tmpPtr += inc;
 	    continue;
+	  } else if (ecode == 3) {
+	    fuggit = true;
 	  }
 
 	  ecode = this.read_cmd.rcChoice(mBase, tmpPtr);
