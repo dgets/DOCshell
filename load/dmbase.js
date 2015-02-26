@@ -54,6 +54,11 @@ msg_base = {
           var valid = false;
           var hollaBack = 0;    //can be used to switch dir, etc
 
+	  if (localdebug.message_posting) {
+	    console.putmsg(red + "rcChoice() called w/base: " + base.code +
+		"\tndx: " + ndx + "\n");
+	  }
+
           while (!valid) {
             uchoice = console.getkey();
             switch (uchoice) {
@@ -95,7 +100,7 @@ msg_base = {
                   valid = true; //I think we want to change this
                   console.putmsg(green + high_intensity +
                         "Enter message\n\n");
-                  addMsg(base, false, 'All');  //not an upload
+                  poast.addMsg(base, false, 'All');  //not an upload
                   break;
 		case ' ':
 		case 'n':
@@ -341,7 +346,7 @@ msg_base = {
    */
   verifyBounds : function(mBase, inc, tp) {
           //make sure that we're within proper bounds
-          if ((inc == 1) && (tp == mBase.last_msg)) {
+          if ((inc == 1) && ((tp - 1) == mBase.last_msg)) {
             if (localdebug.message_scan) {
 		console.putmsg(red + "tp: " + tp + "\tinc: " + inc +
 		  "\tmBase.last_msg: " + mBase.last_msg + "\tmBase.code: " +
@@ -350,7 +355,7 @@ msg_base = {
             }
 	    throw new docIface.dDocException("verifyBoundsException",
 			"Last message pointer", 1);
-          } else if ((inc == 1) && (tp >= mBase.last_msg)) {
+          } else if ((inc == 1) && (tp > mBase.last_msg)) {
             console.putmsg(red + "Over last_msg; this should not " +
                 "ever happen.  :|\n");
 	    throw new docIface.dDocException("verifyBoundsException",

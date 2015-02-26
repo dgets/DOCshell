@@ -99,7 +99,7 @@ poast = {
         var uchoice;
 
         //var debugging = false;        //only for local here
-	if (debugging) {
+	if (localdebug.message_posting) {
 	  console.putmsg(red + "Passed to addMsg(base, upload, " +
 	    "recip):\n");
 	  console.putmsg(red + "base.subnum:\t" + base.subnum + 
@@ -139,7 +139,7 @@ poast = {
 		  try {
 			this.mWrite(mTxt, base, recip);
 		  } catch (e) {
-			log(LOG_WARN, "Err writing to " + base.name);
+			bbs.log_str("Err writing to " + base.name);
                         console.putmsg(red + "There was a problem " +
                                        "writing to " + base.name +
                                        "\nSorry; error is logged.\n");
@@ -169,7 +169,7 @@ poast = {
                 default:
                   console.putmsg(red + "I have no idea what just " +
                                  "happened; event logged.\n");
-                  log(LOG_WARN, "Unknown error in addMsg()");
+                  bbs.log_str("Unknown error in addMsg()");
                   break;
             }
           }
@@ -213,7 +213,7 @@ poast = {
 		mHdr['to'] = "All";
 	  }
 
-	  if (debugging) {
+	  if (localdebug.message_posting) {
 	    //debug dump requested by echicken (?) in order to help find
 	    //out what is causing mail sent to the 'mail' sub board is
 	    //ending up in 'all mail' but never a personal account, and
@@ -264,7 +264,7 @@ poast = {
 			e.message, e.number);
           }
 
-	  if (debugging) {
+	  if (localdebug.message_posting) {
 	    console.putmsg(red + "Received mBase.subnum:\t" + dMB.subnum + 
 		"\t(in call to mWrite())\n");
 	    //console.putmsg(red + "Group:\t" + dMB.grp_name +
@@ -275,7 +275,7 @@ poast = {
 
           var catMTxt = new String();
           for each (var ouah in txtArray) {
-            if (debugging) {
+            if (localdebug.message_posting) {
                 console.putmsg(red + "ouah: " + ouah + "\n" + normal);
             }
             catMTxt += ouah;
@@ -319,7 +319,7 @@ poast = {
 	}
 
 	var mb = new MsgBase('mail');
-	if (debugging) {
+	if (localdebug.message_posting) {
 	  console.putmsg(red + "God ouah (MsgBase('mail') status):\t" +
 	    mb.file + "\n");
 	}

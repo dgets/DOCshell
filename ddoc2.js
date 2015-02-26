@@ -345,6 +345,8 @@ docIface = {
 
 	if (localdebug != null) {
 	  userRecords.userDataUI.displayDebugFlags();
+	  console.putmsg("Turning off Synchronet defaults for dDoc\n");
+	  this.turnOffSynchronetDefaults();
 	} /* else {
 	  //call the configuration setting if security access allows
 	  //NOTE: This is just an interim solution; there's probably something
@@ -388,6 +390,20 @@ docIface = {
 	  docIface.nav.setSub(msg_area.grp_list[topebaseno].sub_list[0]);
 	}
 
+    },
+	/*
+	 * summary:
+	 *	method exists solely to turn off defaults from synchronet that
+	 *  	are unwanted in the dDoc interface
+	 */
+    turnOffSynchronetDefaults : function() {
+	//turn off scans
+	user.settings &= USER_ASK_NSCAN;
+	user.settings &= USER_ASK_SSCAN;
+	user.settings &= USER_ANFSCAN;
+	//turn off garish interface settings
+	user.settings &= USER_NOPAUSESPIN;	//set this, too, why not
+	user.settings &= USER_SPIN;
     },
 	/*
 	 * summary:
