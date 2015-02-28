@@ -82,7 +82,8 @@ userRecords = {
 			if (infile.eof) {
 			    line = "";
 			} else {
-		            throw new docIface.dDocException("ReadError", "stripComments: line was null", -1);
+		            throw new docIface.dDocException("ReadError",
+			          "stripComments: line was null", -1);
 			}
 		    }
 		} catch (e) {
@@ -179,7 +180,7 @@ userRecords = {
 	    // for before we have anything in the JSON
 	    if (blob == null
 	        || (Object.getOwnPropertyNames(blob).length === 0)
-		|| (Object.hasOwnProperty(blob, userid.toString()))) {
+		|| (blob[userid.toString()] == null)) {
 		if (debugging) console.putmsg("No user found, returning" + 
 					      "default settings.\n");
 		return new userRecords.defaultSettings(userid);
@@ -203,7 +204,8 @@ userRecords = {
 	    json[userid.toString()] = settings;
 	    json = JSON.stringify(json, null, 2);  // Pretty print!
 
-	    // cut off the file at the end of the comments and write the new JSON
+	    // cut off the file at the end of the comments and
+	    // write the new JSON
 	    outfile = this.openFileWrap(outfile, "r+");
 	    outfile = this.stripComments(outfile);
 	    outfile.truncate(outfile.position);
@@ -301,9 +303,8 @@ userRecords = {
 	    return tmpSettings;
 	},
 	displayDebugFlags: function (userid) {
-	    //TODO: Ugh this line is too long. What's the best way to
-	    //	    shorten it?
-	    var flags = Object.keys(userRecords.userDataIO.loadSettings(userid).debug);
+	    var flags = Object.keys(
+	        userRecords.userDataIO.loadSettings(userid).debug);
 
 	    for each (opt in Object.keys(flags)) {
 		console.putmsg(yellow + "Flag: " + high_intensity + opt +
@@ -349,7 +350,8 @@ userConfig = {
 		    //change user info
 		    userSettings.info = userRecords.userDataUI.getInfo();
 		    try {
-			userRecords.userDataIO.saveSettings(user.number, userSettings);
+			userRecords.userDataIO.saveSettings(user.number,
+			      userSettings);
 			// next line will not execute if there is an exception
 			// while saving
 			console.putmsg(green + high_intensity + "User info " +
