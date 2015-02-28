@@ -145,8 +145,8 @@ msg_base = {
 	    try {
 		msg_base.scanSub(msg_area.sub[bbs.cursub_code], true);
 	    } catch (e) {
-		console.putmsg(yellow + "Ename: " + e.name + "\tMsg: " +
-		  e.message + "\t#: " + e.number + "\n");
+		console.putmsg(yellow + "Exception reading new: " +
+		      e.toString() + "\n");
 	    }
             break;
           case 'k':     //list scanned bases
@@ -169,7 +169,7 @@ msg_base = {
 	    docIface.util.quitDdoc();
 	    break; 
           default:
-            if (localdebug.navigation) {
+            if (userSettings.debug.navigation) {
               console.putmsg("\nNot handled yet . . .\n\n");
 	    }
             break;
@@ -188,7 +188,7 @@ msg_base = {
         //we can fuck with multi-columns later
         if (!confined) {
          for each (uMsgGrp in msg_area.grp_list) {
-          if (localdebug.navigation) {
+          if (userSettings.debug.navigation) {
                 console.putmsg(uMsgGrp.description + "\n\n");
           }
           for each (uGrpSub in uMsgGrp.sub_list) {
@@ -246,7 +246,7 @@ msg_base = {
         var mHdr = base.get_msg_header(ptr);
         var mBody = base.get_msg_body(ptr);
 
-	if (localdebug.message_scan) {
+	if (userSettings.debug.message_scan) {
 	  console.putmsg(red + "ptr: " + ptr + "\tbase.last_msg: " +
 		base.last_msg + "\n");
 	}
@@ -305,16 +305,15 @@ msg_base = {
           //mBase.close();
           mBase = new MsgBase(mb);
 	  mBase.open();
-          if (localdebug.message_scan) {
+          if (userSettings.debug.message_scan) {
             console.putmsg(red + "Opened: " + mb +
         	           " allegedly . . .\n");
           }
         } catch (e) {
           console.putmsg(red + "Error closing old mBase or " +
-            "opening the new one after skip:\n" + e.message +
-            "\nError logged\n\n");
+            "opening the new one after skip:\n" + e.toString() + "\n");
           log("Error skipping through scanSub(): " +
-            e.message);
+            e.toString());
           return null;
         }
 
@@ -342,7 +341,7 @@ msg_base = {
   verifyBounds : function(mBase, inc, tp) {
           //make sure that we're within proper bounds
           if ((inc == 1) && (tp == mBase.last_msg)) {
-            if (localdebug.message_scan) {
+            if (userSettings.debug.message_scan) {
 		console.putmsg(red + "tp: " + tp + "\tinc: " + inc +
 		  "\tmBase.last_msg: " + mBase.last_msg + "\tmBase.code: " +
 		  mBase.code + "\tmBase.is_open: " + mBase.is_open + "\n");
@@ -385,7 +384,7 @@ msg_base = {
 	var tmpPtr, ecode, ecode2, inc;
 	var fuggit = false;	//, tmpDebugging = true;
 
-	if (localdebug.message_scan) {
+	if (userSettings.debug.message_scan) {
 	  console.putmsg("Entered scanSub(); forward = " + forward +
 	    "  user.cursub: " + user.cursub + "\nsBoard.code: " +
 	    sBoard.code + "\n");
@@ -394,7 +393,7 @@ msg_base = {
 	mBase = this.openNewMBase(sBoard.code);
 
 	if (mBase === null) {
-	  if (localdebug.message_scan) {
+	  if (userSettings.debug.message_scan) {
 		console.putmsg("Error in openNewMBase()\n");
 	  } 
 	  throw new docIface.dDocException("scanSubException",
@@ -402,7 +401,7 @@ msg_base = {
 	}
 
 	tmpPtr = sBoard.scan_ptr;	//is this right?
-	if (localdebug.message_scan) {
+	if (userSettings.debug.message_scan) {
 	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
 	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
 	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
@@ -410,13 +409,13 @@ msg_base = {
 	}
 	
 	if (forward) { inc = 1; } else { inc = -1; }
-	if (localdebug.message_scan) {
+	if (userSettings.debug.message_scan) {
 	  console.putmsg("Inc: " + inc + "\tbased on 'forward'\n");
 	}
 
 	//primary message scan loop
 	while (!fuggit) {
-	  if (localdebug.message_scan) {
+	  if (userSettings.debug.message_scan) {
 	    console.putmsg(red + "In main scanSub() loop\ttmpPtr: " +
 		tmpPtr + "\n");
 	  }
@@ -427,10 +426,8 @@ msg_base = {
 	  try {
 	    ecode = this.verifyBounds(mBase, inc, tmpPtr);
 	  } catch (e) {
-	    if (localdebug.message_scan) {
-		console.putmsg("Exception: " + e.name + "\tMsg: " +
-		  e.message + "\t#: " + e.number + "\necode: " +
-		  ecode + "\n");
+	    if (userSettings.debug.message_scan) {
+		console.putmsg("Exception: " + e.toString() + "\n");
 	    }
 
 	    if (e.number == 1) {	//out of messages
@@ -456,10 +453,8 @@ msg_base = {
 	  try {
 		this.dispMsg(mBase, sBoard, tmpPtr, true);
 	  } catch (e) {
-		if (localdebug.message_scan) {
-		  console.putmsg(yellow + "Got exception name: " +
-		    e.name + "\tMsg: " + e.message + "\nNum: " +
-		    e.number + "\n");
+		if (userSettings.debug.message_scan) {
+		  console.putmsg(yellow + "scanSub: " + e.toString() + "\n");
 		}
 
 		//patch code for testing
@@ -477,7 +472,7 @@ msg_base = {
 	  //	  loop
 	  if (ecode == 2) {
 	    //skip through deleted/invalid messages
-	    if (localdebug.message_scan) {
+	    if (userSettings.debug.message_scan) {
 		console.putmsg(red + "In scanSub(), ecode = -2, skipping " +
 		  "current message (invalid/deleted)\n");
 	    }
@@ -486,14 +481,14 @@ msg_base = {
 	    if (tmpPtr >= mBase.last_msg) {
 		ecode = this.dispMsg(mBase, sBoard, tmpPtr, true);
 	    } else if (tmpPtr < 0) {
-		if (localdebug.message_scan) {
+		if (userSettings.debug.message_scan) {
 		  console.putmsg(red + "Hit beginning of sub/room\n" +
 		    "Previous errors (if any): " + mBase.error + "\n");
 		}
 		throw new docIface.dDocException("scanSubException",
 				"Hit message 0", 3);
 	    } else {
-		if (localdebug.message_scan) {
+		if (userSettings.debug.message_scan) {
 		  console.putmsg(red + "Hit end of sub/room\n" +
 		    "Previous errors (if any): " + mBase.error + "\n");
 		}
@@ -515,7 +510,7 @@ msg_base = {
 	  }
 
 	  tmpPtr += inc;
-	  if (localdebug.message_scan) {
+	  if (userSettings.debug.message_scan) {
 	    console.putmsg(red + "End of scanSub() main loop\n" +
 		"tmpPtr: " + tmpPtr + "\tinc: " + inc + "\tfuggit: " +
 		fuggit + "\n");
@@ -524,7 +519,7 @@ msg_base = {
 	}
 
 	mBase.close();
-	if (localdebug.message_scan) {
+	if (userSettings.debug.message_scan) {
 	  console.putmsg(red + "Closed mBase: " + sBoard.code + "\n");
 	}
 	throw new docIface.dDocException("scanSubException",

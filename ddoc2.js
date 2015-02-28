@@ -35,7 +35,7 @@ const readlnMax = 1536;
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
-localdebug = null;	// don't need --> , userData = null;
+userSettings = null;
 
 /*
  * obviously, with all of the other places that we've got debugging
@@ -76,10 +76,14 @@ docIface = {
    *      global level method exists in order to reduce redundant code by
    *      creating one global level method for exception throwing
    */
-  dDocException : function(name, msg, num) {
-        this.name = name;
-        this.message = msg;
-        this.number = num;
+  dDocException : function(setname, setmsg, setnum) {
+        this.name = setname;
+        this.message = setmsg;
+        this.number = setnum;
+	
+	this.toString = function () {
+	    return this.name + ": " + this.message + "\t#: " + this.number;
+	};
   },
   /*
    * summary:
@@ -162,7 +166,7 @@ docIface = {
 	  "name? -> ");
 	ouah = this.chk4Room(uChoice = console.getstr().toUpperCase());
 
-	if (localdebug.navigation) {
+	if (userSettings.debug.navigation) {
 	  console.putmsg("Got back " + ouah.name + " from chk4Room\n");
 	}
 
@@ -195,7 +199,7 @@ docIface = {
 	var rList = docIface.util.getRoomList(confined);
 	var ndx = 0, success = false;
 
-	if (localdebug.navigation || localdebug.message_scan) {
+	if (userSettings.debug.navigation || userSettings.debug.message_scan) {
 	  console.putmsg(red + "Entered docIface.nav.skip(), " +
 	    "looking for: " + user.cursub + "\n");
 	}
@@ -207,12 +211,13 @@ docIface = {
 
 	for each (rm in rList) {
 	  ndx++;
-	  if (localdebug.navigation || localdebug.message_scan) {
+	  if (userSettings.debug.navigation || userSettings.debug.message_scan) {
 	    console.putmsg(yellow + ndx + ": " + rm.name + 
 		"\n");
 	  }
           if (success || (rm.name.indexOf(user.cursub) == 0)) {
-              if (localdebug.navigation || localdebug.message_scan) {
+              if (userSettings.debug.navigation
+                      || userSettings.debug.message_scan) {
                 console.putmsg(yellow + "Skipping to " +
                   rm.name + "\n");
               }
@@ -222,7 +227,8 @@ docIface = {
 
 	  //let's try out the experimental technology
 	  if (rm.name.indexOf(user.cursub) == 0) {
-	    if (localdebug.navigation || localdebug.message_scan) {
+	    if (userSettings.debug.navigation
+                    || userSettings.debug.message_scan) {
 	      console.putmsg(yellow + "Found current sub " +
 		user.cursub + " in the list\n");
 	    }
@@ -231,7 +237,8 @@ docIface = {
 		this.setSub(rList[0]);
 		break;
 	    } else {
-		if (localdebug.navigation || localdebug.message_scan) {
+		if (userSettings.debug.navigation
+                        || userSettings.debug.message_scan) {
 		  console.putmsg(red + "Setting user.cursub to " +
 			user.cursub + "\n");
 		}
@@ -245,7 +252,7 @@ docIface = {
 	  //the morning and I haven't had enough coffee to process it
 	  //better yet.  :P
 
-	  if (localdebug.message_scan) {
+	  if (userSettings.debug.message_scan) {
 	    console.putmsg(red + "rm.cfg.code to return is: " +
 		rm.cfg.code + "\n");
 	  }
@@ -275,7 +282,7 @@ docIface = {
 	for each (var rm in rList) {
 	  if (rm.description.toUpperCase().indexOf(
 				srchStr.toUpperCase()) != -1) {
-		if (localdebug.misc) {
+		if (userSettings.debug.misc) {
 		  console.putmsg("Success in chk4Room()\n");
 		}
 		return rm;	
@@ -313,7 +320,7 @@ docIface = {
 
 	if (confined) {
 	  	//damn we don't need anything complex, durrr
-		if (localdebug.misc) {
+		if (userSettings.debug.misc) {
 		  console.putmsg(red + "Working with sub list: " +
 			msg_area.grp_list[topebaseno].sub_list.toString() +
 			"\n");
@@ -335,37 +342,14 @@ docIface = {
 	 *	confined
 	 */
     initDdoc : function(confined) {
+	userSettings = userRecords.defaultSettings(user.number);
 	try {
-          localdebug = userRecords.userDataIO.getUserInfo();
+          userSettings = userRecords.userDataIO.loadSettings(user.number);
         } catch (e) {
-	  console.putmsg(red + high_intensity + "In initDdoc:\n");
-	  console.putmsg(red + "Error: " + e.message + "\t#: " + e.number +
-	    "\tName: " + e.name + "\n");
+	  console.putmsg(red + high_intensity +
+		"Loading userSettings in initDdoc:\n");
+	  console.putmsg(red + e.toString() + "\n");
 	}
-
-	if (localdebug != null) {
-	  userRecords.userDataUI.displayDebugFlags();
-	} /* else {
-	  //call the configuration setting if security access allows
-	  //NOTE: This is just an interim solution; there's probably something
-	  //better to do with it later on
-	  if (user.security.level >= 70) {
-		console.putmsg(red + "Not changing debugging settings as " +
-		  "this is being called via bogus logic currently\n");
-		//localdebug = 
-			//userRecords.userDataUI.queryDebugSettings(user.alias);
-	  } else {
-		for each (dbgProp in debugFields) {
-			localdebug.debug[dbgProp] = false;
-		}
-	  }
-	}
-
-	removing this currently because we don't want to waste time in this
-	bogus routine when we're not even readding debuggers correctly
-	*/
-
-	//console.putmsg("localdebug: " + localdebug.toString() + "\n");
 
 	if (confined) {
 		bbs.log_str(user.alias + " is entering dDOC shell and " +
@@ -380,7 +364,7 @@ docIface = {
 	docIface.util.preFileDir = bbs.curdir;
 
 	if (confined) {
-	  if (localdebug.flow_control) {
+	  if (userSettings.debug.flow_control) {
 	    console.putmsg("Moving user to " + 
 		msg_area.grp_list[topebaseno].name + 
 		msg_area.grp_list[topebaseno].sub_list[0] + "\n");
@@ -401,7 +385,7 @@ docIface = {
 	bbs.log_str(user.alias + " is leaving dDOC shell");
 	bbs.log_key("L");
 
-	if (localdebug.flow_control) {
+	if (userSettings.debug.flow_control) {
 	  console.putmsg(red + "\nRestoring bbs.* properties:\n" + 
 	    " bbs.cursub: " + docIface.util.preSubBoard + "\n" + 
 	    " bbs.curgrp: " + docIface.util.preMsgGroup + "\n" + 
@@ -429,7 +413,7 @@ docIface = {
     dispRoomInfo : function() {
 	bbs.log_key("I");
 
-	if (localdebug.misc) {
+	if (userSettings.debug.misc) {
 	  console.putmsg(red + "Entered 'i'nfo (dispRoomInfo()) in " +
 		"docIface.util\n");
 	}
@@ -462,8 +446,8 @@ docIface.util.initDdoc(confine_messagebase);
  * has no curgrp.  need to find out if bbs.curgrp is going to work, and
  * if not, how do we reverse lookup a group from a sub code name
  */
-if (confine_messagebase && (user.curgrp != topebaseno) && 
-    localdebug.flow_control) {
+if (confine_messagebase && (bbs.curgrp != topebaseno) && 
+    userSettings.debug.flow_control) {
   //are we already in a dystopian area?
 	console.putmsg(red + "CurGrp: " + bbs.curgrp + normal + "\n" +
 		       "Trying a jump . . .\n");
@@ -475,7 +459,7 @@ if (confine_messagebase && (user.curgrp != topebaseno) &&
 if (!debugOnly) {
  /* the main program loop */
  while (stillAlive) {
-	if (localdebug.flow_control) {
+	if (userSettings.debug.flow_control) {
 	  console.putmsg("Got " + user.cursub + " in user.cursub\n");
 	}
 
