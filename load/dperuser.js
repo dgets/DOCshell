@@ -14,243 +14,204 @@
  * other than those bits that I remember.
  */
 
-var debugging = true;
+var debugging = false;
 
 userRecords = {
-  //information that would be stored in 'i'nfo and 'p'rofile on a DOC style
-  //BBS system
+    //information that would be stored in 'i'nfo and 'p'rofile on a DOC style
+    //BBS system
 
-  //	----++++****====userRecords properties====****++++----
-  userDir : "/sbbs/data/user/",
-  debuggersFile : "ddocdbgr",
-  maxInfoLines : 5,
-  doingChars : 55,
+    //	----++++****====userRecords properties====****++++----
+    userDir: system.data_dir + "user/",
+    settingsFilename: "docusers",
+    maxInfoLines: 5,
+    doingChars: 55,
+    //	----++++****====userRecord methods====****++++----
 
-  //	----++++****====userRecord methods====****++++----
+    //	----++++****====userRecord sub-objects====****++++----
+    /*
+     * Default settings object.  Alias set, all debugging options false.
+     */
+    defaultSettings: function (userid) {
+	var settings = {
+	    alias: "",
+	    debug: {
+		flow_control: false,
+		message_posting: false,
+		message_scan: false,
+		instant_messaging: false,
+		navigation: false,
+		file_io: false,
+		misc: false
+	    },
+	    info: []
+	};
+	var tmpUser = new User(userid);
 
-  //	----++++****====userRecord sub-objects====****++++----
+	// alias isn't really required, but it makes the JSON readable
+	settings.alias = tmpUser.alias;
 
-  userDataIO : {
-    //pulling or pushing the information stored in the user profile/info
-
-    //	---++++****====userDataIO methods====****++++----
-	/*
-	 * summary:
-	 *	saveInfo() takes your passed text and saves it to
-	 *	the user dir under a file called user#.ddoc-info
-	 * newInfo:
-	 *	array of the new lines of text to save as the user's
-	 *	current info string
-	 * returns:
-	 *	-1 upon error writing, else 0
-	 */
-    saveInfo : function(newInfo) {
-	if (newInfo.length == 0) {
-	  console.putmsg(red + high_intensity + "No new info found\n");
-	  return 1;
-	}
-
-	try {
-	  var userInfo = new File(userDir + "user" + user.number + 
-				  ".ddoc-info");
-	} catch (e) {
-	  console.putmsg(red + "Error writing user" + user.number +
-		".ddoc-info to /sbbs/data/user/ directory\nException: " +
-		e.toString() + "\n"); //use constant/property above l8r
-	  return -1;
-	}
-
-	//of course, there needs to be try/catching around anything like
-	//this at all times (add while debugging)
-	userInfo.writeln(newInfo);
-	userInfo.close();
-
-	return 0;
+	return settings;
     },
+    userDataIO: {
+	//pulling or pushing the information stored in the user profile/info
+
+	//	---++++****====userDataIO methods====****++++----
 	/*
 	 * summary:
-	 *	method determines whether or not the line under question
-	 *	is bogus or not
-	 * line:
-	 *	unparsed line text to work with
-	 * debugging:
-	 *	true for debugging, false if otherwise
+	 *	finds the point where the comment header stops and data begins
+	 * infile:
+	 *	the currently open data file to read
 	 * returns:
-	 *	true if short/blank line or comment (starts with '#')
+	 *	the file object with the pointer located at the point where
+	 *	data begins
+	 * throws:
+	 *	dDocException:InvalidArguments if infile is null or not open
 	 */
-    isInvalidJSON : function(line, debugging) {
-	if ((line.length < 3) || (line.charAt(0) == '#')) {
-	  if (debugging) {
-		console.putmsg(red + "Skipping line in ddocdbgr\n");
-	  }
-	  return true;
-	}
+	stripComments: function (infile) {
+	    var line;
 
-	if (debugging) {
-	  console.putmsg("This appears to be okay JSON.\n");
-	}
-	return false;
-    },
-	/*
-	 * summary:
-	 *	method exists to be returned via exception throws
-	 */
-	/*
-	 * summary:
-	 *	method attempts to read a line from the dbgFile (testing
-	 *	for eof is handled outside); tests it to make sure it's
-	 *	not too short or a comment, and returns userData, if the
-	 *	parse goes through alright
-	 * dbgFile:
-	 *	the currently open file object utilized for reading the
-	 *	per-user data from (needs to be renamed, btw)
-	 * returns:
-	 *	userData object on success, 0 if bogus JSON (too
-	 *	short/comment), -1 if an exception is thrown
-	 */
-    getNTestLine : function(dbgFile) {
-	//wow I think I found the error right off the bat, too
-	var tmpLine, userData;
-	var debugging = true;
+	    if (infile == null || !infile.is_open) {
+		throw new docIface.dDocException("InvalidArguments",
+		      "stripComments: infile must be not null and open", -1);
+	    }
 
-	try {
-	  tmpLine = dbgFile.readln(readlnMax);
-	  if (dbgFile.eof) {
-	    throw new docIface.dDocException("getNTextException",
-			"EOF", 1);
-	  }
-	  if (this.isInvalidJSON(tmpLine, debugging)) {
-	    throw new docIface.dDocException("getNTextException",
-			"Invalid JSON", 2);
-	  }
-	  userData = JSON.parse(tmpLine);
-	} catch (e) {
-	  console.putmsg(red + "In getNTestLine():\nError trying " +
-	    "to read/parse tmpLine: " + e.message + "\t#: " + e.number +
-	    "\tError: " + e.name + "\n");
-	  console.putmsg(red + high_intensity + "Got tmpLine: " +
-	    tmpLine + "\nParsed to: " + userData.toString() + "\n\n");
-	  dbgFile.close();
-	  throw new docIface.dDocException("getNTextException", 
-			"Error reading/parsing tmpLine", 3);
-	}
-
-	//this should be global already; we can look at this more later
-	return userData;
-    },
-	/*
-	 * summary:
-	 *	method exists to hold exception to throw from getUserInfo()
-	 */
-	/*
-	 * summary:
-	 *	method retrieves the debugging statistics for the
-	 *	current user
-	 * returns:
-	 *	the per-user sub-object starting after .debug; thus
-	 *	basically a list of properties w/boolean values as to
-	 *	whether or not they are debugging each type of code.
-	 *	Negative values, as usual, are indicative of error caught
-	 */
-    getUserInfo : function() {
-	var dbgFile = new File(userRecords.userDir + 
-			       userRecords.debuggersFile);
-	var tmpLine;
-	var debugging = true;	//this is the only place we'll keep hardcoded
-				//debugging active since it is at work before
-				//this file is loaded
-
-	dbgFile = this.openFileWrap(dbgFile, "r");
-	if (dbgFile == null) {
-	  if (debugging) {
-	    console.putmsg(red + "Error opening dbgFile!\n");
-	  }
-	  return -2;
-	}
-	  
-	//this is no longer strictly necessary, but we may need it again
-	//as more users are added
-	console.putmsg("Looking for " + user.alias + "\n"); 
-		/* ", currently have: " +
-		userData.user + "\n"); 		not valid here yet */
-
-	try {
-		userData = this.getNTestLine(dbgFile);
-	} catch (e) {
-		if (e.number == 3) {
-		  //it'll always get this w/current file contents
-		  /*console.putmsg(yellow + "Got exception from getNTestLine " +
-		    "in the first iteration\n"); */
-		} else {
-		  console.putmsg(yellow + "Exception in first iteration: " +
-		    e.name + "\nMsg: " + e.message + "\t#: " + e.number +
-		    "\n");
-		}
-	}
-
-	/*
-	if (debugging) {
-	  console.putmsg("userData.user holds: " + userData.user + "\n");
-	}
-	*/
-
-	while (userData.user != user.alias) {
-		if (debugging) {
-		  console.putmsg(yellow + "Testing for: " + user.alias +
-		    "\nAgainst: " + userData.user + "\n");
-		}
+	    while (!infile.eof) {
 		try {
-			userData = this.getNTestLine(dbgFile);
-			if (debugging) {
-			  console.putmsg(green + "userData.user: " +
-			    userData.user + "\n");
-			  if (userData.user == user.alias) {
-			    console.putmsg(green + high_intensity +
-				"Got match!\n");
-			  }
+		    line = infile.readln();
+		    if (line == null) {
+			if (infile.eof) {
+			    line = "";
+			} else {
+		            throw new docIface.dDocException("ReadError",
+			          "stripComments: line was null", -1);
 			}
+		    }
 		} catch (e) {
-			if (debugging) {
-			  console.putmsg(yellow + "getNTestLine exception " +
-			    "in loop\n");
-			}
-			if (e.number == 1) {
-			  userData = -1;
-			  //break;	//not sure the logic behind this
-			}
-			if (e.number == 2) {
-			  //we're done with the file
-			  break;
-			}
+		    console.putmsg(yellow + "Exception reading file: " +
+			  e.toString() + "\n");
+		    return null;
 		}
-	}
+		line = line.trim();
+		if (line.length === 0 || line.charAt(0) === '#') continue;
 
-	//necessary?
-	if (userData.user == user.alias) {
-		//so we should be holding the current & correct JSON
-		try {
-		  userData = JSON.parse(tmpLine);
-		} catch (e) {
-		  console.putmsg(red + "Ename: " + e.name + "\tMsg: " +
-		    e.message + "\t#: " + e.number + "\n");
-		}
-	}
+		break;
+	    }
 
-	dbgFile.close();
-	if (userData.user == user.alias) {
-	  return userData.debug;
-	}
+	    // We have reached the first line of
+	    // actual data, or we have reached EOF without finding data.
+	    if (infile.eof)
+	        return infile;
+	    
+	    // we're already 1 line past where we need to be.
+	    // back up the length of the line we just read, plus one linefeed.
+	    infile.position -= (line.length + "\n".length);
+	    if (infile.position < 0) infile.position = 0;
 
-	//wut?
-	if (userData == -1) {
-	  return -3;	//change this out with an exception also
-	}
+	    return infile;
+	},
+	/*
+	 * summary:
+	 *	method loads the DDOC-specific settings file
+	 * returns:
+	 *	the per-user settings sub-object
+	 *	logs an error and returns null on failure
+	 */
+	loadSettingsBlob: function () {
+	    var settingsFile = new File(userRecords.userDir
+		  + userRecords.settingsFilename);
+	    var blob;
 
-	userRecords.userDataUI.displayDebugFlags();
+	    if (!file_exists(settingsFile.name)) {
+		this.openFileWrap(settingsFile, "w");
+		// TODO: write default comment header here
+		settingsFile.writeln(
+		      "   #\n   # This is a simple test header to test " +
+		      "comment skipping.\n   #");
+		settingsFile.close();
+	    }
+	    settingsFile = this.openFileWrap(settingsFile, "r");
+	    if (settingsFile == null || !settingsFile.is_open) {
+		console.putmsg(red + "Unable to open " + userRecords.userDir
+		      + userRecords.settingsFilename + "\n");
+		return null;
+	    }
 
-	console.putmsg(userData.debug + " being passed back\n");
-	return userData.debug;
-    },
+	    settingsFile = this.stripComments(settingsFile);
+
+	    try {
+		blob = settingsFile.read();
+	    } catch (e) {
+		console.putmsg(yellow + "Exception reading DDOC settings: "
+		      + e.toString() + "\n");
+		return null;
+	    } finally {
+		settingsFile.close();
+	    }
+
+	    if ((blob == null) || (blob.length < 2)) {
+		return null;
+	    }
+	    
+	    blob = JSON.parse(blob);
+
+	    return blob;
+	},
+	/*
+	 * summary:
+	 *	loads the settings JSON, and picks out the user from
+	 *	the user number
+	 * userid:
+	 *	synchronet user number to load
+	 * returns:
+	 *	the current user's settings object
+	 *	if no settings for the current user are found, it returns a
+	 *	settings object with all debugging options defaulting to false
+	 */
+	loadSettings: function (userid) {
+	    var blob = this.loadSettingsBlob();
+	    var tmpUser = new User(userid);
+
+	    if (debugging) {
+		console.putmsg("Searching user settings for "
+		      + tmpUser.alias + "\n");
+	    }
+
+	    // Tricky conditional to detect an empty but not null object
+	    // for before we have anything in the JSON
+	    if (blob == null
+	        || (Object.getOwnPropertyNames(blob).length === 0)
+		|| (blob[userid.toString()] == null)) {
+		if (debugging) console.putmsg("No user found, returning" + 
+					      "default settings.\n");
+		return new userRecords.defaultSettings(userid);
+	    }
+
+	    return blob[userid.toString()];
+	},
+	/*
+	 * summary:
+	 *	Saves the per-user settings to the DDOC settings file.
+	 */
+	saveSettings: function (userid, settings) {
+	    var json = this.loadSettingsBlob();
+	    var outfile = new File(userRecords.userDir
+		  + userRecords.settingsFilename);
+
+	    if (json === null)
+		json = JSON.parse("{}");
+
+	    // Update and stringify JSON
+	    json[userid.toString()] = settings;
+	    json = JSON.stringify(json, null, 2);  // Pretty print!
+
+	    // cut off the file at the end of the comments and
+	    // write the new JSON
+	    outfile = this.openFileWrap(outfile, "r+");
+	    outfile = this.stripComments(outfile);
+	    outfile.truncate(outfile.position);
+	    outfile.write(json);
+	    outfile.close();
+	},
 	/*
 	 * summary:
 	 *	method is a wrapper for opening a file of any particular
@@ -263,127 +224,24 @@ userRecords = {
 	 * return:
 	 *	Returns null for error, open file object for success
 	 */
-    openFileWrap : function(fObj, mode) {
-	try {
-	  fObj.open(mode)
-	} catch (e) {
-	  console.putmsg(red + "In openFileWrap():\n");
-          console.putmsg("Caught: " + e.message + "\t#: " + e.number +
-                "\tError: " + e.name + "\nReturning w/error\n");
-          fObj.close();
-	  return null;
-	}
-
-	return fObj;
-    },
-	/*
-	 * summary:
-	 *	method reads in the current list of per-user options,
-	 *	parses them into an object, changes whatever options are
-	 *	currently being utilized by that user, and re-writes the
-	 *	JSON blob back to the file with changes made
-	 * uname:
-	 *	user whose data is being changed
-	 * opts:
-	 *	object full of the user's options to be changed to
-	 * returns:
-	 *	-1 for error opening the per-user data file
-	 *	-2 for error reading from the per-user data file
-	 *	-3 for error re-opening file after closing in the
-	 *	   preceding 'finally' block
-	 *	-4 for error parsing the JSON
-	 *	-5 for error writing the blob back to disk
-	 *	0 for alles ist sehr gut
-	 */
-    writeDebugger : function(uname, opts) {
-	var genUserFile = new File();
-	var blob = new Array();
-	var blobGuts;
-
-	genUserFile.name = userRecords.userDir + userRecords.debuggersFile;
-
-
-	if ((genUserFile = 
-		this.openFileWrap(genUserFile, "r+")) == null) {
-	  return -1;
-	}
-
-	try {
-	  blob = genUserFile.readAll(readlnMax);
-	} catch (e) {
-	  console.putmsg(red + "In writeDebugger():\n");
-	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
-		"\tError: " + e.name + "\nReturning w/error\n");
-	  return -2;
-	} finally {
-	  genUserFile.close();
-	}
-
-	for each(var chunk in blob) {
-	  try {
-	    blobGuts = JSON.parse(blob);
-	  } catch (e) {
-	    console.putmsg(red + "In writeDebugger() (#2):\n" +
-		"Caught: " + e.message + "\t#: " + e.number + "\tError: " +
-		e.name + "\nReturning w/error\n");
-	    return -4;
-	  }
-
-	  if (blobGuts.user == user.alias) {
-	    //we have a match, por dios
-	    blobGuts.debug = opts;
+	openFileWrap: function (fObj, mode) {
 	    try {
-		blob = JSON.stringify(blobGuts);
+		fObj.open(mode);
 	    } catch (e) {
-		console.putmsg("Changing blob got: " + e.message +
-		  "\t#: " + e.number + "\tError: " + e.name + 
-		  "\nReturning w/error\n");
-		return -5;
+		console.putmsg(red + "In openFileWrap():\n");
+		console.putmsg(red + e.toString() + "\n");
+		fObj.close();
+		return null;
 	    }
-	  }
+
+	    return fObj;
 	}
+    },
+    userDataUI: {
+	//pushing/pulling output from the user (sorry, I can't stop using that
+	//terminology now)
 
-	//we should just be able to rewrite this now since we opened
-	//it w/r+ (not sure how to do this yet, going to comment out
-	//until I'm sure about all of this
-	/*
-	try {
-	  genUserFile.open();
-	} catch (e) {
-	  console.putmsg(red + "In writeDebugger() (#4):\n");
-	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
-		"\tError: " + e.name + "\nReturning w/error\n");
-	  genUserFile.close();
-	  return -3;
-	}
-
-	try {
-	  genUserFile.write(blob);
-	} catch (e) {
-	  console.putmsg(green + "In writeDebugger() (#5):\n");
-	  console.putmsg("Caught: " + e.message + "\t#: " + e.number +
-		"\tError: " + e.name + "\nReturning w/error\n");
-	  //genUserFile.close();
-	  return -5;
-	} finally {
-	  genUserFile.close();
-	} */
-
-	genUserFile.close();
-	if (debugging) {
-	  console.putmsg(yellow + "Didn't write shit because I'm " +
-	    "still working on doing that w/r+ mode\n");
-	}
-
-	return 0;
-    }
-
-  },
-  userDataUI : {
-    //pushing/pulling output from the user (sorry, I can't stop using that
-    //terminology now)
-
-    //	  ----++++****====userDataUI methods====****++++----
+	//	  ----++++****====userDataUI methods====****++++----
 	/*
 	 * summary:
 	 *	obtains a new list of lines of text to utilize as the
@@ -391,124 +249,133 @@ userRecords = {
 	 * returns:
 	 *	this (up to 5 line) array of user info text
 	 */
-    getInfo : function() {
-	var uInp = new Array(), cntr = 0;
+	getInfo: function () {
+	    var uInp = [], cntr = 0;
 
-	console.putmsg(green + high_intensity + "Enter a description " +
-		", up to 5 lines\n\n");
+	    console.putmsg(green + high_intensity + "Enter a description " +
+		  ", up to 5 lines\n\n");
 
-	while ((uInp[cntr] != "\r") && (uInp[cntr] != "\n") &&
-	       (uInp.length < userRecords.maxInfoLines)) {
-	  console.putmsg(green + high_intensity + ">");
-	  console.getstr(uInp[cntr++], 77);
-	}
+	    while ((uInp[cntr] != "\r") && (uInp[cntr] != "\n") &&
+		  (uInp.length < userRecords.maxInfoLines)) {
+		console.putmsg(green + high_intensity + ">");
+		uInp[cntr++] = console.getstr(null, 77);
+	    }
 
-	return uInp;
-    },
+	    return uInp;
+	},
 	/*
 	 * summary:
 	 *	queries the user for whether or not they want the true
 	 *	or false value set on each debugging option; security
 	 *	level checking will have to be put in here at some point
 	 *	before beta deployment
-	 * uname:
-	 *	name of the user whose debug flags are being set
+	 * userid:
+	 *	synchronet user number of the user whose debug flags
+	 *	are being set
+	 * TODO:
+	 *	connect this function with a sysop settings menu somewhere
+	 *	so that sysops can set their own and others' debugging options
 	 */
-    queryDebugSettings : function(uname) {
-	var availableOpts = { 
-		"flow_control" 		:	"false",
-		"message_posting"	:	"false",
-		"message_scan"		:	"false",
-		"instant_messaging"	:	"false",
-		"navigation"		:	"false",
-		"file_io"		:	"false",
-		"misc"			:	"false"
-	}
-	var opt, done = false;
+	queryDebugSettings: function (userid) {
+	    var tmpSettings = userRecords.userDataIO.loadSettings(userid);
+	    var availableOpts = userRecords.defaultSettings(user.number).debug;
+	    var opt, done = false;
 
-	console.putmsg(yellow + high_intensity + "Oont nao vhe vhill " +
-	  "set " + uname + "'s debugging options.\n\n");
+	    console.putmsg(yellow + high_intensity +
+		  "Oont nao vhe vhill set " +
+		  system.username(userid) + "'s debugging options.\n\n");
 
-	while (!done) {
-	  for (opt in availableOpts) {
-	    //so yeah this can be taken care of a lot more efficiently :|
-	    if (console.yesno("Would you like to help debugging " +
-			      opt + "? ")) {
-	      availableOpts[opt] = true;
+	    while (!done) {
+	        for (opt in availableOpts) {
+		    //so yeah this can be taken care of a lot more efficiently :|
+		    if (console.yesno("Would you like to help debugging " +
+			   opt)) {
+			tmpSettings.debug[opt] = true;
+		    }
+		}
+
+		if (console.noyes("Do you need to go through these again")) {
+		    done = true;
+		}
+
 	    }
-	  }
+	    userRecords.userDataIO.saveSettings(userid, tmpSettings);
+	    return tmpSettings;
+	},
+	displayDebugFlags: function (userid) {
+	    var flags = Object.keys(
+	        userRecords.userDataIO.loadSettings(userid).debug);
 
-	  if (console.noyes("Do you need to go through these again? ")) {
-		done = true;
-	  } 
+	    for each (opt in Object.keys(flags)) {
+		console.putmsg(yellow + "Flag: " + high_intensity + opt +
+		      normal + yellow + "\t\tValue: " +
+		      high_intensity + userSettings.debug[opt] + "\n");
+	    }
+	},
+	displayInfo: function (userid) {
+	    var info = userRecords.userDataIO.loadSettings(userid).info;
+	    var i;
 
-        }
-
-	localdebug = availableOpts;
-	userRecords.userDataIO.writeDebugger(uname, availableOpts);
-	return availableOpts;
-    },
-    displayDebugFlags : function() {
-	for each (opt in Object.keys(localdebug)) {
-	  console.putmsg(yellow + "Flag: " + high_intensity + opt + normal +
-	    yellow + "\t\tValue: " + high_intensity + localdebug[opt] + "\n");
+	    for (i = 0; i < info.length; i += 1) {
+		console.putmsg(info[i] + "\n");
+	    }
 	}
-    },
-/*    displayInfo : function() {
 
-    } */
-
-  }
+    }
 
 },
 userConfig = {
-  //'c'onfig menu stuph
+    //'c'onfig menu stuph
 
-  //	----++++****====userConfig properites====****++++----
-  cMenu : high_intensity + green + "<a>ddress\t\t<c>lient\t\t<f>lag" +
-	"\n<h>elp\t\t<i>nfo\t\t<o>ptions\n<p>asswd\t\t<q>uit\t\t" +
-	"<r>eminder\n<s>ecret\t\t<t>erm\t\te<x>press\n<z>apall\n\n",
-  cConfPrompt : high_intensity + yellow + "Change config -> ",
+    //	----++++****====userConfig properites====****++++----
+    cMenu: high_intensity + green + "<a>ddress\t\t<c>lient\t\t<f>lag" +
+	  "\n<h>elp\t\t<i>nfo\t\t<o>ptions\n<p>asswd\t\t<q>uit\t\t" +
+	  "<r>eminder\n<s>ecret\t\t<t>erm\t\te<x>press\n<z>apall\n\n",
+    cConfPrompt: high_intensity + yellow + "Change config -> ",
+    //	----++++****====userConfig methods====****++++----
+    /*
+     * summary:
+     *	menu choice response for user configuration options
+     */
+    reConfigure: function () {
+	var stillAlahv = true, uResponse = null;
 
-  //	----++++****====userConfig methods====****++++----
-	/*
-	 * summary:
-	 *	menu choice response for user configuration options
-	 */
-  reConfigure : function() {
-	var stillAlahv = true, uResponse = null, ecode = null;
 
 	while (stillAlahv) {
-	  console.putmsg(this.cConfPrompt);
-	  uResponse = console.getkey();
+	    console.putmsg(this.cConfPrompt);
+	    uResponse = console.getkey();
 
-	  switch (uResponse) {
-	    case 'i':
-		//change user info
-		ecode = userRecords.userDataIO.saveInfo(
-				userRecords.userDataUI.getInfo());
-		if (ecode == 0) {
-		  console.putmsg(green + high_intensity + "User info " +
-		    "updated.\n\n");
-		} else {
-		  stillAlahv = false;
-		}
-	    	break;
-	    case 'q':
-		//quit out of here
-		stillAlahv = false;
-		break;
-	    case '?':
-		//help--derp
-		console.putmsg(this.cMenu);
-		break;
-	    default:
-		console.putmsg(excuse);
-		break;
-	  }
+	    switch (uResponse) {
+		case 'i':
+		    //change user info
+		    userSettings.info = userRecords.userDataUI.getInfo();
+		    try {
+			userRecords.userDataIO.saveSettings(user.number,
+			      userSettings);
+			// next line will not execute if there is an exception
+			// while saving
+			console.putmsg(green + high_intensity + "User info " +
+			      "updated.\n\n");
+		    } catch (e) {
+			console.putmsg(red + "Exception saving settings: "
+			      + e.toString() + "\n");
+		    }
+		    break;
+		case 'q':
+		    //quit out of here
+		    stillAlahv = false;
+		    break;
+		case '?':
+		    //help--derp
+		    console.putmsg(this.cMenu);
+		    break;
+		default:
+		    console.putmsg(excuse);
+		    break;
+	    }
 
-  	}
+	}
 
-  }
+    }
 
 }
