@@ -2,8 +2,9 @@
  * dperuser.js
  *
  * by: Damon Getsman
+ * contributing/rewrites also by: @Ntwitch (github.com)
  * started: 26Jan15
- * alpha phase:
+ * alpha phase: 28Feb15
  * beta phase:
  * finished:
  *
