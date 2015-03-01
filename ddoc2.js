@@ -250,11 +250,11 @@ docIface = {
 	  //better yet.  :P
 
 	  if (userSettings.debug.message_scan) {
-	    console.putmsg(red + "rm.cfg.code to return is: " +
-		rm.cfg.code + "\n");
+	    console.putmsg(red + "rm.code to return is: " +
+		rm.code + "\n");
 	  }
 
-	  return rm.cfg.code;
+	  return rm.code;
 	}
 
     },
