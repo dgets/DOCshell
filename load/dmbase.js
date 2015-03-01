@@ -135,10 +135,8 @@ msg_base = {
          *      into the message reading routines in general
          * choice: char
          *      Code for the menu choice
-         * confined: Boolean
-         *      true if restricted to Dystopian Utopia message group
          */
-    handler : function(choice, confined) {
+    handler : function(choice) {
 	docIface.log_str_n_char(msg_base.log_header, choice);
 
         //which way do we go with this?
@@ -155,7 +153,7 @@ msg_base = {
 	    }
             break;
           case 'k':     //list scanned bases
-            this.listKnown(confined);
+            this.listKnown();
             break;
           case 'e':     //enter a normal message
             poast.addMsg(docIface.nav.chk4Room(user.cursub), false, 'All');
@@ -184,14 +182,12 @@ msg_base = {
          * summary:
          *      Lists all known message sub-boards (broken down by
          *      message base group, optionally)
-         * confined: Boolean
-         *      true if restricted to Dystopian Utopia message group
          */
-    listKnown : function(confined) {
+    listKnown : function() {
         console.putmsg("\n\n" + green + high_intensity);
 
         //we can fuck with multi-columns later
-        if (!confined) {
+        if (!userSettings.confined) {
          for each (uMsgGrp in msg_area.grp_list) {
           if (userSettings.debug.navigation) {
                 console.putmsg(uMsgGrp.description + "\n\n");
