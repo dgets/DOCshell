@@ -372,8 +372,8 @@ docIface = {
 	if (confined) {
 	  if (userSettings.debug.flow_control) {
 	    console.putmsg("Moving user to " + 
-		msg_area.grp_list[topebaseno].name + 
-		msg_area.grp_list[topebaseno].sub_list[0] + "\n");
+		msg_area.grp_list[topebaseno].name + ":" + 
+		msg_area.grp_list[topebaseno].sub_list[0].name + "\n");
 	  }
 	  docIface.nav.setSub(msg_area.grp_list[topebaseno].sub_list[0]);
 	}
