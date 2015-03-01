@@ -54,7 +54,7 @@ msg_base = {
           var valid = false;
           var hollaBack = 0;    //can be used to switch dir, etc
 
-	  if (localdebug.message_posting) {
+	  if (userSettings.debug.message_posting) {
 	    console.putmsg(red + "rcChoice() called w/base: " + base.code +
 		"\tndx: " + ndx + "\n");
 	  }
