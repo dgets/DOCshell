@@ -35,6 +35,9 @@ userRecords = {
     defaultSettings: function (userid) {
 	var settings = {
 	    alias: "",
+	    info: [],
+	    doing: "",
+	    confined: true,
 	    debug: {
 		flow_control: false,
 		message_posting: false,
@@ -43,8 +46,7 @@ userRecords = {
 		navigation: false,
 		file_io: false,
 		misc: false
-	    },
-	    info: []
+	    }
 	};
 	var tmpUser = new User(userid);
 
@@ -279,7 +281,7 @@ userRecords = {
 	 */
 	queryDebugSettings: function (userid) {
 	    var tmpSettings = userRecords.userDataIO.loadSettings(userid);
-	    var availableOpts = userRecords.defaultSettings(user.number).debug;
+	    var availableOpts = (new userRecords.defaultSettings(user.number)).debug;
 	    var opt, done = false;
 
 	    console.putmsg(yellow + high_intensity +
