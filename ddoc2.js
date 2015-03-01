@@ -181,81 +181,59 @@ docIface = {
 	  bbs.log_str("Jumped to " + this.setSub(ouah));
 	}
     },
-	/*
-	 * summary:
-	 *	Pulls a list of rooms, locates the current one, leaves
-	 *	current room for the next one in linear fashion, looping
-	 *	back to lobby if there is no other room remaining.
-	 *	NOTE: This will require heavy modification when
-	 *	used in a non-confined environment
-	 * returns:
-	 *	code for the room (in case other operations need to be
-	 *	performed upon that message base by the calling code)
-	 */
-    skip : function() {
-	var rList = docIface.util.getRoomList(userSettings.confined);
-	var ndx = 0, success = false;
+      /*
+	* summary:
+	*	Pulls a list of rooms, locates the current one, leaves
+	*	current room for the next one in linear fashion, looping
+	*	back to lobby if there is no other room remaining.
+	*	NOTE: This will require heavy modification when
+	*	used in a non-confined environment
+	* returns:
+	*	code for the room (in case other operations need to be
+	*	performed upon that message base by the calling code)
+	*/
+    skip: function () {
+      var rList = docIface.util.getRoomList(userSettings.confined);
+      var rNext = null;
 
-	if (userSettings.debug.navigation || userSettings.debug.message_scan) {
-	  console.putmsg(red + "Entered docIface.nav.skip(), " +
-	    "looking for: " + user.cursub + "\n");
-	}
+      if (userSettings.debug.navigation
+	    || userSettings.debug.message_scan) {
+	console.putmsg(red + "docIface.nav.skip(): " +
+	      "looking for sub following '" + user.cursub + "'\n");
+      }
 
-	if (rList === 0) {
-	  console.putmsg(red + high_intensity + "Got a null " + 
-	    "for the list of rooms that was returned; wut?\n");
-	}
+      if (rList === null) {
+	console.putmsg(red + high_intensity + "Got a null " +
+	      "for the list of rooms that was returned; wut?\n");
+      }
 
-	for each (rm in rList) {
-	  ndx++;
-	  if (userSettings.debug.navigation || userSettings.debug.message_scan) {
-	    console.putmsg(yellow + ndx + ": " + rm.name + 
+      // default on failure
+      rNext = rList[0];
+
+      for each (rm in rList) {
+	if (userSettings.debug.navigation
+	      || userSettings.debug.message_scan) {
+	  console.putmsg(yellow + rm.index + ": " + rm.name +
 		"\n");
-	  }
-          if (success || (rm.name.indexOf(user.cursub) == 0)) {
-              if (userSettings.debug.navigation
-                      || userSettings.debug.message_scan) {
-                console.putmsg(yellow + "Skipping to " +
-                  rm.name + "\n");
-              }
-              this.setSub(rm);
-              break;
-          }
-
-	  //let's try out the experimental technology
-	  if (rm.name.indexOf(user.cursub) == 0) {
-	    if (userSettings.debug.navigation
-                    || userSettings.debug.message_scan) {
-	      console.putmsg(yellow + "Found current sub " +
-		user.cursub + " in the list\n");
-	    }
-	    success = true;
-	    if (ndx == rList.length) {
-		this.setSub(rList[0]);
-		break;
-	    } else {
-		if (userSettings.debug.navigation
-                        || userSettings.debug.message_scan) {
-		  console.putmsg(red + "Setting user.cursub to " +
-			user.cursub + "\n");
-		}
-
-		this.setSub(rList[ndx]);
-	   	break;
-	    }
-	  }
-
-	  //I know that's a horrible way to do this, it's just early in
-	  //the morning and I haven't had enough coffee to process it
-	  //better yet.  :P
-
-	  if (userSettings.debug.message_scan) {
-	    console.putmsg(red + "rm.code to return is: " +
-		rm.code + "\n");
-	  }
-
-	  return rm.code;
 	}
+	if ((rm.code.indexOf(user.cursub) == 0) &&
+	      (rm.index < (rList.length - 1))) {  // off-by-one fix
+	  rNext = rList[rm.index + 1];
+	}
+	if (userSettings.debug.navigation
+	      || userSettings.debug.message_scan) {
+	  console.putmsg(yellow + "Skipping to " +
+		rNext.name + "\n");
+	}
+	this.setSub(rNext);
+
+	if (userSettings.debug.message_scan) {
+	  console.putmsg(red + "code to return is: " +
+		rNext.code + "\n");
+	}
+
+	return rNext.code;
+      }
 
     },
 	/*
