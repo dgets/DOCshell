@@ -307,7 +307,7 @@ userRecords = {
 	    var flags = Object.keys(
 	        userRecords.userDataIO.loadSettings(userid).debug);
 
-	    for each (opt in Object.keys(flags)) {
+	    for each (opt in flags) {
 		console.putmsg(yellow + "Flag: " + high_intensity + opt +
 		      normal + yellow + "\t\tValue: " +
 		      high_intensity + userSettings.debug[opt] + "\n");

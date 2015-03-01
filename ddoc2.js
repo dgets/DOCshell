@@ -352,7 +352,7 @@ docIface = {
 	}
 
 	if (userSettings.debug.misc) {
-		userRecords.userDataUI.displayDebugFlags();
+		userRecords.userDataUI.displayDebugFlags(user.number);
 		console.putmsg("Turning off Synchronet defaults for dDoc\n");
 	}  // FIXME: wasn't sure how to fix this conflict, please let me know
 	   //         - ntwitch
