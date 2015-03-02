@@ -255,17 +255,23 @@ userRecords = {
 	getInfo: function () {
 	    var uInp = [], cntr = 0;
 
-	    console.putmsg(green + high_intensity + "Enter a description " +
+	    console.putmsg(green + high_intensity + "\nEnter a description " +
 		  ", up to 5 lines\n\n");
 
-	    while ((uInp[cntr] != "\r") && (uInp[cntr] != "\n") &&
-		  (uInp.length < userRecords.maxInfoLines)) {
+	    while (uInp.length < userRecords.maxInfoLines) {
 		console.putmsg(green + high_intensity + ">");
-		uInp[cntr++] = console.getstr(null, 77);
+		uInp[cntr] = console.getstr(null, 77);
+
+		if (uInp[cntr] == "") {
+		    uInp.pop();
+		    break;
+		}
+		cntr++;
 	    }
 
 	    return uInp;
 	},
+
 	/*
 	 * summary:
 	 *	queries the user for whether or not they want the true
