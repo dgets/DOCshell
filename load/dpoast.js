@@ -98,6 +98,9 @@ poast = {
         var lNdx = 0, done = false;
         var uchoice;
 
+	//turn off instant messages coming in while posting
+	bbs.sys_status |= SS_MOFF;
+
         //var debugging = false;        //only for local here
 	if (localdebug.message_posting) {
 	  console.putmsg(red + "Passed to addMsg(base, upload, " +
@@ -174,6 +177,9 @@ poast = {
             }
           }
         } while (!done);
+
+	//turn instant messages back on
+	bbs.sys_status |= SS_MOFF;
     }, 
 	/*
 	 * summary:
