@@ -20,7 +20,7 @@ load("load/dperuser.js");
 
 //pseudo-globals
 const excuse = "\n\nNot so fast . . .\n\n",
-	debugOnly = false, confine_messagebase = true, topebaseno = 6,
+	debugOnly = false, topebaseno = 6,
 	alwaysLogout = false, std_logging = true;
 
 //a few easier hooks for the ctrl-a codes
@@ -181,84 +181,59 @@ docIface = {
 	  bbs.log_str("Jumped to " + this.setSub(ouah));
 	}
     },
-	/*
-	 * summary:
-	 *	Pulls a list of rooms, locates the current one, leaves
-	 *	current room for the next one in linear fashion, looping
-	 *	back to lobby if there is no other room remaining.
-	 *	NOTE: This will require heavy modification when
-	 *	used in a non-confined environment
-	 * confined:
-	 *	boolean depending on confinement status (currently
-	 *	ignored
-	 * returns:
-	 *	code for the room (in case other operations need to be
-	 *	performed upon that message base by the calling code)
-	 */
-    skip : function(confined) {
-	var rList = docIface.util.getRoomList(confined);
-	var ndx = 0, success = false;
+      /*
+	* summary:
+	*	Pulls a list of rooms, locates the current one, leaves
+	*	current room for the next one in linear fashion, looping
+	*	back to lobby if there is no other room remaining.
+	*	NOTE: This will require heavy modification when
+	*	used in a non-confined environment
+	* returns:
+	*	code for the room (in case other operations need to be
+	*	performed upon that message base by the calling code)
+	*/
+    skip: function () {
+      var rList = docIface.util.getRoomList(userSettings.confined);
+      var rNext = null;
 
-	if (userSettings.debug.navigation || userSettings.debug.message_scan) {
-	  console.putmsg(red + "Entered docIface.nav.skip(), " +
-	    "looking for: " + user.cursub + "\n");
-	}
+      if (userSettings.debug.navigation
+	    || userSettings.debug.message_scan) {
+	console.putmsg(red + "docIface.nav.skip(): " +
+	      "looking for sub following '" + user.cursub + "'\n");
+      }
 
-	if (rList === 0) {
-	  console.putmsg(red + high_intensity + "Got a null " + 
-	    "for the list of rooms that was returned; wut?\n");
-	}
+      if (rList === null) {
+	console.putmsg(red + high_intensity + "Got a null " +
+	      "for the list of rooms that was returned; wut?\n");
+      }
 
-	for each (rm in rList) {
-	  ndx++;
-	  if (userSettings.debug.navigation || userSettings.debug.message_scan) {
-	    console.putmsg(yellow + ndx + ": " + rm.name + 
+      // default on failure
+      rNext = rList[0];
+
+      for each (rm in rList) {
+	if (userSettings.debug.navigation
+	      || userSettings.debug.message_scan) {
+	  console.putmsg(yellow + rm.index + ": " + rm.name +
 		"\n");
-	  }
-          if (success || (rm.name.indexOf(user.cursub) == 0)) {
-              if (userSettings.debug.navigation
-                      || userSettings.debug.message_scan) {
-                console.putmsg(yellow + "Skipping to " +
-                  rm.name + "\n");
-              }
-              this.setSub(rm);
-              break;
-          }
-
-	  //let's try out the experimental technology
-	  if (rm.name.indexOf(user.cursub) == 0) {
-	    if (userSettings.debug.navigation
-                    || userSettings.debug.message_scan) {
-	      console.putmsg(yellow + "Found current sub " +
-		user.cursub + " in the list\n");
-	    }
-	    success = true;
-	    if (ndx == rList.length) {
-		this.setSub(rList[0]);
-		break;
-	    } else {
-		if (userSettings.debug.navigation
-                        || userSettings.debug.message_scan) {
-		  console.putmsg(red + "Setting user.cursub to " +
-			user.cursub + "\n");
-		}
-
-		this.setSub(rList[ndx]);
-	   	break;
-	    }
-	  }
-
-	  //I know that's a horrible way to do this, it's just early in
-	  //the morning and I haven't had enough coffee to process it
-	  //better yet.  :P
-
-	  if (userSettings.debug.message_scan) {
-	    console.putmsg(red + "rm.cfg.code to return is: " +
-		rm.cfg.code + "\n");
-	  }
-
-	  return rm.cfg.code;
 	}
+	if ((rm.code.indexOf(user.cursub) == 0) &&
+	      (rm.index < (rList.length - 1))) {  // off-by-one fix
+	  rNext = rList[rm.index + 1];
+	}
+	if (userSettings.debug.navigation
+	      || userSettings.debug.message_scan) {
+	  console.putmsg(yellow + "Skipping to " +
+		rNext.name + "\n");
+	}
+	this.setSub(rNext);
+
+	if (userSettings.debug.message_scan) {
+	  console.putmsg(red + "code to return is: " +
+		rNext.code + "\n");
+	}
+
+	return rNext.code;
+      }
 
     },
 	/*
@@ -307,18 +282,15 @@ docIface = {
 	 *	not being confined is expanded.  Also, this may be
 	 *	useful in the future for listKnown() and other routines
 	 *	in dmbase.js that are recreating the wheel a bit
-	 * confined:
-	 *	Same as usual; boolean showing whether or not we're in a
-	 *	confined instance of ddoc
 	 * returns:
 	 *	As I redundantly and out-of-proper-orderly mentioned
 	 *	above, it returns an array of sub-board objects
 	 *	If running non-confined, returns null
 	 */
-    getRoomList : function(confined /*in the future, group here too*/) {
+    getRoomList : function(/*in the future, group here too*/) {
 	//var debugging = true;
 
-	if (confined) {
+	if (userSettings.confined) {
 	  	//damn we don't need anything complex, durrr
 		if (userSettings.debug.misc) {
 		  console.putmsg(red + "Working with sub list: " +
@@ -337,11 +309,8 @@ docIface = {
 	 * 	JavaScript scope, this is kind of pushing the limits of what
 	 * 	I know off the top of my head.  This could also be stored to
 	 * 	a scratchpad in the $SBBSHOME/user/ directory, as well.
-	 * confined:
-	 *	Boolean indicating whether or not this instance is
-	 *	confined
 	 */
-    initDdoc : function(confined) {
+    initDdoc : function() {
 	userSettings = userRecords.defaultSettings(user.number);
 	try {
           userSettings = userRecords.userDataIO.loadSettings(user.number);
@@ -352,12 +321,12 @@ docIface = {
 	}
 
 	if (userSettings.debug.misc) {
-		userRecords.userDataUI.displayDebugFlags();
+		userRecords.userDataUI.displayDebugFlags(user.number);
 		console.putmsg("Turning off Synchronet defaults for dDoc\n");
 	}  // FIXME: wasn't sure how to fix this conflict, please let me know
 	   //         - ntwitch
 	this.turnOffSynchronetDefaults();
-	if (confined) {
+	if (userSettings.confined) {
 		bbs.log_str(user.alias + " is entering dDOC shell and " +
 			"confined to " + msg_area.grp_list[topebaseno].name + 
 			" group");
@@ -369,11 +338,11 @@ docIface = {
 	docIface.util.preMsgGroup = bbs.curgrp;
 	docIface.util.preFileDir = bbs.curdir;
 
-	if (confined) {
+	if (userSettings.confined) {
 	  if (userSettings.debug.flow_control) {
 	    console.putmsg("Moving user to " + 
-		msg_area.grp_list[topebaseno].name + 
-		msg_area.grp_list[topebaseno].sub_list[0] + "\n");
+		msg_area.grp_list[topebaseno].name + ":" + 
+		msg_area.grp_list[topebaseno].sub_list[0].name + "\n");
 	  }
 	  docIface.nav.setSub(msg_area.grp_list[topebaseno].sub_list[0]);
 	}
@@ -459,20 +428,20 @@ var uchoice;
 
 //save initial conditions
 
-docIface.util.initDdoc(confine_messagebase);
+docIface.util.initDdoc();
 
 /*
  * changing this to user.curgrp isn't going to work as the user object
  * has no curgrp.  need to find out if bbs.curgrp is going to work, and
  * if not, how do we reverse lookup a group from a sub code name
  */
-if (confine_messagebase && (bbs.curgrp != topebaseno) && 
+if (userSettings.confined && (bbs.curgrp != topebaseno) && 
     userSettings.debug.flow_control) {
   //are we already in a dystopian area?
 	console.putmsg(red + "CurGrp: " + bbs.curgrp + normal + "\n" +
 		       "Trying a jump . . .\n");
 	bbs.curgrp = topebaseno;
-} else if (confine_messagebase && (bbs.curgrp != topebaseno)) {
+} else if (userSettings.confined && (bbs.curgrp != topebaseno)) {
 	bbs.curgrp = topebaseno;
 }
 
@@ -513,7 +482,7 @@ if (!debugOnly) {
 		case 'n':
 		case 'o':
 		case '-':
-		  msg_base.entry_level.handler(uchoice, confine_messagebase);
+		  msg_base.entry_level.handler(uchoice);
 		  break;
 		//other msg base shit
 		case 'j':
@@ -522,7 +491,7 @@ if (!debugOnly) {
 		  break;
 		//list known
 		case 'k':
-		  msg_base.entry_level.listKnown(confine_messagebase);
+		  msg_base.entry_level.listKnown();
 		  break;
 		//logout
 		case 'l':
@@ -563,7 +532,7 @@ if (!debugOnly) {
 		  stillAlive = false;
 		  break;
 		case 's':
-		  docIface.nav.skip(confine_messagebase);
+		  docIface.nav.skip();
 		  break;
 		case 'c':
 		  userConfig.reConfigure(); 

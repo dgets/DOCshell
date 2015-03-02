@@ -102,7 +102,7 @@ poast = {
 	bbs.sys_status |= SS_MOFF;
 
         //var debugging = false;        //only for local here
-	if (localdebug.message_posting) {
+	if (userSettings.debug.message_posting) {
 	  console.putmsg(red + "Passed to addMsg(base, upload, " +
 	    "recip):\n");
 	  console.putmsg(red + "base.subnum:\t" + base.subnum + 
@@ -219,7 +219,7 @@ poast = {
 		mHdr['to'] = "All";
 	  }
 
-	  if (localdebug.message_posting) {
+	  if (userSettings.debug.message_posting) {
 	    //debug dump requested by echicken (?) in order to help find
 	    //out what is causing mail sent to the 'mail' sub board is
 	    //ending up in 'all mail' but never a personal account, and
@@ -270,7 +270,7 @@ poast = {
 			e.message, e.number);
           }
 
-	  if (localdebug.message_posting) {
+	  if (userSettings.debug.message_posting) {
 	    console.putmsg(red + "Received mBase.subnum:\t" + dMB.subnum + 
 		"\t(in call to mWrite())\n");
 	    //console.putmsg(red + "Group:\t" + dMB.grp_name +
@@ -281,7 +281,7 @@ poast = {
 
           var catMTxt = new String();
           for each (var ouah in txtArray) {
-            if (localdebug.message_posting) {
+            if (userSettings.debug.message_posting) {
                 console.putmsg(red + "ouah: " + ouah + "\n" + normal);
             }
             catMTxt += ouah;
@@ -325,7 +325,7 @@ poast = {
 	}
 
 	var mb = new MsgBase('mail');
-	if (localdebug.message_posting) {
+	if (userSettings.debug.message_posting) {
 	  console.putmsg(red + "God ouah (MsgBase('mail') status):\t" +
 	    mb.file + "\n");
 	}
