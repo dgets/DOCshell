@@ -337,10 +337,10 @@ userConfig = {
     //'c'onfig menu stuph
 
     //	----++++****====userConfig properites====****++++----
-    cMenu: high_intensity + green + "<a>ddress\t\t<c>lient\t\t<f>lag" +
-	  "\n<h>elp\t\t<i>nfo\t\t<o>ptions\n<p>asswd\t\t<q>uit\t\t" +
+    cMenu: "\n<a>ddress\t\t<c>lient\t<f>lag" +
+	  "\n<h>elp\t\t\t<i>nfo\t\t<o>ptions\n<p>asswd\t\t<q>uit\t\t" +
 	  "<r>eminder\n<s>ecret\t\t<t>erm\t\te<x>press\n<z>apall\n\n",
-    cConfPrompt: high_intensity + yellow + "Change config -> ",
+    cConfPrompt: "\nChange config -> ",
     //	----++++****====userConfig methods====****++++----
     /*
      * summary:
@@ -351,7 +351,7 @@ userConfig = {
 
 
 	while (stillAlahv) {
-	    console.putmsg(this.cConfPrompt);
+	    console.putmsg(yellow + high_intensity + this.cConfPrompt);
 	    uResponse = console.getkey();
 
 	    switch (uResponse) {
@@ -376,7 +376,7 @@ userConfig = {
 		    break;
 		case '?':
 		    //help--derp
-		    console.putmsg(this.cMenu);
+		    console.putmsg(green + high_intensity + this.cMenu);
 		    break;
 		default:
 		    console.putmsg(excuse);
