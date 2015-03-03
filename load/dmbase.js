@@ -285,7 +285,8 @@ msg_base = {
 	 * summary:
 	 *	Creates and displays the dynamic end of message prompt
 	 */
-  /*doMPrompt : function() {
+  doMPrompt : function() {
+    /*
     var mnum = msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr;
     var mrem = msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
 		msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr;
@@ -298,7 +299,7 @@ msg_base = {
     @Ntwitch (who probably now knows the API better than I do) just poitned
     out that comparing mBase.total_msgs instead of mBase.last_msg should
     do the trick here for issue #53) */
-
+				      
     console.putmsg(yellow + high_intensity + user.cursub + "> msg #" +
 	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr + " (" +
 	(msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].total_msgs -
