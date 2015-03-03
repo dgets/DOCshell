@@ -355,12 +355,12 @@ docIface = {
 	 */
     turnOffSynchronetDefaults : function() {
 	//turn off scans
-	user.settings &= USER_ASK_NSCAN;
+	/*user.settings &= USER_ASK_NSCAN;
 	user.settings &= USER_ASK_SSCAN;
 	user.settings &= USER_ANFSCAN;
 	//turn off garish interface settings
 	user.settings &= USER_NOPAUSESPIN;	//set this, too, why not
-	user.settings &= USER_SPIN;
+	user.settings &= USER_SPIN; */
     },
 	/*
 	 * summary:
