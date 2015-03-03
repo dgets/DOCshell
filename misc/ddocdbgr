@@ -1,3 +1,0 @@
-{ "debugging" : { "user": "Khelair",  "debug": { "flow_control": "true", "message_posting": "false", "message_scan": "true", "instant_messaging": "false", "navigation": "true", "file_io": "true", "misc": "true" } },
-"debugging" : { "user": "Ddoctest", "debug": { "flow_control": "true", "message_posting": "false", "message_scan": "true", "instant_messaging": "false", "navigation": "true", "file_io": "true", "misc": "true" } } }
-

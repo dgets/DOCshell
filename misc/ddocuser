@@ -1,0 +1,42 @@
+   #
+   # This is a simple test header to test comment skipping.
+   #
+{
+  "1": {
+    "alias": "Ntwitch",
+    "info": [
+      "a",
+      "b",
+      "c"
+    ],
+    "doing": "",
+    "confined": true,
+    "debug": {
+      "flow_control": true,
+      "message_posting": true,
+      "message_scan": true,
+      "instant_messaging": true,
+      "navigation": true,
+      "file_io": true,
+      "misc": true
+    }
+  },
+  "3": {
+    "alias": "Derp",
+    "info": [
+      "blah",
+      "duh"
+    ],
+    "doing": "",
+    "confined": true,
+    "debug": {
+      "flow_control": false,
+      "message_posting": false,
+      "message_scan": false,
+      "instant_messaging": false,
+      "navigation": false,
+      "file_io": false,
+      "misc": false
+    }
+  }
+}
