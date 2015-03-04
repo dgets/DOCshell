@@ -100,6 +100,11 @@ msg_base = {
                   valid = true; //I think we want to change this
                   console.putmsg(green + high_intensity +
                         "Enter message\n\n");
+		  if (userSettings.debug.message_posting) {
+			console.putmsg(red + "Adding message via " +
+			  "poast.addMsg() where base: " +
+			  base.cfg.name + "\n");
+		  }
                   poast.addMsg(base, false, 'All');  //not an upload
                   break;
 		case ' ':
