@@ -81,8 +81,6 @@ msg_base = {
                 case 'i':
                 case 'p':
                 case 'w':
-                case 'x':
-                case 'X':
                   console.putmsg(yellow + "Not supported (yet)" +
                         "...\n");
                   break;
@@ -110,6 +108,10 @@ msg_base = {
 		  break;
 		case 'l':
 		  docIface.util.quitDdoc();
+		  break;
+		case 'x':
+		case 'X':
+		  express.sendX();
 		  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
