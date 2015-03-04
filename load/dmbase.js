@@ -66,7 +66,7 @@ msg_base = {
             switch (uchoice) {
                 case '?':
                 case 'h':
-                  console.putmsg(this.rcMenu);
+                  console.putmsg(msg_base.read_cmd.rcMenu);
                   break;
                 case 'a':
                 case 'A':
