@@ -55,7 +55,7 @@ msg_base = {
           var hollaBack = 0;    //can be used to switch dir, etc
 
 	  if (userSettings.debug.message_posting) {
-	    console.putmsg(red + "rcChoice() called w/base: " + base.code +
+	    console.putmsg(red + "rcChoice() called w/base: " + base.cfg.code +
 		"\tndx: " + ndx + "\n");
 	  }
 
@@ -64,7 +64,7 @@ msg_base = {
             switch (uchoice) {
                 case '?':
                 case 'h':
-                  console.putmsg(rcMenu);
+                  console.putmsg(this.rcMenu);
                   break;
                 case 'a':
                 case 'A':
@@ -152,6 +152,14 @@ msg_base = {
 		      e.toString() + "\n");
 	    }
             break;
+	  case 'b':	// scan backwards
+	    try {
+	        msg_base.scanSub(msg_area.sub[bbs.cursub_code], false);
+	    } catch (e) {
+		console.putmsg(yellow + "Exception reading backwards: " +
+		      e.toString() + "\n");
+	    }
+	    break;
           case 'k':     //list scanned bases
             this.listKnown();
             break;
@@ -228,83 +236,47 @@ msg_base = {
 	 *	Displays message with or without pauses
 	 * base: MsgBase object
 	 *	Open message base object currently being read
-	 * sBoard:
-	 *	object to read properties from like last_msg
 	 * ptr: Integer
 	 *	Current message index #
-	 * break: Boolean
+	 * breaks: Boolean
+	 *	Default: true
 	 *	true for screen pauses
-	 *
-	 * NOTE: Currently utilizing this method to test and implement
-	 *	 proper throwing of an exception to catch issues
 	 */
-  dispMsg : function(base, sBoard, ptr, breaks) {
-        if (breaks != false) { 
-	  breaks = true;
+  dispMsg : function(base, ptr, breaks) {
+	var mHdr, mBody, fHdr;
+
+	if (breaks != false) { 
+	    breaks = true;
 	}
 
         //try/catch this
-        var mHdr = base.get_msg_header(ptr);
-        var mBody = base.get_msg_body(ptr);
+        mHdr = base.get_msg_header(ptr);
+        mBody = base.get_msg_body(ptr);
 
 	if (userSettings.debug.message_scan) {
-	  console.putmsg(red + "ptr: " + ptr + "\tbase.last_msg: " +
-		base.last_msg + "\n");
+	    console.putmsg(red + "ptr: " + ptr + "\tbase.last_msg: "
+		+ base.last_msg + "\n");
 	}
 
-	if (ptr < 0) {
-	  throw new docIface.dDocException("dispMsgException",
-			"At start of messages", 3);
-	}
-	
-	if ((mHdr === null) || (ptr == base.last_msg)) {
-	  //this is where echicken's suggestion must go
-	  throw new docIface.dDocException("dispMsgException",
-			"Invalid message slot", 1);
-	} else if (mHdr === null) {
-	  throw new docIface.dDocException("dispMsgException",
-			"Out of messages in current sub", 2);
+	if (mHdr === null) {
+	    if (userSettings.debug.message_scan) {
+		console.putmsg(red + "Invalid message? base.cfg.code: "
+		      + base.cfg.code + " ptr: " + ptr + "\n");
+	    }
+	    return;	// Invalid message, skip
 	}
 
-        if (breaks) {
-          console.putmsg(magenta + high_intensity + mHdr.date +
-                green + " from " + cyan + mHdr.from + "\n" +
-                green);
-          console.putmsg(mBody);  //this may need to have formatting
-                                  //fixes for vdoc emulation
-          console.putmsg(yellow + high_intensity + "\n[" +
-                msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].name 
-		+ "> msg #" + ptr + " (" +
-                (base.last_msg - ptr) + " remaining)] " +
-                cyan + "Read cmd -> ");
-        }
+	fHdr = magenta + high_intensity + mHdr.date + green + " from "
+	      + cyan + mHdr.from + "\n" + green;
+
+	if (breaks) {
+	    console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into the
+		// putmsg here so it gets included in the line count for breaks
+        } else {
+	    console.putmsg(fHdr + mBody, (P_NOPAUSE | P_WORDWRAP));
+	}
 
 	return 0;
-  },
-	/*
-	 * summary:
-	 *	Creates and displays the dynamic end of message prompt
-	 */
-  doMPrompt : function() {
-    /*
-    var mnum = msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr;
-    var mrem = msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
-		msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr;
-    var cntr = mrem; 
-
-    do { */
-	
-
-    /* 
-    @Ntwitch (who probably now knows the API better than I do) just poitned
-    out that comparing mBase.total_msgs instead of mBase.last_msg should
-    do the trick here for issue #53) */
-				      
-    console.putmsg(yellow + high_intensity + user.cursub + "> msg #" +
-	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr + " (" +
-	(msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].total_msgs -
-	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr) +
-	" remaining)] " + green + high_intensity + "Read cmd -> ");
   },
   /*
    * summary:
@@ -334,54 +306,6 @@ msg_base = {
 
 	return mBase;
   },
-  /*
-   * summary:
-   *	makes sure that scanSub() is within proper bounds when looking
-   *	for new messages
-   * mBase:
-   *	current (opened) message base
-   * inc:
-   *	increment value; 1 for forward, -1 for reverse read/scan
-   * tp:
-   *	tmpPtr in scanSub() code; shows current position in the message
-   *	base
-   * return:
-   *	null for error, 1 for last message indicated/needing to jump
-   *	to the next sub/room, 0 for legitimate message pointer
-   *
-   * NOTE: It appears that perhaps there is a bug here in the fact
-   *	   that there is nothing returned for success; this was before
-   *	   adding the return value of 0 at the end
-   */
-  verifyBounds : function(mBase, inc, tp) {
-          //make sure that we're within proper bounds
-          if ((inc == 1) && ((tp - 1) == mBase.last_msg)) {
-            if (userSettings.debug.message_scan) {
-		console.putmsg(red + "tp: " + tp + "\tinc: " + inc +
-		  "\tmBase.last_msg: " + mBase.last_msg + "\tmBase.code: " +
-		  mBase.code + "\tmBase.is_open: " + mBase.is_open + "\n");
-                console.putmsg("Hit last message, returning 1\n");
-            }
-	    throw new docIface.dDocException("verifyBoundsException",
-			"Last message pointer", 1);
-          } else if ((inc == 1) && (tp > mBase.last_msg)) {
-            console.putmsg(red + "Over last_msg; this should not " +
-                "ever happen.  :|\n");
-	    throw new docIface.dDocException("verifyBoundsException",
-			"Over last msg (wtf)", 2);
-          } else if ((inc == -1) && (tp < mBase.first_msg)) {
-            console.putmsg(green + high_intensity + "No preceeding " +
-                "messages\n");
-	    throw new docIface.dDocException("verifyBoundsException",
-			"No preceding messages", 3);
-          }
-
-	  return 0;	//valid pointer indicated
-  },
-  /*
-   * summary:
-   *	method exists to provide exception to throw
-   */
 	/*
 	 * summary:
 	 *	Sequentially scans for new messages within one
@@ -396,8 +320,7 @@ msg_base = {
 	 *	still working on further shite
 	 */
   scanSub : function(sBoard, forward) {
-	var tmpPtr, ecode, ecode2, inc;
-	var fuggit = false;	//, tmpDebugging = true;
+	var tmpPtr, inc, choice;
 
 	if (userSettings.debug.message_scan) {
 	  console.putmsg("Entered scanSub(); forward = " + forward +
@@ -415,7 +338,7 @@ msg_base = {
 			"Error in openNewMBase()", 1);
 	}
 
-	tmpPtr = sBoard.scan_ptr;	//is this right?
+	tmpPtr = sBoard.scan_ptr;
 	if (userSettings.debug.message_scan) {
 	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
 	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
@@ -425,111 +348,65 @@ msg_base = {
 	
 	if (forward) { inc = 1; } else { inc = -1; }
 	if (userSettings.debug.message_scan) {
-	  console.putmsg("Inc: " + inc + "\tbased on 'forward'\n");
+	  console.putmsg("Inc: " + inc + "\tbased on forward\n");
 	}
 
+	console.putmsg("\n");	// FIXME: previous menu should be leaving
+				//	us at the beginning of a line
 	//primary message scan loop
-	while (!fuggit) {
-	  if (userSettings.debug.message_scan) {
-	    console.putmsg(red + "In main scanSub() loop\ttmpPtr: " +
-		tmpPtr + "\n");
-	  }
-
-	  //make sure that we're within proper bounds
-	  //kudos to @Ntwitch for seeing that sBoard needed to be
-	  //replaced by mBase
-	  try {
-	    ecode = this.verifyBounds(mBase, inc, tmpPtr);
-	  } catch (e) {
+	while (true) {	// a bit shady, but we exit from within the switch/case
 	    if (userSettings.debug.message_scan) {
-		console.putmsg("Exception: " + e.toString() + "\n");
+		console.putmsg(red + "In main scanSub() loop\ttmpPtr: "
+		      + tmpPtr + " total_msgs: " + mBase.total_msgs + "\n");
 	    }
 
-	    if (e.number == 1) {	//out of messages
-		return null;	//change this to a non-hack if it works
-	    }
-
-	  }
-
-	  /*
-	  if ((ecode === null) || (ecode == 1)) { return ecode; }
-	  else if (ecode == 0) {
-	    //we have a valid message pointer; continue
-	    if (localdebug.message_scan) {
-		console.putmsg(yellow + "Valid pointer indicated by " +
-			"verifyBounds()\n");
-	    }
-	  } else {
-	    console.putmsg(red + "Bogus code back from verifyBounds()\n");
-	    return null;
-	  }
-	  */
-
-	  try {
-		this.dispMsg(mBase, sBoard, tmpPtr, true);
-	  } catch (e) {
-		if (userSettings.debug.message_scan) {
-		  console.putmsg(yellow + "scanSub: " + e.toString() + "\n");
-		}
-
-		//patch code for testing
-		ecode = e.number;
-		if (e.number == 2) {
-		  throw new docIface.dDocException("scanSubException",
-				"Done with messages", 2);
-		}
-	  }
-
-	  //this loop may be the source of a double display issue or
-	  //something of the sort
-	  //NOTE: changed this loop to a conditional in order to test
-	  //	  with the above patchcode without going into an infinite
-	  //	  loop
-	  if (ecode == 2) {
-	    //skip through deleted/invalid messages
-	    if (userSettings.debug.message_scan) {
-		console.putmsg(red + "In scanSub(), ecode = -2, skipping " +
-		  "current message (invalid/deleted)\n");
-	    }
-
-	    tmpPtr += inc;
-	    if (tmpPtr >= mBase.last_msg) {
-		ecode = this.dispMsg(mBase, sBoard, tmpPtr, true);
-	    } else if (tmpPtr < 0) {
-		if (userSettings.debug.message_scan) {
-		  console.putmsg(red + "Hit beginning of sub/room\n" +
-		    "Previous errors (if any): " + mBase.error + "\n");
-		}
-		throw new docIface.dDocException("scanSubException",
-				"Hit message 0", 3);
+	    if ((tmpPtr <= 0) && (inc == -1)) {
+		console.putmsg(red + "\nNo previous message\n");
+	    } else if ((tmpPtr >= (mBase.total_msgs - 1)) && (inc == 1)) {
+		console.putmsg(red + "\nEnd of messages\n");
 	    } else {
-		if (userSettings.debug.message_scan) {
-		  console.putmsg(red + "Hit end of sub/room\n" +
-		    "Previous errors (if any): " + mBase.error + "\n");
+		tmpPtr += inc;
+		if ((tmpPtr >= 0) && (tmpPtr < mBase.total_msgs)) {
+		    this.dispMsg(mBase, tmpPtr, true);
+		    sBoard.scan_ptr = tmpPtr;
 		}
-		throw new docIface.dDocException("scanSubException",
-				"Hit end of sub/room", 4);
 	    }
-	  } else if (ecode == 1) {
-	    tmpPtr += inc;
-	    continue;
-	  } else if (ecode == 3) {
-	    fuggit = true;
-	  }
 
-	  ecode = this.read_cmd.rcChoice(mBase, tmpPtr);
-	  if (ecode == 1) {
-	    fuggit = true;
-	  } else if (ecode == 2) {
-	    if (inc == 1) { inc = -1; } else { inc = 1; }
-	  }
+	    console.putmsg(yellow + high_intensity + "\n["
+		  + msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].name
+		  + "> msg #" + (tmpPtr + 1)
+		  + " (" + (mBase.total_msgs - tmpPtr - 1) + " remaining)] "
+		  + cyan + "Read cmd -> ");
 
-	  tmpPtr += inc;
-	  if (userSettings.debug.message_scan) {
-	    console.putmsg(red + "End of scanSub() main loop\n" +
-		"tmpPtr: " + tmpPtr + "\tinc: " + inc + "\tfuggit: " +
-		fuggit + "\n");
-	  }
+	    choice = this.read_cmd.rcChoice(mBase, tmpPtr);
+	    switch (choice) {
+		case 2:		// Reverse scan direction
+		    if (userSettings.debug.message_scan) {
+			console.putmsg(red + "DEBUG: Reversing direction\n");
+		    }
+		    inc *= -1;
+		    break;
+		case 1:		// Stop scan
+		    if (userSettings.debug.message_scan) {
+			console.putmsg("DEBUG: Stopping scan\n");
+		    }
+		    mBase.close();
+		    return null;
+		case 0:		// No action
+		    if (userSettings.debug.message_scan) {
+			console.putmsg("DEBUG: Next Msg\n");
+		    }
+		    break;
+		default:
+		    console.putmsg(red + "\nUnexpected value from rcChoice: "
+			  + choice + "\n");
+		    return null;
+	    }
+
+	    if (userSettings.debug.message_scan) {
+		console.putmsg(red + "End of scanSub() main loop\n"
+		      + "tmpPtr: " + tmpPtr + "\tinc: " + inc + "\n");
+	    }
 
 	}
 
@@ -537,7 +414,5 @@ msg_base = {
 	if (userSettings.debug.message_scan) {
 	  console.putmsg(red + "Closed mBase: " + sBoard.code + "\n");
 	}
-	throw new docIface.dDocException("scanSubException",
-			"Done with message scan", 4);
-  }
+    }
 }
