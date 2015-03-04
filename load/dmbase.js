@@ -368,6 +368,8 @@ msg_base = {
 		console.putmsg(red + "\nNo previous message\n");
 	    } else if ((tmpPtr >= (mBase.total_msgs - 1)) && (inc == 1)) {
 		console.putmsg(red + "\nEnd of messages\n");
+		mBase.close();
+		return 1;
 	    } else {
 		tmpPtr += inc;
 		if ((tmpPtr >= 0) && (tmpPtr < mBase.total_msgs)) {
