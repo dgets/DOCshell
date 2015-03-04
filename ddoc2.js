@@ -93,6 +93,8 @@ docIface = {
    *	Unmodified return value from console.getkey()
    */
   getChoice : function() {
+	bbs.nodesync();	//check for xpress messages
+
 	return (console.getkey());
   },
   /*

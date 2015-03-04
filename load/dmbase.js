@@ -60,6 +60,8 @@ msg_base = {
 	  }
 
           while (!valid) {
+	    bbs.nodesync();	//check for xpress messages
+
             uchoice = console.getkey();
             switch (uchoice) {
                 case '?':
