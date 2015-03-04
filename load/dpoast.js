@@ -179,7 +179,7 @@ poast = {
         } while (!done);
 
 	//turn instant messages back on
-	bbs.sys_status |= SS_MOFF;
+	bbs.sys_status ^= SS_MOFF;
     }, 
 	/*
 	 * summary:

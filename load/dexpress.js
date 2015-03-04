@@ -209,6 +209,9 @@ express = {
   sendX : function() {
 	var recip, ouah, mTxt;
 
+	//turn off incoming messages for a bit
+	bbs.sys_status |= SS_MOFF;
+
 	recip = express.chkRcp(wholist.populate());
 	if (recip <= 0) {
 	  //oopthieoopth!
@@ -222,5 +225,8 @@ express = {
 	  system.put_telegram(system.matchuser(recip), mTxt);
 	  console.putmsg(green + "Message sent!\n");
 	}
+
+	//turn incoming messages back on
+	bbs.sys_status ^= SS_MOFF;
   }
 }

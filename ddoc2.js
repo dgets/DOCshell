@@ -312,6 +312,9 @@ docIface = {
 		bbs.log_str(user.alias + " entering dDOC shell");
 	}
 
+	//turn on asynchronous message arrival
+	bbs.sys_status ^= SS_MOFF;
+
 	docIface.util.preSubBoard = bbs.cursub;
 	docIface.util.preMsgGroup = bbs.curgrp;
 	docIface.util.preFileDir = bbs.curdir;
