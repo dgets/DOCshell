@@ -379,7 +379,7 @@ msg_base = {
 		tmpPtr += inc;
 		if ((tmpPtr >= 0) && (tmpPtr < mBase.total_msgs)) {
 		    this.dispMsg(mBase, tmpPtr, true);
-		    sBoard.scan_ptr = tmpPtr;
+		    if (inc == 1) sBoard.scan_ptr = tmpPtr;
 		}
 	    }
 
