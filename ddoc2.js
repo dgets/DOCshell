@@ -17,7 +17,7 @@ load("load/dmbase.js");
 load("load/dpoast.js");
 load("load/dexpress.js");
 load("load/dperuser.js");
-load("load/dperroom.js");
+//load("load/dperroom.js");
 
 //pseudo-globals
 const excuse = "\n\nNot so fast . . .\n\n",
@@ -337,7 +337,7 @@ docIface = {
 	}
 
 	//turn on asynchronous message arrival
-	bbs.sys_status ^= SS_MOFF;
+	bbs.sys_status &=~ SS_MOFF;
 	//turn off time limit
 	user.security.exemptions |= UFLAG_H;
 	//this is how it SHOULD work, anyway
@@ -363,9 +363,9 @@ docIface = {
 	 */
     turnOffSynchronetDefaults : function() {
 	//turn off scans
-	user.settings ^= USER_ASK_NSCAN;
-	user.settings ^= USER_ASK_SSCAN;
-	user.settings ^= USER_ANFSCAN;
+	user.settings &=~ USER_ASK_NSCAN;
+	user.settings &=~ USER_ASK_SSCAN;
+	user.settings &=~ USER_ANFSCAN;
 	//turn off garish interface settings
 	/* user.settings &= USER_NOPAUSESPIN;	//set this, too, why not
 	user.settings &= USER_SPIN; */

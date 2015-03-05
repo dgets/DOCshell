@@ -17,7 +17,7 @@ roomData = {
   userDir : system.data_dir + "user/",
 
   //sub-objects
-  roomRecords = {
+  roomRecords : {
     //--++==**properties**==++--
     //userDir : system.data_dir + "user/",
     //just access this.userDir from nao on
@@ -32,8 +32,9 @@ roomData = {
 	  moderator : "none set",
 	  info : []
 	}
+    }
   },
-  userRoomSettings = {
+  userRoomSettings : {
 	//this will include more than just zapped rooms for now, but we're
 	//just going to handle that for the time being
 	userRoomSettingsFilename : "userrooms",
@@ -44,13 +45,14 @@ roomData = {
 		}
 	}
   },
-  fileIO = {
+  fileIO : {
     //getting and setting the different shit above
     //--++==**properties**==++--
-    roomRecFilename = this.userDir + this.roomRecords.roomSettingsFilename;
-    userZapRecFilename = this.userDir + 
-			   this.userRoomSettings.userRoomSettingsFilename;
-
+    roomRecFilename : this.userDir + 
+		      roomRecords.roomSettingsFilename,
+    userZapRecFilename : this.userDir + 
+			 userRoomSettings.userRoomSettingsFilename,
+  }
 
 }
 
