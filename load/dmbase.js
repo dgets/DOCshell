@@ -359,6 +359,11 @@ msg_base = {
 	}
 	
 	if (forward) { inc = 1; } else { inc = -1; }
+	
+	// if starting in reverse from the room prompt, unskip one message
+	if (!forward) tmpPtr += 1;  // so we start with the most recently read
+	// message.  In all other cases we want to skip one.
+	
 	if (userSettings.debug.message_scan) {
 	  console.putmsg("Inc: " + inc + "\tbased on forward\n");
 	}
@@ -372,10 +377,12 @@ msg_base = {
 
 	    if ((tmpPtr <= 0) && (inc == -1)) {
 		console.putmsg(red + "\nNo previous message\n");
+		mBase.close();
+		return 0;   // do we reverse scan from room to room also?
 	    } else if ((tmpPtr >= mBase.total_msgs) && (inc == 1)) {
 		console.putmsg(red + "\nEnd of messages\n");
 		mBase.close();
-		return 1;
+		return 1;   // skip to next room
 	    } else {
 		tmpPtr += inc;
 		if ((tmpPtr >= 0) && (tmpPtr <= mBase.total_msgs)) {
