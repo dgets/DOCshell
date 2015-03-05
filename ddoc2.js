@@ -358,10 +358,15 @@ docIface = {
 	 *  	are unwanted in the dDoc interface
 	 */
     turnOffSynchronetDefaults : function() {
+	//Set:     settings &= (~ FLAG)
+	//Clear:   settings |= FLAG
+	//Toggle:  settings ^= FLAG
 	//turn off scans
 	user.settings &= (~ USER_ASK_NSCAN);
 	user.settings &= (~ USER_ASK_SSCAN);
 	user.settings &= (~ USER_ANFSCAN);
+	//When these are finalized, we can combine like so:
+	//user.settings &= (~ (USER_ASK_NSCAN | USER_ASK_SSCAN | USER_ANFSCAN));
 	user.settings |= USER_PAUSE;
 	//turn off garish interface settings
 	/* user.settings &= USER_NOPAUSESPIN;	//set this, too, why not
