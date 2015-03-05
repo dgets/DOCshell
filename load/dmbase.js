@@ -154,6 +154,7 @@ msg_base = {
           case 'n':     //read new
 	    //NOTE: we'll need an enclosing loop to route through
 	    //separate sub-boards now
+	    console.putmsg(green + high_intensity + "Read new\n");
 	    try {
 		msg_base.scanSub(msg_area.sub[bbs.cursub_code], true);
 	    } catch (e) {
@@ -162,6 +163,7 @@ msg_base = {
 	    }
             break;
 	  case 'b':	// scan backwards
+	    console.putmsg(green + high_intensity + "Read backward\n");
 	    try {
 	        msg_base.scanSub(msg_area.sub[bbs.cursub_code], false);
 	    } catch (e) {
@@ -170,6 +172,7 @@ msg_base = {
 	    }
 	    break;
           case 'k':     //list scanned bases
+	    console.putmsg(green + high_intensity + "Known rooms list\n");
             this.listKnown();
             break;
           case 'e':     //enter a normal message
@@ -201,7 +204,7 @@ msg_base = {
          *      message base group, optionally)
          */
     listKnown : function() {
-        console.putmsg("\n\n" + green + high_intensity);
+        console.putmsg("\n" + green + high_intensity);
 
         //we can fuck with multi-columns later
         if (!userSettings.confined) {
@@ -360,8 +363,6 @@ msg_base = {
 	  console.putmsg("Inc: " + inc + "\tbased on forward\n");
 	}
 
-	console.putmsg("\n");	// FIXME: previous menu should be leaving
-				//	us at the beginning of a line
 	//primary message scan loop
 	while (true) {	// a bit shady, but we exit from within the switch/case
 	    if (userSettings.debug.message_scan) {

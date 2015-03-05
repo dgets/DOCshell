@@ -301,8 +301,8 @@ docIface = {
 	if (userSettings.debug.misc) {
 		userRecords.userDataUI.displayDebugFlags(user.number);
 		console.putmsg("Turning off Synchronet defaults for dDoc\n");
-	}  // FIXME: wasn't sure how to fix this conflict, please let me know
-	   //         - ntwitch
+	}
+	
 	this.turnOffSynchronetDefaults();
 	if (userSettings.confined) {
 		bbs.log_str(user.alias + " is entering dDOC shell and " +
@@ -462,6 +462,7 @@ if (!debugOnly) {
 		case 'r':
 		case 'n':
 		case 'o':
+		case 'k':
 		case '-':
 		  msg_base.entry_level.handler(uchoice);
 		  break;
@@ -469,10 +470,6 @@ if (!debugOnly) {
 		case 'j':
 		//jump to new sub-board (room in DOCspeak)
 		  docIface.nav.jump();
-		  break;
-		//list known
-		case 'k':
-		  msg_base.entry_level.listKnown();
 		  break;
 		//logout
 		case 'l':
@@ -513,6 +510,7 @@ if (!debugOnly) {
 		  stillAlive = false;
 		  break;
 		case 's':
+		  console.putmsg(green + high_intensity + "Skip room\n");
 		  if (docIface.nav.skip() == null) {
 		      docIface.nav.setSub(msg_area.grp_list[bbs.curgrp].sub_list[0]);
 		  }
