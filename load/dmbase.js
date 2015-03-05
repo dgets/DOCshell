@@ -372,13 +372,13 @@ msg_base = {
 
 	    if ((tmpPtr <= 0) && (inc == -1)) {
 		console.putmsg(red + "\nNo previous message\n");
-	    } else if ((tmpPtr >= (mBase.total_msgs - 1)) && (inc == 1)) {
+	    } else if ((tmpPtr >= mBase.total_msgs) && (inc == 1)) {
 		console.putmsg(red + "\nEnd of messages\n");
 		mBase.close();
 		return 1;
 	    } else {
 		tmpPtr += inc;
-		if ((tmpPtr >= 0) && (tmpPtr < mBase.total_msgs)) {
+		if ((tmpPtr >= 0) && (tmpPtr <= mBase.total_msgs)) {
 		    this.dispMsg(mBase, tmpPtr, true);
 		    if (inc == 1) sBoard.scan_ptr = tmpPtr;
 		}
@@ -387,7 +387,7 @@ msg_base = {
 	    console.putmsg(yellow + high_intensity + "\n["
 		  + msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].name
 		  + "> msg #" + (tmpPtr + 1)
-		  + " (" + (mBase.total_msgs - tmpPtr - 1) + " remaining)] "
+		  + " (" + (mBase.total_msgs - tmpPtr) + " remaining)] "
 		  + cyan + "Read cmd -> ");
 
 	    choice = this.read_cmd.rcChoice(mBase, tmpPtr);
