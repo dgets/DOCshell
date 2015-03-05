@@ -338,6 +338,9 @@ docIface = {
 
 	//turn on asynchronous message arrival
 	bbs.sys_status ^= SS_MOFF;
+	//turn off time limit
+	user.security.exemptions |= UFLAG_H;
+	//this is how it SHOULD work, anyway
 
 	docIface.util.preSubBoard = bbs.cursub;
 	docIface.util.preMsgGroup = bbs.curgrp;
@@ -391,6 +394,10 @@ docIface = {
 	user.cursub = bbs.cursub_code;
 	bbs.curgrp = docIface.util.preMsgGroup;
 	bbs.curdir = docIface.util.preFileDir;
+
+	//disable H exemption in case they go back to usual shell so that
+	//we can handle events, etc
+	user.security.exemptions &= UFLAG_H;
 
 	console.putmsg(blue + high_intensity + "\n\nHope to see you " +
                 "again soon!\n\nPeace out!\n");
