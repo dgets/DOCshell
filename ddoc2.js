@@ -125,7 +125,30 @@ docIface = {
    */
   doMainMenu : function() {
 	bbs.log_key("?");
-	console.putmsg(this.menu);
+	//we need to implement paging here
+	var brokenMenu = this.menu.split("\n");
+	var linecount = 0;	//not sure why this isn't being taken care
+				//of by Synchronet's normal routines...  Flag
+				//mis-set here, too, perhaps?
+
+	if (userSettings.debug.misc) {
+	  console.putmsg(red + "console.getlines(): " + 
+	    console.getlines() + "\tbrokenMenu.length: " +
+	    brokenMenu.length + "\n");
+	}
+
+	for (; linecount < brokenMenu.length; linecount++) {
+	  if ((linecount % (console.getlines() - 2)) == 0) {
+		console.putmsg(green + "--" + high_intensity +
+		  "more" + normal + green + "--");
+		console.getkey();
+		console.putmsg("\n"); 
+	  }
+	  console.putmsg(green + high_intensity + brokenMenu[linecount] +
+	    "\n");
+	}
+
+	//console.putmsg(this.menu);
   },
 
   //sub-objects
@@ -336,11 +359,11 @@ docIface = {
 	 */
     turnOffSynchronetDefaults : function() {
 	//turn off scans
-	/*user.settings &= USER_ASK_NSCAN;
-	user.settings &= USER_ASK_SSCAN;
-	user.settings &= USER_ANFSCAN;
+	user.settings ^= USER_ASK_NSCAN;
+	user.settings ^= USER_ASK_SSCAN;
+	user.settings ^= USER_ANFSCAN;
 	//turn off garish interface settings
-	user.settings &= USER_NOPAUSESPIN;	//set this, too, why not
+	/* user.settings &= USER_NOPAUSESPIN;	//set this, too, why not
 	user.settings &= USER_SPIN; */
     },
 	/*
