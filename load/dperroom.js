@@ -12,26 +12,45 @@
  * code snippet.
  */
 
-roomRecords = {
-  //--++==**properties**==++--
-  userDir: system.data_dir + "user/",
-  settingsFilename: "docrooms",
-  maxInfoLines: 160,
- 
-  //--++==**methods**==++--
+roomData = {
+  //properites
+  userDir : system.data_dir + "user/",
 
-  defaultSettings : function() {
+  //sub-objects
+  roomRecords = {
+    //--++==**properties**==++--
+    //userDir : system.data_dir + "user/",
+    //just access this.userDir from nao on
+    roomSettingsFilename : "docrooms",
+    maxInfoLines: 160,
+ 
+    //--++==**methods**==++--
+
+    defaultSettings : function() {
 	//basically just for new/undefined rooms
 	var settings = {
 	  moderator : "none set",
 	  info : []
 	}
-},
-userRoomSettings = {
+  },
+  userRoomSettings = {
 	//this will include more than just zapped rooms for now, but we're
 	//just going to handle that for the time being
-	var roomList = {
-	  zrooms : []
+	userRoomSettingsFilename : "userrooms",
+
+	defaultSettings : function() {
+		var roomList = {
+		  zRooms : []
+		}
 	}
+  },
+  fileIO = {
+    //getting and setting the different shit above
+    //--++==**properties**==++--
+    roomRecFilename = this.userDir + this.roomRecords.roomSettingsFilename;
+    userZapRecFilename = this.userDir + 
+			   this.userRoomSettings.userRoomSettingsFilename;
+
+
 }
 
