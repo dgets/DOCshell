@@ -337,7 +337,7 @@ docIface = {
 	}
 
 	//turn on asynchronous message arrival
-	bbs.sys_status &=~ SS_MOFF;
+	bbs.sys_status ^= SS_MOFF;
 	//turn off time limit
 	user.security.exemptions |= UFLAG_H;
 	//this is how it SHOULD work, anyway
@@ -398,6 +398,8 @@ docIface = {
 	//disable H exemption in case they go back to usual shell so that
 	//we can handle events, etc
 	user.security.exemptions &= UFLAG_H;
+	//restore asynchronous message status (if necessary)
+	bbs.sys_status ^= SS_MOFF;
 
 	console.putmsg(blue + high_intensity + "\n\nHope to see you " +
                 "again soon!\n\nPeace out!\n");
@@ -517,7 +519,9 @@ if (!debugOnly) {
 		  wholist.list_long();
 		  break;
 		case 'x':
+		  bbs.sys_status ^= SS_MOFF;
 		  express.sendX();
+		  bbs.sys_status ^= SS_MOFF;
 		  break;
 		case 'W':
 		  wholist.list_short(wholist.populate());

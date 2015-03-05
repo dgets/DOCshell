@@ -105,7 +105,9 @@ msg_base = {
 			  "poast.addMsg() where base: " +
 			  base.cfg.name + "\n");
 		  }
+		  bbs.sys_status ^= SS_MOFF;
                   poast.addMsg(base, false, 'All');  //not an upload
+		  bbs.sys_status ^= SS_MOFF;
                   break;
 		case ' ':
 		case 'n':
@@ -118,7 +120,9 @@ msg_base = {
 		  break;
 		case 'x':
 		case 'X':
+		  bbs.sys_status ^= SS_MOFF;
 		  express.sendX();
+		  bbs.sys_status ^= SS_MOFF;
 		  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
@@ -176,7 +180,9 @@ msg_base = {
             this.listKnown();
             break;
           case 'e':     //enter a normal message
+	    bbs.sys_status ^= SS_MOFF;
             poast.addMsg(docIface.nav.chk4Room(user.cursub), false, 'All');
+	    bbs.sys_status ^= SS_MOFF;
             break;
           //other functionality tie-ins
           case 'w':     //normal wholist
@@ -186,7 +192,9 @@ msg_base = {
             wholist.list_short(wholist.populate());
             break;
           case 'x':     //express msg
+	    bbs.sys_status ^= SS_MOFF;
             express.sendX();
+	    bbs.sys_status ^= SS_MOFF;
             break;
 	  case 'l':	//logout
 	    docIface.util.quitDdoc();
