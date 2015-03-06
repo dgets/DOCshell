@@ -66,6 +66,7 @@ msg_base = {
           while (!valid) {
 	    bbs.nodesync();	//check for xpress messages
 
+	    msg_base.doMprompt(base,ndx);
             uchoice = console.getkey();
             switch (uchoice) {
                 case '?':
@@ -73,10 +74,13 @@ msg_base = {
                   console.putmsg(this.rcMenu);
                   break;
                 case 'a':
+		  console.putmsg(green + "Again\n");
+		  msg_base.dispMsg(base, ndx, true);
+		  break;
                 case 'A':
-                  console.putmsg(yellow + "Not supported (yet)" +
-                        "...\n");
-                  break;
+		  console.putmsg(green + "Again (no breaks)\n");
+		  msg_base.dispMsg(base, ndx, false);
+		  break;
                 case 'b':
                   valid = true; hollaBack = 2;
 		  docIface.log_str_n_char(this.log_header, 'b');
@@ -91,7 +95,6 @@ msg_base = {
                         "...\n");
                   break;
                 case 'E':
-                  //dispMsg();  //how to pass parameters?
                   console.putmsg(red + "\nI'm too dumb yet, just " +
 				 "wait\n");
                   break;
@@ -254,13 +257,26 @@ msg_base = {
          "<i>nfo (forum)\n<n>ext\t\t<p>rofile author\t<s>top\n" +
          "<w>ho's online\t<x>press msg\t<X>press on/off\n\n",
 
-  //--+++***===exceptions===***+++---
-
   //---+++***===msg_base methods follow===***+++---
-
-  //should end up replacing most of newScan() [above] and some other
-  //areas, I'm sure
 	/*
+	 * summary:
+	 *	Displays the read menu with room name, message number,
+	 *	and remaining messages.
+	 * base:
+	 *	The active and open MsgBase object
+	 * ndx:
+	 *	Index of the current message
+	 * NOTE: I chose to make the message number 1-based for
+	 *	display purposes only.
+	 */
+  doMprompt : function(base, ndx) {
+	console.putmsg(yellow + high_intensity
+	      + "\n[" + base.cfg.name
+	      + "> msg #" + (ndx + 1)
+	      + " (" + (mBase.total_msgs - ndx) + " remaining)] "
+	      + cyan + "Read cmd -> ");
+  },
+        /*
 	 * summary:
 	 *	Displays message with or without pauses
 	 * base: MsgBase object
@@ -408,12 +424,6 @@ msg_base = {
 		}
 	    }
 
-	    console.putmsg(yellow + high_intensity + "\n["
-		  + msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].name
-		  + "> msg #" + (tmpPtr + 1)
-		  + " (" + (mBase.total_msgs - tmpPtr) + " remaining)] "
-		  + cyan + "Read cmd -> ");
-
 	    try {
 	      choice = this.read_cmd.rcChoice(mBase, tmpPtr);
 	    } catch (e) {
@@ -434,7 +444,7 @@ msg_base = {
 		    }
 		    mBase.close();
 		    return null;
-		case 0:		// No action
+		case 0:		// Next message
 		    if (userSettings.debug.message_scan) {
 			console.putmsg("DEBUG: Next Msg\n");
 		    }
