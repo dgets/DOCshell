@@ -54,6 +54,10 @@ msg_base = {
           var valid = false;
           var hollaBack = 0;    //can be used to switch dir, etc
 
+	  if (base == undefined) {
+	    throw new docIface.dDocException("base not defined to rcChoice()");
+	  }
+
 	  if (userSettings.debug.message_posting) {
 	    console.putmsg(red + "rcChoice() called w/base: " + base.cfg.code +
 		"\tndx: " + ndx + "\n");
@@ -106,7 +110,14 @@ msg_base = {
 			  base.cfg.name + "\n");
 		  }
 		  bbs.sys_status ^= SS_MOFF;
-                  poast.addMsg(base, false, 'All');  //not an upload
+
+		  try {
+                    poast.addMsg(base, false, 'All');  //not an upload
+		  } catch (e) {
+		    console.putmsg(red + high_intensity + "Error " +
+			"in poast.addMsg(): " + e.message + "\n");
+		  }
+
 		  bbs.sys_status ^= SS_MOFF;
                   break;
 		case ' ':
@@ -405,7 +416,13 @@ msg_base = {
 		  + " (" + (mBase.total_msgs - tmpPtr) + " remaining)] "
 		  + cyan + "Read cmd -> ");
 
-	    choice = this.read_cmd.rcChoice(mBase, tmpPtr);
+	    try {
+	      choice = this.read_cmd.rcChoice(mBase, tmpPtr);
+	    } catch (e) {
+		console.putmsg("Error passing mBase to rcChoice()\n" +
+		  "Error: " + e.message + "\t\tmBase: " + mBase.name + "\n");
+	    }
+
 	    switch (choice) {
 		case 2:		// Reverse scan direction
 		    if (userSettings.debug.message_scan) {
