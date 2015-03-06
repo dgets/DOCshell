@@ -271,7 +271,21 @@ userRecords = {
 
 	    return uInp;
 	},
-
+	/*
+	 * summary:
+	 *	Asks the user for a new doing message
+	 * returns:
+	 *	String value of the new doing message
+	 */
+	getDoing: function() {
+	    var doing = "";
+	    
+	    console.putmsg(green + high_intensity
+		  + "Enter a new doing for yourself.\n> ");
+	    doing = console.getstr(null, userRecords.doingChars);
+	    
+	    return doing;
+	},
 	/*
 	 * summary:
 	 *	queries the user for whether or not they want the true
