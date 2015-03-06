@@ -224,7 +224,7 @@ express = {
    *	Negative value for fuggup
    */
   sendX : function() {
-	var recip, ouah, mTxt;
+	var recip, mTxt;
 
 	//turn off incoming messages for a bit
 	bbs.sys_status |= SS_MOFF;

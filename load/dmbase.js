@@ -131,9 +131,7 @@ msg_base = {
 		  break;
 		case 'x':
 		case 'X':
-		  bbs.sys_status ^= SS_MOFF;
 		  express.sendX();
-		  bbs.sys_status ^= SS_MOFF;
 		  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");

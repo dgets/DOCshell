@@ -337,7 +337,7 @@ docIface = {
 	}
 
 	//turn on asynchronous message arrival
-	bbs.sys_status |= SS_MOFF;
+	bbs.sys_status &=~ SS_MOFF;
 	//turn off time limit
 	user.security.exemptions |= UFLAG_H;
 	//this is how it SHOULD work, anyway
@@ -519,9 +519,7 @@ if (!debugOnly) {
 		  wholist.list_long();
 		  break;
 		case 'x':
-		  bbs.sys_status ^= SS_MOFF;
 		  express.sendX();
-		  bbs.sys_status ^= SS_MOFF;
 		  break;
 		case 'W':
 		  wholist.list_short(wholist.populate());
