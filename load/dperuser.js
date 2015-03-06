@@ -371,6 +371,7 @@ userConfig = {
 		    }
 		    break;
 		case 'q':
+		case ' ':
 		    //quit out of here
 		    stillAlahv = false;
 		    break;
