@@ -397,7 +397,7 @@ docIface = {
 
 	//disable H exemption in case they go back to usual shell so that
 	//we can handle events, etc
-	user.security.exemptions &= UFLAG_H;
+	user.security.exemptions &=~ UFLAG_H;
 	//restore asynchronous message status (if necessary)
 	bbs.sys_status ^= SS_MOFF;
 
