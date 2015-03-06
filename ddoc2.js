@@ -519,9 +519,7 @@ if (!debugOnly) {
 		  wholist.list_long();
 		  break;
 		case 'x':
-		  bbs.sys_status ^= SS_MOFF;
 		  express.sendX();
-		  bbs.sys_status ^= SS_MOFF;
 		  break;
 		case 'W':
 		  wholist.list_short(wholist.populate());
