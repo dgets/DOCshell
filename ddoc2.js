@@ -549,7 +549,23 @@ if (!debugOnly) {
 		  }
 		  break;
 		case 'c':
-		  userConfig.reConfigure(); 
+		  userConfig.reConfigure();
+		  break;
+		case 'D':
+		  console.putmsg(green + high_intensity + "Change doing field\n");
+		  userSettings.doing = userRecords.userDataUI.getDoing();
+		  try {
+		    userRecords.userDataIO.saveSettings(user.number,
+			  userSettings);
+		      // next line will not execute if there is an exception
+		      // while saving
+		      console.putmsg(green + high_intensity + "Doing field " +
+			    "updated.\n\n");
+		  } catch (e) {
+		      console.putmsg(red + "Exception saving settings: "
+			    + e.toString() + "\n");
+		  }
+		  break;
 		default:
 		  console.putmsg(excuse);
 		  break;
