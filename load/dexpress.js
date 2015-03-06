@@ -56,6 +56,8 @@ wholist = {
    */
   list_long : function() {
 	//this is the easy one
+	//NOTE: We're going to be changing this in the future to show
+	//doing fields, though, which will require a custom rewrite
 	bbs.log_key("w");
 	bbs.whos_online();
   },
@@ -69,7 +71,7 @@ wholist = {
   list_short : function(ul) {
 	//this one we'll have to make multi-column
 	var unames = new Array();
-	var maxALen = 0, tu = 0, cols;
+	var maxArrayLen = 0, totalUsers = 0, cols, ouah2, colBoundary;
 
 	bbs.log_key("W");
 	console.putmsg(green + high_intensity + 
@@ -77,22 +79,37 @@ wholist = {
 
 	for (var ouah = 0; ouah < ul.length; ouah++) {
 	  unames[ouah] = ul[ouah].alias;
-	  if (unames[ouah].length > maxALen) {
-	    maxALen = unames[ouah].length;
+	  if (unames[ouah].length > maxArrayLen) {
+	    maxArrayLen = unames[ouah].length;
 	  }
-	  tu++;
+	  totalUsers++;
 	}
 
-	//assuming 80 column screens for now
-	cols = Math.round(80 / (maxALen + 2));
+	//this looks a little fugly, but it just adds 2 spaces to the longest
+	//name, determines where the nearest tab beyond is, and divides the
+	//available screen columns into that many segments accordingly
+	colBoundary = ((((maxArrayLen + 2) % 8) + 1) * 8);
+	cols = Math.round(console.screen_columns / colBoundary);
 
 	//generate wholist
-	for (var ouah = 0; ouah < tu; ouah++) {
-	  console.putmsg(unames[ouah] + "  ");
-	  if ((ouah > 0) && ((ouah % cols) == 0)) {
+	for (var ouah = 0; ouah < totalUsers; ouah++) {
+	  console.putmsg(green + high_intensity + unames[ouah]);
+
+	  //set the cursor to the right position for next
+	  ouah2 = console.getxy();
+	  if ((ouah2.x + colBoundary) >= (console.screen_columns + 8)) {
 		console.putmsg("\n");
+	  } else {
+		console.putmsg("\t\t");
 	  }
+
+	  //pretty sure the above replaces this right now
+	  /* if ((ouah > 0) && ((ouah % cols) == 0)) {
+		console.putmsg("\n");
+	  } */
 	}
+
+	console.putmsg("\n");
   }
 },
 express = {
