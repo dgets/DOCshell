@@ -172,6 +172,39 @@ docIface = {
 	
 	return room.name;
     },
+    	/*
+	 * summary:
+	 *	Scans through known rooms (not zapped) starting from
+	 *	the current room and looks for new messages.  If new messages
+	 *	are found, call setSub to point the user at the room.
+	 * returns:
+	 *	sub-board object if new messages were found
+	 *	null if no new messages were found
+	 */
+    findNew : function() {
+	var subList = msg_area.grp_list[bbs.curgrp].sub_list;
+	var ndx = subList[bbs.cursub].index;
+	var mBase;
+
+	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
+	    // TODO: tie this into the zapped rooms list once it is finished
+	    if (true /* if (room not zapped) */ ) {
+		mBase = msg_base.openNewMBase(subList[ndx].code);
+		if (mBase == null) break;
+
+		if (subList[ndx].scan_ptr != mBase.total_msgs) {
+		    docIface.nav.setSub(subList[ndx]);
+		    mBase.close();
+		    return subList[ndx];
+		}
+		mBase.close();
+	    }
+	}
+	// No new messages, reset to first room
+	docIface.nav.setSub(subList[0]);
+	return null;
+    },
+
 	/*
 	 * summary:
 	 *	Displays the prompt for a string to search for in the
@@ -209,34 +242,19 @@ docIface = {
     },
       /*
 	* summary:
-	*	Pulls a list of rooms, locates the current one, leaves
-	*	current room for the next one in linear fashion, looping
-	*	back to lobby if there is no other room remaining.
-	*	NOTE: This will require heavy modification when
-	*	used in a non-confined environment
-	* reverse:
-	*	true if we are going backwards, false (or non-existant) if
-	*	we are going forward.
-	* returns:
-	*	code for the room (in case other operations need to be
-	*	performed upon that message base by the calling code)
-	*	null if failed (last sub, first sub)
+	*	Mark all messages as read in the current room and
+	*	call findNew() to change to the next room with unread messages
 	*/
-    skip: function (reverse) {
-	if (reverse) { // skip backward
-	    if (bbs.cursub > 0) {
-		this.setSub(msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub - 1]);
-		return bbs.cursub_code;
-	    } else return null;    // add something like if (!confined)
-				    // skip to prev grp
-	} else { // skip forward
-	    if (bbs.cursub < (msg_area.grp_list[bbs.curgrp].sub_list.length - 1)) {
-		this.setSub(msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub + 1]);
-		return bbs.cursub_code;
-	    } else return null;
-	    // add something like if (!confined)
-	    // skip to next grp
+    skip: function () {
+	// mark all messages as read in current room
+	var mBase = msg_base.openNewMBase(bbs.cursub_code);
+
+	if (mBase != null) {
+	    msg_area.sub[bbs.cursub_code].scan_ptr = mBase.total_msgs;
+	    mBase.close();
 	}
+	// use findNew to change to next room with unread messages
+	this.findNew();
     },
 	/*
 	 * summary:
@@ -544,9 +562,12 @@ if (!debugOnly) {
 		  break;
 		case 's':
 		  console.putmsg(green + high_intensity + "Skip room\n");
+		  /*  temp remove to make skip act like vDOC
 		  if (docIface.nav.skip() == null) {
 		      docIface.nav.setSub(msg_area.grp_list[bbs.curgrp].sub_list[0]);
 		  }
+		  */
+		  docIface.nav.skip();
 		  break;
 		case 'c':
 		  userConfig.reConfigure();

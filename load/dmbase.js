@@ -168,11 +168,9 @@ msg_base = {
         switch (choice) {
           //purely message related functionality
           case 'n':     //read new
-	    //NOTE: we'll need an enclosing loop to route through
-	    //separate sub-boards now
 	    console.putmsg(green + high_intensity + "Read new\n");
 	    try {
-		msg_base.scanSub(msg_area.sub[bbs.cursub_code], true);
+		msg_base.readNew();
 	    } catch (e) {
 		console.putmsg(yellow + "Exception reading new: " +
 		      e.toString() + "\n");
@@ -192,7 +190,7 @@ msg_base = {
             this.listKnown();
             break;
           case 'e':     //enter a normal message
-	    console.putmsg(green + high_intensity + "Enter message\n\n");
+	    console.putmsg(green + high_intensity + "Enter message\n");
 
 	    base = msg_base.openNewMBase(user.cursub);
 	    if (base === null) {
@@ -281,6 +279,10 @@ msg_base = {
   doMprompt : function(base, ndx) {
 	base.close();  // Refresh base for any new messages
 	base.open();
+	if (userSettings.debug.message_scan) {
+	    console.putmsg(red + "Reopened " + base.cfg.code
+		  + " to check for updates\n");
+	}
 	console.putmsg(yellow + high_intensity
 	      + "\n[" + base.cfg.name
 	      + "> msg #" + (ndx + 1)
@@ -351,10 +353,11 @@ msg_base = {
           if (userSettings.debug.message_scan) {
             console.putmsg(red + "Opened: " + mb +
         	           " allegedly . . .\n");
+	    console.putmsg(red + "mBase.error: " + mBase.error + "\n");
           }
         } catch (e) {
-          console.putmsg(red + "Error closing old mBase or " +
-            "opening the new one after skip:\n" + e.toString() + "\n");
+          console.putmsg(red + "Error opening new mBase:\n"
+		+ e.toString() + "\n");
           log("Error skipping through scanSub(): " +
             e.toString());
           return null;
@@ -368,7 +371,7 @@ msg_base = {
 	 *	particular sub-board; don't forget to add the support
 	 *	for whether confined or not after this is beta working
 	 * sBoard: String
-	 *	Sub-board's internal code
+	 *	Synchronet Sub-board object
 	 * forward: Boolean
 	 *	true for forward read & converse
 	 * return:
@@ -387,11 +390,11 @@ msg_base = {
 	mBase = this.openNewMBase(sBoard.code);
 
 	if (mBase === null) {
-	  if (userSettings.debug.message_scan) {
+	    if (userSettings.debug.message_scan) {
 		console.putmsg("Error in openNewMBase()\n");
-	  } 
-	  throw new docIface.dDocException("scanSubException",
-			"Error in openNewMBase()", 1);
+	    }
+	    throw new docIface.dDocException("scanSubException",
+		  "Error in openNewMBase()", 1);
 	}
 
 	tmpPtr = sBoard.scan_ptr;
@@ -416,7 +419,8 @@ msg_base = {
 	while (true) {	// a bit shady, but we exit from within the switch/case
 	    if (userSettings.debug.message_scan) {
 		console.putmsg(red + "In main scanSub() loop\ttmpPtr: "
-		      + tmpPtr + " total_msgs: " + mBase.total_msgs + "\n");
+		      + tmpPtr + " total_msgs: " + mBase.total_msgs
+		      + " is_open: " + (mBase.is_open ? "yes" : "no") + "\n");
 	    }
 
 	    switch (choice) {
@@ -467,5 +471,21 @@ msg_base = {
 	if (userSettings.debug.message_scan) {
 	  console.putmsg(red + "Closed mBase: " + sBoard.code + "\n");
 	}
+    },
+	/*
+	 * summary:
+	 *	Read any new messages in the current room, then call findNew to
+	 *	move to the next room with unread messages
+	 */
+    readNew : function() {
+	var mBase = this.openNewMBase(bbs.cursub_code);
+	
+	if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
+	    this.scanSub(msg_area.sub[bbs.cursub_code], true);
+	}
+	docIface.nav.findNew();
+	mBase.close();
+	return;
     }
+
 }
