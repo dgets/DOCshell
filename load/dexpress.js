@@ -76,24 +76,27 @@ wholist = {
 	console.putmsg("\n");
 	  
 	for each (u in ul) {
+	  var skip = false;
 	  //skip if this is an unused node
-	  if (u.alias == null) {
-	    continue;
+	  if (u.alias.length < 3) {
+	    skip = true;
 	  }
 
-	  console.putmsg(yellow + high_intensity + u.alias);
+	  if (!skip) {
+	    console.putmsg(yellow + high_intensity + u.alias);
 
-	  //how much to get to tabstop?
-	  console.putmsg("\t" + cyan + high_intensity + user.ip_address);
-	  console.putmsg("\t");
+	    //how much to get to tabstop?
+	    console.putmsg("\t" + cyan + high_intensity + user.ip_address);
+	    console.putmsg("\t");
 
-	  //time online
-	  timeon = time() - u.logontime;
-	  console.putmsg(red + high_intensity + (timeon % 60) + ":" +
-	    (timeon - (60 * (timeon % 60))) + "\t");
+	    //time online
+	    timeon = time() - u.logontime;
+	    console.putmsg(red + high_intensity + (timeon % 60) + ":" +
+	      (timeon - (60 * (timeon % 60))) + "\t");
 
-	  //doing
-	  console.putmsg(cyan + high_intensity + "Just about there\n");
+	    //doing
+	    console.putmsg(cyan + high_intensity + "Just about there\n");
+	  }
 	}
 
 	//this is the easy one
