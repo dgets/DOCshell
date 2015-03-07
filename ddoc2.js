@@ -476,7 +476,7 @@ if (!debugOnly) {
 	//check for async messages waiting
 	bbs.nodesync();
 
-	console.putmsg(dprompt);
+	console.putmsg("\n" + dprompt);
 	uchoice = docIface.getChoice();
 	//poor aliasing
 	if (uchoice == ' ') {
