@@ -381,9 +381,9 @@ docIface = {
 	 */
     turnOffSynchronetDefaults : function() {
 	//turn off scans
-	user.settings &=~ USER_ASK_NSCAN;
-	user.settings &=~ USER_ASK_SSCAN;
-	user.settings &=~ USER_ANFSCAN;
+	user.settings &= ~USER_ASK_NSCAN;
+	user.settings &= ~USER_ASK_SSCAN;
+	user.settings &= ~USER_ANFSCAN;
 	//turn off garish interface settings
 	/* user.settings &= USER_NOPAUSESPIN;	//set this, too, why not
 	user.settings &= USER_SPIN; */
@@ -415,7 +415,7 @@ docIface = {
 
 	//disable H exemption in case they go back to usual shell so that
 	//we can handle events, etc
-	user.security.exemptions &=~ UFLAG_H;
+	user.security.exemptions &= ~UFLAG_H;
 	//restore asynchronous message status (if necessary)
 	bbs.sys_status ^= SS_MOFF;
 
@@ -534,7 +534,7 @@ if (!debugOnly) {
 		  }
 		  break;
 		case 'w':
-		  wholist.list_long();
+		  wholist.list_long(wholist.populate());
 		  break;
 		case 'x':
 		  express.sendX();

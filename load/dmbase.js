@@ -207,7 +207,7 @@ msg_base = {
             break;
           //other functionality tie-ins
           case 'w':     //normal wholist
-            wholist.list_long();
+            wholist.list_long(wholist.populate());
             break;
           case 'W':     //short wholist
             wholist.list_short(wholist.populate());

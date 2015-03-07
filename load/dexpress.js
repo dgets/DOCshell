@@ -52,14 +52,55 @@ wholist = {
   },
   /*
    * summary:
-   *	Simply a wrapper for Synchronet's 'whos_online()' method
+   *	No longer simply a wrapper for Synchronet's whos_online() method,
+   *	this is now going to implement the long wholist features from
+   *	vDOC as completely as possible, complete with 'd'oing field display
+   *	enabled easily by ntwitch's modifications
+   * ul:
+   *	Array() of User objects for those currently online
    */
-  list_long : function() {
+  list_long : function(ul) {
+	var timeon;
+
+	//time to do this the right way
+	bbs.log_key("w");
+
+	//header
+	console.putmsg(green + high_intensity + "There are " + yellow +
+	  ul.length + green + " users (no queue here)\n\n" + yellow +
+	  "User Name\t" + magenta + "From\t\t" + red + "Time\t" +
+	  cyan + "Doing\n");
+	for (var ouah = 0; ouah < (console.screen_columns - 2); ouah++) {
+	  console.putmsg(green + high_intensity + "-");
+	}
+	console.putmsg("\n");
+	  
+	for each (u in ul) {
+	  //skip if this is an unused node
+	  if (u.alias == null) {
+	    continue;
+	  }
+
+	  console.putmsg(yellow + high_intensity + u.alias);
+
+	  //how much to get to tabstop?
+	  console.putmsg("\t" + cyan + high_intensity + user.ip_address);
+	  console.putmsg("\t");
+
+	  //time online
+	  timeon = time() - u.logontime;
+	  console.putmsg(red + high_intensity + (timeon % 60) + ":" +
+	    (timeon - (60 * (timeon % 60))) + "\t");
+
+	  //doing
+	  console.putmsg(cyan + high_intensity + "Just about there\n");
+	}
+
 	//this is the easy one
 	//NOTE: We're going to be changing this in the future to show
 	//doing fields, though, which will require a custom rewrite
-	bbs.log_key("w");
-	bbs.whos_online();
+	/*bbs.log_key("w");
+	bbs.whos_online(); */
   },
   /*
    * summary:
@@ -70,7 +111,7 @@ wholist = {
    */
   list_short : function(ul) {
 	//this one we'll have to make multi-column
-	var unames = new Array();
+	var uNames = new Array();
 	var maxArrayLen = 0, totalUsers = 0, cols, ouah2, colBoundary;
 
 	bbs.log_key("W");
@@ -78,9 +119,9 @@ wholist = {
 	  "\nWholist (Short)\n---------------\n");
 
 	for (var ouah = 0; ouah < ul.length; ouah++) {
-	  unames[ouah] = ul[ouah].alias;
-	  if (unames[ouah].length > maxArrayLen) {
-	    maxArrayLen = unames[ouah].length;
+	  uNames[ouah] = ul[ouah].alias;
+	  if (uNames[ouah].length > maxArrayLen) {
+	    maxArrayLen = uNames[ouah].length;
 	  }
 	  totalUsers++;
 	}
@@ -93,7 +134,7 @@ wholist = {
 
 	//generate wholist
 	for (var ouah = 0; ouah < totalUsers; ouah++) {
-	  console.putmsg(green + high_intensity + unames[ouah]);
+	  console.putmsg(green + high_intensity + uNames[ouah]);
 
 	  //set the cursor to the right position for next
 	  ouah2 = console.getxy();
