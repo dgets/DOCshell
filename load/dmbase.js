@@ -279,6 +279,8 @@ msg_base = {
 	 *	display purposes only.
 	 */
   doMprompt : function(base, ndx) {
+	base.close();  // Refresh base for any new messages
+	base.open();
 	console.putmsg(yellow + high_intensity
 	      + "\n[" + base.cfg.name
 	      + "> msg #" + (ndx + 1)
@@ -374,7 +376,7 @@ msg_base = {
 	 *	still working on further shite
 	 */
   scanSub : function(sBoard, forward) {
-	var tmpPtr, inc, choice;
+	var tmpPtr, inc, choice = 0;
 
 	if (userSettings.debug.message_scan) {
 	  console.putmsg("Entered scanSub(); forward = " + forward +
@@ -417,45 +419,28 @@ msg_base = {
 		      + tmpPtr + " total_msgs: " + mBase.total_msgs + "\n");
 	    }
 
-	    if ((tmpPtr <= 0) && (inc == -1)) {
-		console.putmsg(red + "\nNo previous message\n");
-		mBase.close();
-		return 0;   // do we reverse scan from room to room also?
-	    } else if ((tmpPtr >= mBase.total_msgs) && (inc == 1)) {
-		console.putmsg(red + "\nEnd of messages\n");
-		mBase.close();
-		return 1;   // skip to next room
-	    } else {
-		tmpPtr += inc;
-		if ((tmpPtr >= 0) && (tmpPtr <= mBase.total_msgs)) {
-		    this.dispMsg(mBase, tmpPtr, true);
-		    if (inc == 1) sBoard.scan_ptr = tmpPtr;
-		}
-	    }
-
-	    try {
-	      choice = this.read_cmd.rcChoice(mBase, tmpPtr);
-	    } catch (e) {
-		console.putmsg("Error passing mBase to rcChoice()\n" +
-		  "Error: " + e.message + "\t\tmBase: " + mBase.name + "\n");
-	    }
-
 	    switch (choice) {
-		case 2:		// Reverse scan direction
-		    if (userSettings.debug.message_scan) {
-			console.putmsg(red + "DEBUG: Reversing direction\n");
-		    }
-		    inc *= -1;
-		    break;
 		case 1:		// Stop scan
 		    if (userSettings.debug.message_scan) {
 			console.putmsg("DEBUG: Stopping scan\n");
 		    }
 		    mBase.close();
 		    return null;
+		case 2:		// Reverse scan direction
+		    if (userSettings.debug.message_scan) {
+			console.putmsg(red + "DEBUG: Reversing direction\n");
+		    }
+		    inc *= -1;
+		    //Fall through to read message
+		    //break;
 		case 0:		// Next message
 		    if (userSettings.debug.message_scan) {
 			console.putmsg("DEBUG: Next Msg\n");
+		    }
+		    tmpPtr += inc;
+		    if ((tmpPtr >= 0) && (tmpPtr <= mBase.total_msgs)) {
+			this.dispMsg(mBase, tmpPtr, true);
+			if (inc == 1) sBoard.scan_ptr = tmpPtr;
 		    }
 		    break;
 		default:
@@ -468,7 +453,16 @@ msg_base = {
 		console.putmsg(red + "End of scanSub() main loop\n"
 		      + "tmpPtr: " + tmpPtr + "\tinc: " + inc + "\n");
 	    }
-
+	    if ((tmpPtr <= 0) && (inc == -1)) {
+		console.putmsg(red + "\nNo previous message\n");
+		mBase.close();
+		return 0;   // do we reverse scan from room to room also?
+	    } else if ((tmpPtr >= mBase.total_msgs) && (inc == 1)) {
+		console.putmsg(red + "\nEnd of messages\n");
+		mBase.close();
+		return 1;   // skip to next room
+	    }
+	    choice = this.read_cmd.rcChoice(mBase, tmpPtr);
 	}
 
 	mBase.close();
