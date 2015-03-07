@@ -83,7 +83,16 @@ wholist = {
 	  }
 
 	  if (!skip) {
+	    var tabsInUname;
+
 	    console.putmsg(yellow + high_intensity + u.alias);
+
+	    /* tabsInUname = (u.alias.length % 8);
+	    while (tabsInUname < 3) {
+		console.putmsg("\t");
+		tabsInUname++;
+	    } */
+	    console.putmsg("\t");
 
 	    //how much to get to tabstop?
 	    console.putmsg("\t" + cyan + high_intensity + user.ip_address);
@@ -91,8 +100,14 @@ wholist = {
 
 	    //time online
 	    timeon = time() - u.logontime;
-	    console.putmsg(red + high_intensity + (timeon % 60) + ":" +
-	      (timeon - (60 * (timeon % 60))) + "\t");
+	    console.putmsg(red + high_intensity + 
+	      ((timeon - (timeon % 60)) / 60) + ":");
+	    if ((timeon % 60) < 10) {
+		console.putmsg(red + high_intensity + "0" + (timeon % 60) +
+		"\t");
+	    } else {
+		console.putmsg(red + high_intensity + (timeon % 60) + "\t");
+	    }
 
 	    //doing
 	    console.putmsg(cyan + high_intensity + "Just about there\n");
