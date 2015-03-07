@@ -104,7 +104,7 @@ msg_base = {
                   console.putmsg(yellow + high_intensity + "Stop\n");
                   break;
                 case 'e':
-                  valid = true; //I think we want to change this
+		  
                   console.putmsg(green + high_intensity +
                         "Enter message\n\n");
 		  if (userSettings.debug.message_posting) {
@@ -112,7 +112,6 @@ msg_base = {
 			  "poast.addMsg() where base: " +
 			  base.cfg.name + "\n");
 		  }
-		  bbs.sys_status ^= SS_MOFF;
 
 		  try {
                     poast.addMsg(base, false, 'All');  //not an upload
@@ -121,7 +120,6 @@ msg_base = {
 			"in poast.addMsg(): " + e.message + "\n");
 		  }
 
-		  bbs.sys_status ^= SS_MOFF;
                   break;
 		case ' ':
 		case 'n':
@@ -162,6 +160,8 @@ msg_base = {
          *      Code for the menu choice
          */
     handler : function(choice) {
+	var base = null;
+
 	docIface.log_str_n_char(msg_base.log_header, choice);
 
         //which way do we go with this?
@@ -192,9 +192,20 @@ msg_base = {
             this.listKnown();
             break;
           case 'e':     //enter a normal message
-	    bbs.sys_status ^= SS_MOFF;
-            poast.addMsg(docIface.nav.chk4Room(user.cursub), false, 'All');
-	    bbs.sys_status ^= SS_MOFF;
+	    console.putmsg(green + high_intensity + "Enter message\n\n");
+
+	    base = msg_base.openNewMBase(user.cursub);
+	    if (base === null) {
+		console.putmsg(yellow + "Could not open MsgBase: "
+		      + user.cursub + "\n");
+		break;
+	    }
+	    try {
+		poast.addMsg(base, false, 'All');
+	    } catch (e) {
+		console.putmsg(red + high_intensity + "Error " +
+		      "in poast.addMsg(): " + e.message + "\n");
+	    }
             break;
           //other functionality tie-ins
           case 'w':     //normal wholist
@@ -204,9 +215,7 @@ msg_base = {
             wholist.list_short(wholist.populate());
             break;
           case 'x':     //express msg
-	    bbs.sys_status ^= SS_MOFF;
             express.sendX();
-	    bbs.sys_status ^= SS_MOFF;
             break;
 	  case 'l':	//logout
 	    docIface.util.quitDdoc();

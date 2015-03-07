@@ -26,7 +26,7 @@ poast = {
         var nao = new Date();
 
         console.putmsg("\n" + magenta + high_intensity +
-                nao.getDate().toString() + green + " from " +
+                nao.toString() + green + " from " +
                 cyan + user.alias + "\n" + green);
     },  
         /*
@@ -47,8 +47,9 @@ poast = {
 
           switch (uc) {
             case 'A':   //abort
+		console.putmsg(green + high_intensity + "Abort\n");
                 console.putmsg(red + high_intensity + "Abort: ");
-                done = console.yesno("are you sure? ");
+                done = console.yesno("Are you sure? ");
                 break;
             case 'C':   //continue
                 console.putmsg(green + high_intensity +
@@ -103,10 +104,9 @@ poast = {
 
         //var debugging = false;        //only for local here
 	if (userSettings.debug.message_posting) {
-	  console.putmsg(red + "Passed to addMsg(base, upload, " +
-	    "recip):\n");
-	  console.putmsg(red + "base.subnum:\t" + base.subnum + 
-	    "\nu/l:\t" + upload + "\nrecip:\t" + recip + "\n");
+	  console.putmsg(red + "addMsg: base.subnum: " + base.subnum + 
+	    "\tu/l: " + upload + "\trecip:" + recip + "\n");
+	  console.putmsg(red + "base.is_open: " + base.is_open + "\n");
 	}
 
         this.dispNewMsgHdr();
@@ -141,13 +141,15 @@ poast = {
 		  //screw those old error codes
 		  try {
 			this.mWrite(mTxt, base, recip);
+			console.putmsg(green + high_intensity
+			      + "Message saved\n");
 		  } catch (e) {
 			bbs.log_str("Err writing to " + base.name);
                         console.putmsg(red + "There was a problem " +
                                        "writing to " + base.name +
                                        "\nSorry; error is logged.\n");
-			done = true;
 		  }
+		  done = true;
 		  break;
 		  /*
                   if (this.mWrite(mTxt, base, recip) < 0) {
@@ -244,7 +246,7 @@ poast = {
 		mHdr["from_ext"] = user.number;
 		mHdr["subject"] = "<Y>ell mail to SysOp";
 	  } else {
-          	var dMB = new MsgBase(mBase.code);
+          	var dMB = new MsgBase(mBase.cfg.code);
 	  }
           //var debugging = false;        //locally, of course
 
@@ -284,7 +286,7 @@ poast = {
             if (userSettings.debug.message_posting) {
                 console.putmsg(red + "ouah: " + ouah + "\n" + normal);
             }
-            catMTxt += ouah;
+            catMTxt += (ouah + "\n");
           }
 
           try {
