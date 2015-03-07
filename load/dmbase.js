@@ -74,17 +74,17 @@ msg_base = {
                   console.putmsg(this.rcMenu);
                   break;
                 case 'a':
-		  console.putmsg(green + "Again\n");
+		  console.putmsg(green + high_intensity + "Again\n");
 		  msg_base.dispMsg(base, ndx, true);
 		  break;
                 case 'A':
-		  console.putmsg(green + "Again (no breaks)\n");
+		  console.putmsg(green + high_intensity + "Again (no breaks)\n");
 		  msg_base.dispMsg(base, ndx, false);
 		  break;
                 case 'b':
                   valid = true; hollaBack = 2;
 		  docIface.log_str_n_char(this.log_header, 'b');
-                  console.putmsg(green + "Back (change " +
+                  console.putmsg(green + high_intensity + "Back (change " +
                         "direction)...\n");
                   break;
                 case 'D':
@@ -106,7 +106,7 @@ msg_base = {
                 case 'e':
 		  
                   console.putmsg(green + high_intensity +
-                        "Enter message\n\n");
+                        "Enter message\n");
 		  if (userSettings.debug.message_posting) {
 			console.putmsg(red + "Adding message via " +
 			  "poast.addMsg() where base: " +
@@ -125,7 +125,7 @@ msg_base = {
 		case 'n':
 		  valid = true; hollaBack = 0;
 		  docIface.log_str_n_char(this.log_header, 'n');
-		  console.putmsg("\n");
+		  console.putmsg(green + high_intensity + "Next\n");
 		  break;
 		case 'l':
 		  docIface.util.quitDdoc();
@@ -322,7 +322,7 @@ msg_base = {
 	    return;	// Invalid message, skip
 	}
 
-	fHdr = magenta + high_intensity + mHdr.date + green + " from "
+	fHdr = "\n" + magenta + high_intensity + mHdr.date + green + " from "
 	      + cyan + mHdr.from + "\n" + green;
 
 	if (breaks) {
@@ -437,6 +437,13 @@ msg_base = {
 		    if (userSettings.debug.message_scan) {
 			console.putmsg("DEBUG: Next Msg\n");
 		    }
+		    if ((tmpPtr <= 0) && (inc == -1)) {
+			mBase.close();
+			return 0;   // do we reverse scan from room to room also?
+		    } else if ((tmpPtr >= mBase.total_msgs) && (inc == 1)) {
+			mBase.close();
+			return 1;   // skip to next room
+		    }
 		    tmpPtr += inc;
 		    if ((tmpPtr >= 0) && (tmpPtr <= mBase.total_msgs)) {
 			this.dispMsg(mBase, tmpPtr, true);
@@ -452,15 +459,6 @@ msg_base = {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg(red + "End of scanSub() main loop\n"
 		      + "tmpPtr: " + tmpPtr + "\tinc: " + inc + "\n");
-	    }
-	    if ((tmpPtr <= 0) && (inc == -1)) {
-		console.putmsg(red + "\nNo previous message\n");
-		mBase.close();
-		return 0;   // do we reverse scan from room to room also?
-	    } else if ((tmpPtr >= mBase.total_msgs) && (inc == 1)) {
-		console.putmsg(red + "\nEnd of messages\n");
-		mBase.close();
-		return 1;   // skip to next room
 	    }
 	    choice = this.read_cmd.rcChoice(mBase, tmpPtr);
 	}
