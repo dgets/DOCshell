@@ -92,10 +92,13 @@ wholist = {
 		console.putmsg("\t");
 		tabsInUname++;
 	    } */
-	    console.putmsg("\t");
+	    if (u.alias.length < 8) {
+		console.putmsg("\t");
+	    }
+	    //console.putmsg("\t");
 
 	    //how much to get to tabstop?
-	    console.putmsg("\t" + cyan + high_intensity + user.ip_address);
+	    console.putmsg("\t" + cyan + high_intensity + u.ip_address);
 	    console.putmsg("\t");
 
 	    //time online
@@ -110,7 +113,8 @@ wholist = {
 	    }
 
 	    //doing
-	    console.putmsg(cyan + high_intensity + "Just about there\n");
+	    console.putmsg(cyan + high_intensity + 
+		userRecords.userDataIO.loadSettings(u.number).doing + "\n");
 	  }
 	}
 
