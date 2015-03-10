@@ -136,7 +136,10 @@ userRecords = {
 	    if (settingsFile == null || !settingsFile.is_open) {
 		console.putmsg(red + "Unable to open " + userRecords.userDir
 		      + userRecords.settingsFilename + "\n");
-		return null;
+		throw new dDocException("Unable to open " + 
+			userRecords.userDir + userRecords.settingsFilename,
+			"Can't open user records!", 1);
+		//return null;
 	    }
 
 	    settingsFile = this.stripComments(settingsFile);
@@ -146,13 +149,17 @@ userRecords = {
 	    } catch (e) {
 		console.putmsg(yellow + "Exception reading DDOC settings: "
 		      + e.toString() + "\n");
-		return null;
+		throw new dDocException("Err: " + e.toString(), "Exception" +
+			" reading dDoc settings", 2);
+		//return null;
 	    } finally {
 		settingsFile.close();
 	    }
 
 	    if ((blob == null) || (blob.length < 2)) {
-		return null;
+		throw new dDocException("Exception: blob too small",
+			"blob null or length < 2", 3);
+		//return null;
 	    }
 	    
 	    blob = JSON.parse(blob);
@@ -234,7 +241,9 @@ userRecords = {
 		console.putmsg(red + "In openFileWrap():\n");
 		console.putmsg(red + e.toString() + "\n");
 		fObj.close();
-		return null;
+		throw new dDocException("Exception in openFileWrap", 
+			e.toString(), 1);
+		//return null;
 	    }
 
 	    return fObj;
