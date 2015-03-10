@@ -64,10 +64,14 @@ msg_base = {
 	  }
 
           while (!valid) {
-	    bbs.nodesync();	//check for xpress messages
-
 	    msg_base.doMprompt(base,ndx);
-            uchoice = console.getkey();
+            var uchoice = "";
+
+            do {
+        	bbs.nodesync();       //check for xpress messages
+        	uchoice = console.inkey(K_NOECHO, 1000);
+            } while (uchoice == "");
+
             switch (uchoice) {
                 case '?':
                 case 'h':
