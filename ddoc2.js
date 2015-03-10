@@ -17,7 +17,7 @@ load("load/dmbase.js");
 load("load/dpoast.js");
 load("load/dexpress.js");
 load("load/dperuser.js");
-//load("load/dperroom.js");
+load("load/dperroom.js");
 
 //pseudo-globals
 const excuse = "\n\nNot implemented yet. . .\n\n",

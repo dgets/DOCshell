@@ -54,13 +54,62 @@ roomData = {
 			 userRoomSettings.userRoomSettingsFilename,
 
     //--++==**methods**==++--
-    snagRoomInfoBlob : function() {
-	var roomInfoFile = new File(roomData.userDir + 
-		roomData.roomRecords.roomSettingsFilename);
+	/*
+	 * summary:
+	 *	Method is takes open JSON w/comments file and tests that
+	 *	it is open; strips comments and blank lines, then reads
+	 *	the remaining (presumably JSON) to return to caller
+	 * configurationFile:
+	 *	The [already open] File object to be worked upon
+	 * returns:
+	 *	Unparsed [presumably JSON] blob
+	 */
+    stripNRead : function(configurationFile) {
 	var chunky;
 
+	if ((configurationFile == null) || (!configurationFile.is_open)) {
+	  if (userSettings.debug.file_io) {
+	    console.putmsg(red + "Unable to open conf file: " + 
+		configurationFile + "\n");
+	  }
+	  throw new dDocException("Unable to open JSON conf file",
+		"Unable to open " + configurationFile, 1);
+	}
+	configurationFile = userRecords.userDataIO.stripComments(
+				configurationFile);
+
+	try {
+	  chunky = configurationFile.read();
+	} catch (e) {
+	  if (userSettings.debug.file_io) {
+		console.putmsg(yellow + "Unable to read configurationFile\n");
+	  }
+	  throw new dDocException("Exception reading configurationFile\n",
+		"Unable to read from " + configurationFile, 2);
+	} finally {
+	  configurationFile.close();
+	}
+
+	return chunky;
+    },
+	/*
+	 * summary:
+	 *	Method opens room info settings file, strips the bullshit
+	 *	out of it, and [hopefully] parses it as a JSON blob to
+	 *	be returned to extract room information from
+	 * returns:
+	 *	JSON blob specified above
+	 */
+    snagRoomInfoBlob : function() {
+	var roomInfoFile = new File(roomRecFilename);
+		/* roomData.userDir + 
+		roomData.roomRecords.roomSettingsFilename); */
+
+	/* var chunky;
+
 	if (!file_exists(roomInfoFile.name)) {
-	  //create a dummy file
+	  //create a dummy file; also see comment in snagUserZappedRooms()
+	  //below for more insight
 	} else {
 	  try {
 	    roomInfoFile.open("r");
@@ -91,8 +140,18 @@ roomData = {
 	  } finally {
 	    roomInfoFile.close();
 	  }
+	  */
+	  try {
+	    chunky = this.stripNRead(roomInfoFile);
+	  } catch (e) {
+	    console.putmstg(yellow + "Error in stripNRead(): " +
+		e.message + "\n");
+	    throw new dDocException("Exception in stripNRead()",
+		e.message, 1);
+	  }
 
 	  if ((chunky == null) || (chunky.length < 30)) {
+	    //one would think that creating a template would be good here
 	    throw new dDocException("Exception: blob too small/null",
 		"blob null or length < 30", 4);
 	  }
@@ -103,7 +162,55 @@ roomData = {
 	  return chunky;
 
 	}
-  }
+    },
+	/*
+	 * summary:
+	 *	Method opens file of user's zapped rooms (still need to
+	 *	come up with the JSON for that), strips irrelevant,
+	 *	and [ideally] returns the parsed JSON that should just
+	 *	include the user's list of zapped rooms (prolly by #)
+	 * returns:
+	 *	JSON object specified above
+	 */
+    snagUserZappedRooms : function() {
+	var zappedFile = new File(userZapRecFilename);
+	var chunky;
+
+	if (!file_esists(zappedFile.name)) {
+	  //create a dummy file or move it from misc, throw exception,
+	  //something for the love of all things holy
+
+	} else {
+	  try {
+	    zappedFile.open("r");
+	  } catch (e) {
+	    zappedFile.close();
+	    throw new dDocException("Exception opening " + zappedFile.name,
+		e.message, 1);
+	  }
+
+	  try {
+	    chunky = this.stripNRead(zappedFile);
+	  } catch (e) {
+	    console.putmsg(yellow + "Error in stripNRead(): " +
+		e.message + "\n");
+	    throw new dDocException("Exception in stripNRead()",
+		e.message, 2);
+	  }
+	
+	  if ((chunky == null) || (chunky.length < 30)) {
+	    //create template?
+	    throw new dDocException("Exception: blob too small/null",
+		"blob null or length < 30", 5);
+	  }
+
+	  chunky = JSON.parse(chunky);
+
+	  return chunky;
+	}
+    },
+
+  },
 
 }
 
