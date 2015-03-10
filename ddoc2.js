@@ -20,7 +20,7 @@ load("load/dperuser.js");
 //load("load/dperroom.js");
 
 //pseudo-globals
-const excuse = "\n\nNot so fast . . .\n\n",
+const excuse = "\n\nNot implemented yet. . .\n\n",
 	debugOnly = false, topebaseno = 6,
 	alwaysLogout = false, std_logging = true;
 
@@ -94,9 +94,14 @@ docIface = {
    *	Unmodified return value from console.getkey()
    */
   getChoice : function() {
-	bbs.nodesync();	//check for xpress messages
+	var cmd = "";
 
-	return (console.getkey());
+	do {
+	  bbs.nodesync();	//check for xpress messages
+	  cmd = console.inkey(K_NOECHO, 1000);
+	} while (cmd == "");
+
+	return cmd;
   },
   /*
    * summary:
