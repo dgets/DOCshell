@@ -15,15 +15,12 @@
 roomData = {
   //properites
   userDir : system.data_dir + "user/",
+  roomSettingsFilename : "docrooms",
+  maxInfoLines : 160,
+  userRoomSettingsFilename : "userrooms",
 
   //sub-objects
   roomRecords : {
-    //--++==**properties**==++--
-    //userDir : system.data_dir + "user/",
-    //just access this.userDir from nao on
-    roomSettingsFilename : "docrooms",
-    maxInfoLines: 160,
- 
     //--++==**methods**==++--
 
     defaultSettings : function() {
@@ -37,7 +34,6 @@ roomData = {
   userRoomSettings : {
 	//this will include more than just zapped rooms for now, but we're
 	//just going to handle that for the time being
-	userRoomSettingsFilename : "userrooms",
 
 	defaultSettings : function() {
 		var roomList = {
@@ -49,9 +45,9 @@ roomData = {
     //getting and setting the different shit above
     //--++==**properties**==++--
     roomRecFilename : this.userDir + 
-		      roomRecords.roomSettingsFilename,
+		      this.roomSettingsFilename,
     userZapRecFilename : this.userDir + 
-			 userRoomSettings.userRoomSettingsFilename,
+			 this.userRoomSettingsFilename,
 
     //--++==**methods**==++--
 	/*
@@ -102,64 +98,26 @@ roomData = {
 	 */
     snagRoomInfoBlob : function() {
 	var roomInfoFile = new File(roomRecFilename);
-		/* roomData.userDir + 
-		roomData.roomRecords.roomSettingsFilename); */
 
-	/* var chunky;
-
-	if (!file_exists(roomInfoFile.name)) {
-	  //create a dummy file; also see comment in snagUserZappedRooms()
-	  //below for more insight
-	} else {
-	  try {
-	    roomInfoFile.open("r");
-	  } catch (e) {
-	    roomInfoFile.close();
-	    throw new dDocException("Exception opening " + roomInfoFile.name,
-		e.message, 1);
-	  }
-
-	  if (roomInfoFile == null || !roomInfoFile.is_open) {
-	    if (userSettings.debug.file_io) {
-		console.putmsg(red + "Unable to open roomInfoFile\n");
-	    }
-	    throw new dDocException("Exception w/roomInfoFile", 
-		"Unable to open roomInfoFile (despite good return)", 2);
-	  }
-
-	  roomInfoFile = userRecords.userDataIO.stripComments(roomInfoFile);
-
-	  try {
-	    chunky = roomInfoFile.read();	//watch out for max len here
-	  } catch (e) {
-	    if (userSettings.debug.file_io) {
-		console.putmsg(yellow + "Unable to read roomInfoFile\n");
-	    }
-	    throw new dDocException("Exception reading roomInfoFile",
-		"Unable to do roomInfoFile.read(): " + e.message, 3);
-	  } finally {
-	    roomInfoFile.close();
-	  }
-	  */
-	  try {
+	try {
 	    chunky = this.stripNRead(roomInfoFile);
-	  } catch (e) {
+	} catch (e) {
 	    console.putmstg(yellow + "Error in stripNRead(): " +
 		e.message + "\n");
 	    throw new dDocException("Exception in stripNRead()",
 		e.message, 1);
-	  }
+	}
 
-	  if ((chunky == null) || (chunky.length < 30)) {
+	if ((chunky == null) || (chunky.length < 30)) {
 	    //one would think that creating a template would be good here
 	    throw new dDocException("Exception: blob too small/null",
 		"blob null or length < 30", 4);
-	  }
+	}
 
-	  chunky = JSON.parse(chunky);
+	chunky = JSON.parse(chunky);
 
-	  //any more testing here?
-	  return chunky;
+	//any more testing here?
+	return chunky;
 
 	}
     },
@@ -209,8 +167,6 @@ roomData = {
 	  return chunky;
 	}
     }
-
-  }
 
 }
 
