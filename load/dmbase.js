@@ -4,7 +4,7 @@
  * by: Damon Getsman
  * contributing/refactoring also by: @Ntwitch (github.com)
  * alpha phase: 25oct14
- * beta phase: 
+ * beta phase: 11mar15
  * started: 21sept14
  * finished:
  *
