@@ -2,6 +2,7 @@
  * dmbase.js
  *
  * by: Damon Getsman
+ * contributing/refactoring also by: @Ntwitch (github.com)
  * alpha phase: 25oct14
  * beta phase: 
  * started: 21sept14
@@ -82,7 +83,8 @@ msg_base = {
 		  msg_base.dispMsg(base, ndx, true);
 		  break;
                 case 'A':
-		  console.putmsg(green + high_intensity + "Again (no breaks)\n");
+		  console.putmsg(green + high_intensity + 
+			"Again (no breaks)\n");
 		  msg_base.dispMsg(base, ndx, false);
 		  break;
                 case 'b':

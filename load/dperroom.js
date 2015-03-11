@@ -208,9 +208,9 @@ roomData = {
 
 	  return chunky;
 	}
-    },
+    }
 
-  },
+  }
 
 }
 

@@ -3,9 +3,10 @@
  * ddoc2.js
  *
  * by: Damon Getsman
+ * contributing/refactoring also by: @Ntwitch (github.com)
  * started: 18aug14
  * alpha phase: 25oct14
- * beta phase: 
+ * beta phase: 10mar14
  * finished:
  *
  * a slightly more organized attempt to emulate the DOC shell from
@@ -74,8 +75,16 @@ docIface = {
   //		----++++****====menu methods====****++++----
   /*
    * summary:
-   *      global level method exists in order to reduce redundant code by
-   *      creating one global level method for exception throwing
+   *    pseudo-global level method exists in order to reduce redundant code by
+   *    creating one global level method for exception throwing
+   * setname:
+   *	the exception name to be given
+   * setmsg:
+   *	the exception message
+   * setnum:
+   *	exception number
+   * toString():
+   *	Used for returning a concise message on the exception
    */
   dDocException : function(setname, setmsg, setnum) {
         this.name = setname;
@@ -164,7 +173,8 @@ docIface = {
 	 *	Properly sets the bbs. and user. cursub/curgrp for a given
 	 *	room.
 	 * room:
-	 *	The msg_area.grp_list[].sub_list[] element of the room to jump to.
+	 *	The msg_area.grp_list[].sub_list[] element of the room to jump
+	 *	to
 	 * returns:
 	 *	String of the human-readable sub name.
 	 */
@@ -216,10 +226,6 @@ docIface = {
 	 *	available message sub-boards, executes a call to the
 	 *	functionality to search for it and find it, and jumps to
 	 *	it, if available (via yet another call)
-	 * returns:
-	 *	boolean true or false regarding success in finding the
-	 *	string and executing the sub-board change; not sure if
-	 *	there will be a reason to test for it or not
 	 */
     jump : function() {
 	var uChoice, ouah;
@@ -228,22 +234,24 @@ docIface = {
 
 	console.putmsg(green + high_intensity + "Jump to forum " +
 	  "name? -> ");
-	ouah = this.chk4Room(uChoice = console.getstr().toUpperCase());
+	try {
+	  ouah = this.chk4Room(uChoice = console.getstr().toUpperCase());
+	} catch (e) {
+	  if (e.number == 1) {
+	    console.putmsg(red + "No list returned\n");
+	  } else if (e.number == 2) {
+	    console.putmsg(red + high_intensity + "Room not found");
+	  }
+
+	  return;
+	}
 
 	if (userSettings.debug.navigation) {
 	  console.putmsg("Got back " + ouah.name + " from chk4Room\n");
 	}
 
-	if (ouah == null) {
-	  console.putmsg(red + "No list returned\n");
-	  return -1;
-	} else if (ouah == -1) {
-	  console.putmsg(yellow + high_intensity + "Room not found\n");
-	  return -2;
-	} else {
-	  //let's go
-	  bbs.log_str("Jumped to " + this.setSub(ouah));
-	}
+	bbs.log_str("Jumped to " + this.setSub(ouah));
+	return;
     },
       /*
 	* summary:
@@ -276,7 +284,8 @@ docIface = {
 	var rList = docIface.util.getRoomList(true);
 
 	if (rList == null) {
-	  return null;
+	  throw new dDocException("chk4Room() exception",
+		"Roomlist is null", 1);
 	}
 
 	for each (var rm in rList) {
@@ -290,7 +299,7 @@ docIface = {
 	}
 
 	//bad failover method, but whatever
-	return -1;
+	throw new dDocException("chk4Room() exception", "No match", 2);
     }
   },
   util : {
@@ -525,7 +534,12 @@ if (!debugOnly) {
 		//other msg base shit
 		case 'j':
 		//jump to new sub-board (room in DOCspeak)
-		  docIface.nav.jump();
+		  try {
+		    docIface.nav.jump();
+		  } catch (e) {
+		    console.putmsg(red + "Error in jump()\n" + e.message +
+			"\t#: " + e.number + "\n");
+		  }
 		  break;
 		//logout
 		case 'l':
