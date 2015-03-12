@@ -22,9 +22,11 @@ roomData = {
   //sub-objects
   roomRecords : {
     //--++==**methods**==++--
-
+        /*
+         * summary:
+         *      new defaults for new/undefined rooms
+         */
     defaultSettings : function() {
-	//basically just for new/undefined rooms
 	var settings = {
 	  moderator : "none set",
 	  info : []
@@ -34,7 +36,10 @@ roomData = {
   userRoomSettings : {
 	//this will include more than just zapped rooms for now, but we're
 	//just going to handle that for the time being
-
+	/*
+	 * summary:
+	 *	Empty for the filling
+	 */
 	defaultSettings : function() {
 		var roomList = {
 		  zRooms : []

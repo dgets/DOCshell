@@ -3,7 +3,7 @@
  * by Damon Getsman
  * 
  * started: 6 Nov 14
- * beta:
+ * beta: 10 Mar 15
  * finished:
  *
  * Moving the routines for a new poasting out of dmbase.js into their
@@ -37,7 +37,6 @@ poast = {
          *      selected
          */
     dispSaveMsgPrompt : function() {
-        //kind of self-explanatory, don't you think?
         var uc, done;
 
         do {
