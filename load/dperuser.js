@@ -114,7 +114,7 @@ userRecords = {
 	},
 	/*
 	 * summary:
-	 *	method loads the DDOC-specific settings file
+	 *	method loads the dDoc-specific settings file
 	 * returns:
 	 *	the per-user settings sub-object
 	 *	logs an error and returns null on failure

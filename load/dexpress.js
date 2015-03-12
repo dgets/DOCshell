@@ -21,8 +21,6 @@ load("sbbsdefs.js");
  */
 
 wholist = {
-  debugging : true,	//just for wholist/populate, etc
-
   /*
    * summary:
    *	Cycles through system's nodes, checking to see if they're in use
@@ -58,6 +56,7 @@ wholist = {
    *	enabled easily by ntwitch's modifications
    * ul:
    *	Array() of User objects for those currently online
+   * NOTE: This needs to be less of a monolith
    */
   list_long : function(ul) {
 	var timeon;
