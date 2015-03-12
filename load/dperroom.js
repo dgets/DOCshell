@@ -125,7 +125,6 @@ roomData = {
 	return chunky;
 
 	}
-    },
 	/*
 	 * summary:
 	 *	Method opens file of user's zapped rooms (still need to
@@ -135,7 +134,7 @@ roomData = {
 	 * returns:
 	 *	JSON object specified above
 	 */
-    snagUserZappedRooms : function() {
+      snagUserZappedRooms : function() {
 	var zappedFile = new File(userZapRecFilename);
 	var chunky;
 
@@ -171,7 +170,7 @@ roomData = {
 
 	  return chunky;
 	}
-    }
-
+      }
+  }
 }
 
