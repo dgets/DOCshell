@@ -104,16 +104,19 @@ docIface = {
 	 * summary:
 	 *	Method is utilized to set the BBS status correctly for
 	 *	the node at whatever applicable point
-	 * nodeStatus:
+	 * nodeAction:
 	 *	Found in nodedefs.js, the correct flag to set for where
 	 *	we are at right now
 	 */
-  setNodeStatus : function(nodeStatus) {
+  setNodeAction : function(nodeAction) {
         //set the node status
         if (userSettings.debug.misc) {
-          console.putmsg(red + "Checking node #: ");
+          console.putmsg(red + "Using node #: " + bbs.node_num + "\n");
         }
-        for (var ouah = 1; ouah <= maxnodes; ouah++) {
+	bbs.node_action = nodeAction;
+	system.node_list[bbs.node_num - 1].action = bbs.node_action;
+
+        /* for (var ouah = 0; ouah < maxnodes; ouah++) {
           if (userSettings.debug.misc) {
             console.putmsg(red + high_intensity + ouah + " ");
           }
@@ -121,10 +124,10 @@ docIface = {
             if (userSettings.debug.misc) {
                 console.putmsg(yellow + "Hit!  Trying to set status\n");
             }
-            system.node_list[ouah].action = nodeStatus;
+            system.node_list[ouah].action = nodeAction;
             break;
           }
-        }
+        } */
   },
   /*
    * summary:
@@ -135,8 +138,6 @@ docIface = {
    */
   getChoice : function() {
 	var cmd = "";
-
-	this.setNodeStatus(NODE_MAIN);
 
 	do {
 	  bbs.nodesync();	//check for xpress messages
@@ -399,7 +400,7 @@ docIface = {
 	}
 
 	//set node status here, maybe?
-	docIface.setNodeStatus(NODE_MAIN);
+	docIface.setNodeAction(NODE_MAIN);
 
 	//turn on asynchronous message arrival
 	bbs.sys_status &=~ SS_MOFF;

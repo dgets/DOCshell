@@ -168,6 +168,8 @@ msg_base = {
     handler : function(choice) {
 	var base = null;
 
+	docIface.setNodeAction(NODE_RMSG);
+
 	docIface.log_str_n_char(msg_base.log_header, choice);
 
         //which way do we go with this?
@@ -205,6 +207,7 @@ msg_base = {
 		break;
 	    }
 	    try {
+		docIface.setNodeAction(NODE_PMSG);
 		poast.addMsg(base, false, 'All');
 	    } catch (e) {
 		console.putmsg(red + high_intensity + "Error " +
@@ -283,6 +286,8 @@ msg_base = {
 	 *	display purposes only.
 	 */
   doMprompt : function(base, ndx) {
+	docIface.setNodeAction(NODE_RMSG);
+
 	base.close();  // Refresh base for any new messages
 	base.open();
 	if (userSettings.debug.message_scan) {

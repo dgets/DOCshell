@@ -288,6 +288,8 @@ express = {
   sendX : function() {
 	var recip, mTxt;
 
+	docIface.setNodeAction(NODE_CHAT);
+
 	//turn off incoming messages for a bit
 	bbs.sys_status |= SS_MOFF;
 
