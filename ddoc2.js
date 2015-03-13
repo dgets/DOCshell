@@ -18,7 +18,11 @@ load("load/dmbase.js");
 load("load/dpoast.js");
 load("load/dexpress.js");
 load("load/dperuser.js");
-load("load/dperroom.js");
+//load("load/dperroom.js");
+
+//other includes
+load("/sbbs/exec/load/sbbsdefs.js");
+load("/sbbs/exec/load/nodedefs.js");
 
 //pseudo-globals
 const excuse = "\n\nNot implemented yet. . .\n\n",
@@ -34,6 +38,7 @@ const green = ctrl_a + "g", yellow = ctrl_a + "y", blue = ctrl_a + "b",
 const debugFields = ["flow_control", "message_posting", "message_scan",
 		     "instant_messaging", "navigation", "file_io", "misc"];
 const readlnMax = 1536;
+const maxnodes = 10;
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
@@ -95,6 +100,32 @@ docIface = {
 	    return this.name + ": " + this.message + "\t#: " + this.number;
 	};
   },
+	/*
+	 * summary:
+	 *	Method is utilized to set the BBS status correctly for
+	 *	the node at whatever applicable point
+	 * nodeStatus:
+	 *	Found in nodedefs.js, the correct flag to set for where
+	 *	we are at right now
+	 */
+  setNodeStatus : function(nodeStatus) {
+        //set the node status
+        if (userSettings.debug.misc) {
+          console.putmsg(red + "Checking node #: ");
+        }
+        for (var ouah = 1; ouah <= maxnodes; ouah++) {
+          if (userSettings.debug.misc) {
+            console.putmsg(red + high_intensity + ouah + " ");
+          }
+          if (system.node_list[ouah].useron == user.number) {
+            if (userSettings.debug.misc) {
+                console.putmsg(yellow + "Hit!  Trying to set status\n");
+            }
+            system.node_list[ouah].action = nodeStatus;
+            break;
+          }
+        }
+  },
   /*
    * summary:
    *	Just a wrapper for console.getkey() at this point.  I honestly can't
@@ -104,6 +135,8 @@ docIface = {
    */
   getChoice : function() {
 	var cmd = "";
+
+	this.setNodeStatus(NODE_MAIN);
 
 	do {
 	  bbs.nodesync();	//check for xpress messages
@@ -142,9 +175,6 @@ docIface = {
 	bbs.log_key("?");
 	//we need to implement paging here
 	var brokenMenu = this.menu.split("\n");
-	var linecount = 0;	//not sure why this isn't being taken care
-				//of by Synchronet's normal routines...  Flag
-				//mis-set here, too, perhaps?
 
 	if (userSettings.debug.misc) {
 	  console.putmsg(red + "console.getlines(): " + 
@@ -152,13 +182,13 @@ docIface = {
 	    brokenMenu.length + "\n");
 	}
 
-	for (; linecount < brokenMenu.length; linecount++) {
-	  if ((linecount % (console.getlines() - 2)) == 0) {
+	for (var linecount = 0; linecount < brokenMenu.length; linecount++) {
+	  /* if (Number.isInteger(linecount % (console.getlines() - 2))) {
 		console.putmsg(green + "--" + high_intensity +
 		  "more" + normal + green + "--");
 		console.getkey();
 		console.putmsg("\n"); 
-	  }
+	  }  THIS NEEDS TO BE FIXED */
 	  console.putmsg(green + high_intensity + brokenMenu[linecount] +
 	    "\n");
 	}
@@ -367,6 +397,9 @@ docIface = {
 	} else {
 		bbs.log_str(user.alias + " entering dDOC shell");
 	}
+
+	//set node status here, maybe?
+	docIface.setNodeStatus(NODE_MAIN);
 
 	//turn on asynchronous message arrival
 	bbs.sys_status &=~ SS_MOFF;
