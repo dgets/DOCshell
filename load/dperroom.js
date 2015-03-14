@@ -75,8 +75,28 @@ roomData = {
 	 */
     saveRoomInfo : function(roomInfo) {
 	var blob = this.snagRoomInfoBlob();
+	var rmInfoz = JSON.parse(blob);
+	
+	rmInfoz.defaultSettings.infoCreationDate = Date.now();
+	rmInfoz.defaultSettings.info = roomInfo;
 
-	blob.
+	var infoFile = new File(this.userDir + this.roomSettingsFilename);
+
+	try {
+	  infoFile.open("w");
+	} catch (e) {
+	  throw new dDocException("Error saving roomInfoBlob", 
+		e.message , 1);
+	}
+
+	try {
+	  infoFile.write(rmInfoz);
+	} catch (e) {
+	  throw new dDocException("Error saving roomInfoBlob",
+		e.message, 2);
+	} finally {
+	  infoFile.close();
+	}
 
     },
 	/*
