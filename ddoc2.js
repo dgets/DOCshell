@@ -407,6 +407,8 @@ docIface = {
 	//turn off time limit
 	user.security.exemptions |= UFLAG_H;
 	//this is how it SHOULD work, anyway
+	//turn on user pauses
+	user.settings |= USER_PAUSE;
 
 	docIface.util.preSubBoard = bbs.cursub;
 	docIface.util.preMsgGroup = bbs.curgrp;
@@ -551,7 +553,7 @@ if (!debugOnly) {
 
 	switch (uchoice) {
 		//top menu
-		case '?' :
+		case '?':
 		  docIface.doMainMenu();
 		  break;
 		//message base entry commands
