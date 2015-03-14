@@ -80,6 +80,71 @@ poast = {
     },  
 	/*
 	 * summary:
+	 *	Modularizes the text snagging routine (w/optional maximum
+	 *	number of lines)
+	 * maxLines:
+	 *	Maximum number of lines (or null)
+	 * returns:
+	 *	Text array
+	 */
+    getTextBlob : function(maxLines) {
+      var mTxt = new Array();
+      var lNdx, uchoice;
+      var done = false, cntr = 0;
+
+      if (maxLines == null) {
+	maxLines = 5000;
+      }
+
+      do {
+          mTxt[lNdx] = console.getstr("", 79, K_WRAP);
+	  cntr++;
+
+          if (((mTxt[lNdx++] == "\03") && (upload)) ||
+              ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r")) ||
+	      (cntr = maxLines)) {
+            //end of message
+	    if (cntr >= maxLines) {
+		console.putmsg(red + high_intensity + "\nYou hit the " +
+		  "maximum message length\n");
+	    }
+            uchoice = this.dispSaveMsgPrompt();
+
+            switch (uchoice) {
+                /* note, abort is not checked for when this function
+                 * exits, and I'm pretty sure there are other little
+                 * bugs hiding out in here, as well */
+                case 'A':       //abort
+                  return null;
+                  break;
+                case 'C':       //continue
+                  lNdx--; cntr--;
+                  break;
+                case 'P':
+                  this.dispNewMsgHdr();
+                  for each (var derp in mTxt) {
+                    console.putmsg(green + high_intensity + derp);
+                  }
+                  //fall through to continue w/entry here, too
+                  break;
+                case 'S':
+                  return mTxt;
+                  break;
+                /* case 'X':
+                 * just skipping this right now since I'm impatient
+                 * about losing all of the recoding this morning and
+                 * feeling much more that time is of the essence :| */
+                default:
+                  console.putmsg(red + "I have no idea what just " +
+                                 "happened; event logged.\n");
+                  bbs.log_str("Unknown error in addMsg()");
+                  break;
+            }
+          }
+      } while (!done):
+    },
+	/*
+	 * summary:
 	 *	Method gathers the text for a posting/mail
 	 * upload:
 	 *	Boolean describing whether or not this is uploaded and
@@ -103,36 +168,8 @@ poast = {
 
         //going to use a generic subject for now; ignoring it from the
         //ddoc interface completely to see how it goes
-        do {
-          mTxt[lNdx] = console.getstr("", 79, K_WRAP);
-          if (((mTxt[lNdx++] == "\03") && (upload)) ||
-              ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r"))) {
-            //end of message
-            uchoice = this.dispSaveMsgPrompt();
-
-            switch (uchoice) {
-                /* note, abort is not checked for when this function
-                 * exits, and I'm pretty sure there are other little
-                 * bugs hiding out in here, as well */
-                case 'A':       //abort
-                  done = true;
-                  break;
-                case 'C':       //continue
-                  lNdx--;
-                  break;
-                case 'P':
-                  this.dispNewMsgHdr();
-                  for each (var derp in mTxt) {
-                    console.putmsg(green + high_intensity + derp);
-                  }
-                  //fall through to continue w/entry here, too
-                  break;
-                case 'S':
-		  if (base.cfg.code == "mail") {	//double check this
-		    //make sure that recip is set properly if this is a
-		    //mail posting
-
-		  }
+	mTxt = this.getTextBlob(null);
+	if (mTxt != null) {
                   try {
                         this.mWrite(mTxt, base, recip);
                         console.putmsg(green + high_intensity
@@ -143,20 +180,7 @@ poast = {
                                        "writing to " + base.name +
                                        "\nSorry; error is logged.\n");
                   }
-                  done = true;
-                  break;
-                /* case 'X':
-                 * just skipping this right now since I'm impatient
-                 * about losing all of the recoding this morning and
-                 * feeling much more that time is of the essence :| */
-                default:
-                  console.putmsg(red + "I have no idea what just " +
-                                 "happened; event logged.\n");
-                  bbs.log_str("Unknown error in addMsg()");
-                  break;
-            }
-          }
-        } while (!done);
+	}
     },
         /*
          * summary:

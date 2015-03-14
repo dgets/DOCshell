@@ -47,6 +47,19 @@ roomData = {
 		}
 	}
   },
+  roomSettingsUX : {
+	/*
+	 * summary:
+	 *	Resets room info
+	 */
+    changeRoomInfo : function() {
+	  var infoTxt = new Array();
+
+	  if ((infoTxt = poast.getTextBlob(this.maxInfoLines)) != null) {
+		//save the new room info
+		this.fileIO.saveRoomInfo(infoTxt);
+    }
+  },
   fileIO : {
     //getting and setting the different shit above
     //--++==**properties**==++--
@@ -56,6 +69,16 @@ roomData = {
 			 this.userRoomSettingsFilename,
 
     //--++==**methods**==++--
+	/*
+	 * summary:
+	 *	Method saves the text as room info
+	 */
+    saveRoomInfo : function(roomInfo) {
+	var blob = this.snagRoomInfoBlob();
+
+	blob.
+
+    },
 	/*
 	 * summary:
 	 *	Method is takes open JSON w/comments file and tests that
