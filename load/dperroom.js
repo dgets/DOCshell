@@ -29,6 +29,7 @@ roomData = {
     defaultSettings : function() {
 	var settings = {
 	  moderator : "none set",
+	  infoCreationDate : "",
 	  info : []
 	}
     }

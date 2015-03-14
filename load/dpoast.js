@@ -78,6 +78,86 @@ poast = {
 
         return uc;
     },  
+	/*
+	 * summary:
+	 *	Method gathers the text for a posting/mail
+	 * upload:
+	 *	Boolean describing whether or not this is uploaded and
+	 *	ended with ^D (not implemented yet)
+	 * base:
+	 *	MsgBase
+	 * recip:
+	 *	recipient, though this should not be necessary once
+	 *	functionality is broken up properly instead of so much
+	 *	cuntpaste right now
+	 * returns:
+	 *	Array of message text lines
+	 */
+    getMsgBody : function(upload, base, recip) {
+	var mTxt = new Array();
+	var lNdx, uchoice, done = false;
+
+	if (userSettings.debug.message_posting) {
+	  console.putmsg("Attempting post to: " + base.cfg.code + "\n");
+	}
+
+        //going to use a generic subject for now; ignoring it from the
+        //ddoc interface completely to see how it goes
+        do {
+          mTxt[lNdx] = console.getstr("", 79, K_WRAP);
+          if (((mTxt[lNdx++] == "\03") && (upload)) ||
+              ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r"))) {
+            //end of message
+            uchoice = this.dispSaveMsgPrompt();
+
+            switch (uchoice) {
+                /* note, abort is not checked for when this function
+                 * exits, and I'm pretty sure there are other little
+                 * bugs hiding out in here, as well */
+                case 'A':       //abort
+                  done = true;
+                  break;
+                case 'C':       //continue
+                  lNdx--;
+                  break;
+                case 'P':
+                  this.dispNewMsgHdr();
+                  for each (var derp in mTxt) {
+                    console.putmsg(green + high_intensity + derp);
+                  }
+                  //fall through to continue w/entry here, too
+                  break;
+                case 'S':
+		  if (base.cfg.code == "mail") {	//double check this
+		    //make sure that recip is set properly if this is a
+		    //mail posting
+
+		  }
+                  try {
+                        this.mWrite(mTxt, base, recip);
+                        console.putmsg(green + high_intensity
+                              + "Message saved\n");
+                  } catch (e) {
+                        bbs.log_str("Err writing to " + base.name);
+                        console.putmsg(red + "There was a problem " +
+                                       "writing to " + base.name +
+                                       "\nSorry; error is logged.\n");
+                  }
+                  done = true;
+                  break;
+                /* case 'X':
+                 * just skipping this right now since I'm impatient
+                 * about losing all of the recoding this morning and
+                 * feeling much more that time is of the essence :| */
+                default:
+                  console.putmsg(red + "I have no idea what just " +
+                                 "happened; event logged.\n");
+                  bbs.log_str("Unknown error in addMsg()");
+                  break;
+            }
+          }
+        } while (!done);
+    },
         /*
          * summary:
          *      Primary method for text entry for a message into the
@@ -94,9 +174,9 @@ poast = {
          * NOTE: This method is way too big and needs to be chopped the
          * fuck up in order to make this more readable and more reusable
          */
-        var mTxt = new Array();
-        var lNdx = 0, done = false;
-        var uchoice;
+        //var mTxt = new Array();
+        //var lNdx = 0, done = false;
+        //var uchoice;
 
 	//turn off instant messages coming in while posting
 	bbs.sys_status |= SS_MOFF;
@@ -112,7 +192,9 @@ poast = {
 
         //going to use a generic subject for now; ignoring it from the
         //ddoc interface completely to see how it goes
-        do {
+	this.getMsgBody(upload, base, recip);
+
+        /*do {
           mTxt[lNdx] = console.getstr("", 79, K_WRAP);
           if (((mTxt[lNdx++] == "\03") && (upload)) ||
               ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r"))) {
@@ -123,7 +205,7 @@ poast = {
 		/* note, abort is not checked for when this function
  		 * exits, and I'm pretty sure there are other little
  		 * bugs hiding out in here, as well */
-                case 'A':       //abort
+                /*case 'A':       //abort
                   done = true;
                   break;
                 case 'C':       //continue
@@ -150,37 +232,21 @@ poast = {
 		  }
 		  done = true;
 		  break;
-		  /*
-                  if (this.mWrite(mTxt, base, recip) < 0) {
-                    console.putmsg(red + "There was a problem " +
-                                   "writing to " + base.name +
-                                   "\nSorry; error is logged.\n");
-                    //put it some code to cuntpaste it back to the
-                    //screen or something of the sort so that the user
-                    //has a chance to salvage what they wrote, maybe?
-                    log(LOG_WARN, "Err writing to " + base.name);
-                  } else {
-                    console.putmsg(cyan + high_intensity +
-                                   "Message saved successfully\n");
-                  }
-		  done = true;
-                  break;
-		  */
                 /* case 'X':
                  * just skipping this right now since I'm impatient
                  * about losing all of the recoding this morning and
                  * feeling much more that time is of the essence :| */
-                default:
+                /*default:
                   console.putmsg(red + "I have no idea what just " +
                                  "happened; event logged.\n");
                   bbs.log_str("Unknown error in addMsg()");
                   break;
             }
           }
-        } while (!done);
+        } while (!done); */
 
 	//turn instant messages back on
-	bbs.sys_status ^= SS_MOFF;
+	bbs.sys_status |= SS_MOFF;
     }, 
 	/*
 	 * summary:
