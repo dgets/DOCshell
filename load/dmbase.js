@@ -37,7 +37,8 @@ msg_base = {
           "<b>ack           <D>elete msg      <e>nter msg\n" +
           "<E>nter (upload) <h>elp            <i>nfo (forum)\n" +
           "<n>ext           <p>rofile author  <s>top\n" +
-          "<w>ho's online   <x>press msg      <X>press on/off\n\n",
+          "<w>ho's online   <x>press msg      <X>press on/off\n\n" +
+	  "<I> change room info\n",
         /*
          * summary:
          *      Reads choice for valid selection
@@ -95,6 +96,14 @@ msg_base = {
                   break;
                 case 'D':
                 case 'i':
+		  //display room info
+		  console.putmsg(green + high_intensity + "\nInfo:\n" +
+			roomSettings[bbs.cursub].info + "\n");
+		  break;
+		case 'I':
+		  //change room info
+		  roomData.roomSettingsUX.promptUserForRoomInfo();
+		  break;
                 case 'p':
                 case 'w':
                   console.putmsg(yellow + "Not supported (yet)" +

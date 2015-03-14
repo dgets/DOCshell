@@ -50,6 +50,22 @@ roomData = {
   roomSettingsUX : {
 	/*
 	 * summary:
+	 *	Call to prompt user and change room info
+	 */
+    promptUserForRoomInfo : function() {
+	//can we moderate this?
+	if ((roomSettings.moderator == user.alias) ||
+	    ((roomSettings.moderator == "none set") &&
+	     (user.security.level >= 80))) {
+		console.putmsg(green + high_intensity + 
+			"Enter new room info here:\n");
+		this.changeRoomInfo();
+	} else {
+	  console.putmsg(yellow + high_intensity + "You're not allowed!\n\n");
+	}
+    },
+	/*
+	 * summary:
 	 *	Resets room info
 	 */
     changeRoomInfo : function() {
@@ -58,6 +74,7 @@ roomData = {
 	  if ((infoTxt = poast.getTextBlob(this.maxInfoLines)) != null) {
 		//save the new room info
 		this.fileIO.saveRoomInfo(infoTxt);
+          }
     }
   },
   fileIO : {

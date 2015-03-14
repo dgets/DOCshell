@@ -42,7 +42,7 @@ const maxnodes = 10;
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
-userSettings = null;
+userSettings = null; roomSettings = null;
 
 /*
  * obviously, with all of the other places that we've got debugging
@@ -376,6 +376,7 @@ docIface = {
 	 * 	a scratchpad in the $SBBSHOME/user/ directory, as well.
 	 */
     initDdoc : function() {
+	//load user settings
 	userSettings = userRecords.defaultSettings(user.number);
 	try {
           userSettings = userRecords.userDataIO.loadSettings(user.number);
@@ -383,6 +384,15 @@ docIface = {
 	  console.putmsg(red + high_intensity +
 		"Loading userSettings in initDdoc:\n");
 	  console.putmsg(red + e.toString() + "\n");
+	}
+
+	//load room settings
+	try {
+	  roomSettings = roomData.fileIO.snagRoomInfoBlob();
+	} catch (e) {
+	  console.putmsg(red + high_intensity + "Loading room data in " +
+		"initDdoc:\n");
+	  console.putmsg(red + e.message + "\n");
 	}
 
 	if (userSettings.debug.misc) {
