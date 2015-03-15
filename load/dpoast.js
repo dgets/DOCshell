@@ -98,17 +98,16 @@ poast = {
 
       do {
           mTxt[lNdx] = console.getstr("", 79, K_WRAP);
-	  cntr++;
 
           if (((mTxt[lNdx++] == "\03") && (upload)) ||
               ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r")) ||
-	      (cntr = maxLines)) {
+	      (cntr++ == maxLines)) {
             //end of message
 	    if (cntr >= maxLines) {
 		console.putmsg(red + high_intensity + "\nYou hit the " +
 		  "maximum message length\n");
 	    }
-            uchoice = this.dispSaveMsgPrompt();
+            uchoice = this.dispSaveMsgPrompt().toUpperCase();
 
             switch (uchoice) {
                 /* note, abort is not checked for when this function
@@ -141,7 +140,7 @@ poast = {
                   break;
             }
           }
-      } while (!done):
+      } while (!done);
     },
 	/*
 	 * summary:
