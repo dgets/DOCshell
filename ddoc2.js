@@ -44,12 +44,6 @@ var stillAlive = true;	//ask for advice on the 'right' way to do this
 
 userSettings = null; roomSettings = null;
 
-/*
- * obviously, with all of the other places that we've got debugging
- * referenced, we need to go around and make them dependent upon this, 
- * even before we start introducing granularity into the whole mixture
- */
-
 docIface = {
   //top level menu
   //menu properties
@@ -115,19 +109,6 @@ docIface = {
         }
 	bbs.node_action = nodeAction;
 	system.node_list[bbs.node_num - 1].action = bbs.node_action;
-
-        /* for (var ouah = 0; ouah < maxnodes; ouah++) {
-          if (userSettings.debug.misc) {
-            console.putmsg(red + high_intensity + ouah + " ");
-          }
-          if (system.node_list[ouah].useron == user.number) {
-            if (userSettings.debug.misc) {
-                console.putmsg(yellow + "Hit!  Trying to set status\n");
-            }
-            system.node_list[ouah].action = nodeAction;
-            break;
-          }
-        } */
   },
   /*
    * summary:
@@ -193,8 +174,6 @@ docIface = {
 	  console.putmsg(green + high_intensity + brokenMenu[linecount] +
 	    "\n");
 	}
-
-	//console.putmsg(this.menu);
   },
 
   //sub-objects
@@ -234,6 +213,7 @@ docIface = {
 
 	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
 	    // TODO: tie this into the zapped rooms list once it is finished
+
 	    if (true /* if (room not zapped) */ ) {
 		mBase = msg_base.openNewMBase(subList[ndx].code);
 		if (mBase == null) break;
@@ -297,6 +277,7 @@ docIface = {
 	    msg_area.sub[bbs.cursub_code].scan_ptr = mBase.total_msgs;
 	    mBase.close();
 	}
+
 	// use findNew to change to next room with unread messages
 	this.findNew();
     },
@@ -329,7 +310,6 @@ docIface = {
 	  }
 	}
 
-	//bad failover method, but whatever
 	throw new dDocException("chk4Room() exception", "No match", 2);
     }
   },
@@ -352,9 +332,7 @@ docIface = {
 	 *	above, it returns an array of sub-board objects
 	 *	If running non-confined, returns null
 	 */
-    getRoomList : function(/*in the future, group here too*/) {
-	//var debugging = true;
-
+    getRoomList : function(/*in the future, floors here too*/) {
 	if (userSettings.confined) {
 	  	//damn we don't need anything complex, durrr
 		if (userSettings.debug.misc) {
@@ -413,10 +391,10 @@ docIface = {
 	docIface.setNodeAction(NODE_MAIN);
 
 	//turn on asynchronous message arrival
-	bbs.sys_status &=~ SS_MOFF;
+	bbs.sys_status &= ~SS_MOFF;
 	//turn off time limit
 	user.security.exemptions |= UFLAG_H;
-	//this is how it SHOULD work, anyway
+
 	//turn on user pauses
 	user.settings |= USER_PAUSE;
 
@@ -444,9 +422,12 @@ docIface = {
 	user.settings &= ~USER_ASK_NSCAN;
 	user.settings &= ~USER_ASK_SSCAN;
 	user.settings &= ~USER_ANFSCAN;
+
 	//turn off garish interface settings
-	/* user.settings &= USER_NOPAUSESPIN;	//set this, too, why not
-	user.settings &= USER_SPIN; */
+	user.settings &= ~USER_NOPAUSESPIN;	//set this, too, why not
+	user.settings &= ~USER_SPIN;
+	//trying this again with proper negation (hopefully we don't hose
+	//all of the flags again this time around)
     },
 	/*
 	 * summary:
@@ -522,11 +503,6 @@ var uchoice;
 
 docIface.util.initDdoc();
 
-/*
- * changing this to user.curgrp isn't going to work as the user object
- * has no curgrp.  need to find out if bbs.curgrp is going to work, and
- * if not, how do we reverse lookup a group from a sub code name
- */
 if (userSettings.confined && (bbs.curgrp != topebaseno) && 
     userSettings.debug.flow_control) {
   //are we already in a dystopian area?
@@ -612,16 +588,7 @@ if (!debugOnly) {
 		  break;
 		case 'N':
 		  bbs.select_shell();
-		  /*
-		   * please note that after my torpor finishes and I get
-		   * back on this tomorrow that this also requires a call
-		   * to resetting the defaults/logout procedure for dDOC,
-		   * and then finally (perhaps alternate way to dump the
-		   * active shell) and then to respawn the user's newly
-		   * selected shell; talk to the dues on Synchronet IRC
-		   * about the best way to handle this or look in the 
-		   * classic shell code
-		   */
+
 		  docIface.util.quitDdoc();
 		  stillAlive = false;
 		  break;
@@ -670,5 +637,4 @@ console.putmsg(yellow + high_intensity + "\n\nGoodbye!\n");
 if (alwaysLogout) {
 	bbs.logout();
 }
-
 

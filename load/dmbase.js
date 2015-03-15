@@ -181,7 +181,6 @@ msg_base = {
 
 	docIface.log_str_n_char(msg_base.log_header, choice);
 
-        //which way do we go with this?
         switch (choice) {
           //purely message related functionality
           case 'n':     //read new
@@ -263,7 +262,6 @@ msg_base = {
           }
          }
         } else {
-         //uMsgGrp = msg_area.grp_list[topebaseno].sub_list
          for each (uGrpSub in msg_area.grp_list[topebaseno].sub_list) {
                 console.putmsg("\t" + uGrpSub.description + "\n");
          }
@@ -272,10 +270,6 @@ msg_base = {
     }
 
   },
-  //msg_base properties
-  //these may not be determined dynamically (pretty sure), so this
-  //will be a bug that needs to be fixed inline on a per-message read
-  //basis
   menu : green + high_intensity + "\n\n<?> help\t\t" +
          "<a>gain\t\t<A>gain (no More prompt)\n<b>ack\t\t<D>" +
          "elete msg\t<e>nter msg\n<E>nter (upload)\t<h>elp\t\t\t" +
@@ -327,9 +321,13 @@ msg_base = {
 	    breaks = true;
 	}
 
-        //try/catch this
-        mHdr = base.get_msg_header(ptr);
-        mBody = base.get_msg_body(ptr);
+        try {
+          mHdr = base.get_msg_header(ptr);
+          mBody = base.get_msg_body(ptr);
+	} catch (e) {
+	  throw new dDocException("Error reading mHdr/mBody in dispMsg()",
+		e.message, 1);
+	}
 
 	if (userSettings.debug.message_scan) {
 	    console.putmsg(red + "ptr: " + ptr + "\tbase.last_msg: "
@@ -366,8 +364,6 @@ msg_base = {
    */
   openNewMBase : function(mb) {
         try {  
-	  //take care of this in calling code
-          //mBase.close();
           mBase = new MsgBase(mb);
 	  mBase.open();
           if (userSettings.debug.message_scan) {
@@ -436,7 +432,7 @@ msg_base = {
 	}
 
 	//primary message scan loop
-	while (true) {	// a bit shady, but we exit from within the switch/case
+	while (true) {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg(red + "In main scanSub() loop\ttmpPtr: "
 		      + tmpPtr + " total_msgs: " + mBase.total_msgs
@@ -455,15 +451,14 @@ msg_base = {
 			console.putmsg(red + "DEBUG: Reversing direction\n");
 		    }
 		    inc *= -1;
-		    //Fall through to read message
-		    //break;
+		    //Fall through to read message (no 'break' purposeful)
 		case 0:		// Next message
 		    if (userSettings.debug.message_scan) {
 			console.putmsg("DEBUG: Next Msg\n");
 		    }
 		    if ((tmpPtr <= 0) && (inc == -1)) {
 			mBase.close();
-			return 0;   // do we reverse scan from room to room also?
+			return 0;   //do reverse room to room is no
 		    } else if ((tmpPtr >= mBase.total_msgs) && (inc == 1)) {
 			mBase.close();
 			return 1;   // skip to next room

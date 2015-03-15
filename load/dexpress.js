@@ -86,15 +86,9 @@ wholist = {
 
 	    console.putmsg(yellow + high_intensity + u.alias);
 
-	    /* tabsInUname = (u.alias.length % 8);
-	    while (tabsInUname < 3) {
-		console.putmsg("\t");
-		tabsInUname++;
-	    } */
 	    if (u.alias.length < 8) {
 		console.putmsg("\t");
 	    }
-	    //console.putmsg("\t");
 
 	    //how much to get to tabstop?
 	    console.putmsg("\t" + cyan + high_intensity + u.ip_address);
@@ -165,10 +159,6 @@ wholist = {
 		console.putmsg("\t\t");
 	  }
 
-	  //pretty sure the above replaces this right now
-	  /* if ((ouah > 0) && ((ouah % cols) == 0)) {
-		console.putmsg("\n");
-	  } */
 	}
 
 	console.putmsg("\n");
@@ -231,7 +221,7 @@ express = {
 	  full += "\n";
 
 	  return (full);
-		//postprocessing elsewhere, gotta hurry up 2nite
+	  //postprocessing elsewhere, gotta hurry up 2nite
 	}
   },
   /*
