@@ -154,7 +154,7 @@ poast = {
 	 * returns:
 	 *	Array of message text lines
 	 */
-    getMsgBody : function(upload, base, recip) {
+    saveMsgBody : function(upload, base, recip) {
 	var mTxt = new Array();
 	var lNdx, uchoice, done = false;
 
@@ -209,7 +209,7 @@ poast = {
 
         //going to use a generic subject for now; ignoring it from the
         //ddoc interface completely to see how it goes
-	this.getMsgBody(upload, base, recip);
+	this.saveMsgBody(upload, base, recip);
 
 	//turn instant messages back on
 	bbs.sys_status |= SS_MOFF;

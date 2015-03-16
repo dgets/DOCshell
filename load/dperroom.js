@@ -57,8 +57,9 @@ roomData = {
 	if ((roomSettings.moderator == user.alias) ||
 	    ((roomSettings.moderator == "none set") &&
 	     (user.security.level >= 80))) {
-		console.putmsg(green + high_intensity + 
-			"Enter new room info here:\n");
+		poast.dispNewMsgHdr();
+		//console.putmsg(green + high_intensity + 
+		//	"Enter new room info here:\n");
 		this.changeRoomInfo();
 	} else {
 	  console.putmsg(yellow + high_intensity + "You're not allowed!\n\n");
