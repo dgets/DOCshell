@@ -25,13 +25,20 @@ roomData = {
         /*
          * summary:
          *      new defaults for new/undefined rooms
+	 * roomid:
+	 *	sub-board number to set the info on
+	 * return:
+	 *	returns JSON object of room setting
          */
-    defaultSettings : function() {
+    defaultSettings : function(roomid) {
 	var settings = {
+	  roomNo : roomid,
 	  moderator : "none set",
-	  infoCreationDate : "",
+	  infoCreationDate : null,
 	  info : []
 	}
+
+	return settings;
     }
   },
   userRoomSettings : {
@@ -40,11 +47,18 @@ roomData = {
 	/*
 	 * summary:
 	 *	Empty for the filling
+	 * userid:
+	 *	User # for modification/writing settings with
+	 * return:
+	 *	Returns JSON object of the user's zapped list
 	 */
-	defaultSettings : function() {
+	defaultSettings : function(userid) {
 		var roomList = {
+		  user : userid,
 		  zRooms : []
 		}
+
+		return roomList;
 	}
   },
   roomSettingsUX : {
