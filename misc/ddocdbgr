@@ -1,0 +1,4 @@
+{ "user": "Khelair",  "debug": { "flow_control": "true", "message_posting": "false", "message_scan": "true", "instant_messaging": "false", "navigation": "true", "file_io": "true", "misc": "true" }, "info": "Eat a dick" }
+{ "user": "Ddoctest", "debug": { "flow_control": "true", "message_posting": "false", "message_scan": "true", "instant_messaging": "false", "navigation": "true", "file_io": "true", "misc": "true" }, "info": "dDOC shell testing account" }
+{ "user": "neuro", "debug": { "flow_control": "true", "message_posting": "true", "message_scan": "true", "instant_messaging": "false", "navigation": "true", "file_io": "true", "misc": "true" }, "info" : "Phyre of the Mind" }
+{ "user": "Ntwitch", "debug": { "flow_control": "true", "message_posting": "true", "message_scan": "true", "instant_messaging": "false", "navigation": "true", "file_io": "true", "misc": "true" }, "info": "Nervous Twitch" }

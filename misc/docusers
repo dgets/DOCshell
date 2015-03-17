@@ -1,0 +1,20 @@
+   #
+   # This is a simple test header to test comment skipping.
+   #
+{
+  "49": {
+    "alias": "Ddoctest",
+    "info": [],
+    "doing": "Consuming phallus",
+    "confined": true,
+    "debug": {
+      "flow_control": false,
+      "message_posting": true,
+      "message_scan": true,
+      "instant_messaging": false,
+      "navigation": false,
+      "file_io": true,
+      "misc": true
+    }
+  }
+}

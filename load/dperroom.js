@@ -32,7 +32,9 @@ roomData = {
          */
     defaultSettings : function(roomid) {
 	var settings = {
-	  roomNo : roomid,
+	  //roomNo : roomid,
+	  //no need for this, we're organized at the level above in the
+	  //JSON structure here
 	  moderator : null,
 	  infoCreationDate : null,
 	  info : []
