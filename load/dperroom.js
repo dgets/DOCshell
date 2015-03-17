@@ -139,7 +139,7 @@ roomData = {
 	}
 
 	try {
-	  infoFile.write(rmInfoz);
+	  infoFile.write(blob);
 	} catch (e) {
 	  throw new dDocException("Error saving roomInfoBlob",
 		e.message, 2);
