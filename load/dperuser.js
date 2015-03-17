@@ -207,8 +207,9 @@ userRecords = {
 	    var outfile = new File(userRecords.userDir
 		  + userRecords.settingsFilename);
 
-	    if (json === null)
+	    if (json === null) {
 		json = JSON.parse("{}");
+	    }
 
 	    // Update and stringify JSON
 	    json[userid.toString()] = settings;

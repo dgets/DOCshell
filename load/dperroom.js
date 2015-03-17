@@ -33,7 +33,7 @@ roomData = {
     defaultSettings : function(roomid) {
 	var settings = {
 	  roomNo : roomid,
-	  moderator : "none set",
+	  moderator : null,
 	  infoCreationDate : null,
 	  info : []
 	}
@@ -69,7 +69,7 @@ roomData = {
     promptUserForRoomInfo : function() {
 	//can we moderate this?
 	if ((roomSettings.moderator == user.alias) ||
-	    ((roomSettings.moderator == "none set") &&
+	    ((roomSettings.moderator == null) &&
 	     (user.security.level >= 80))) {
 		poast.dispNewMsgHdr();
 		//console.putmsg(green + high_intensity + 
@@ -107,12 +107,27 @@ roomData = {
 	 */
     saveRoomInfo : function(roomInfo) {
 	var blob = this.snagRoomInfoBlob();
-	var rmInfoz = JSON.parse(blob);
-	
-	rmInfoz.defaultSettings.infoCreationDate = Date.now();
-	rmInfoz.defaultSettings.info = roomInfo;
+	/*
+	 * yeah this totally wasn't right
+	 * var rmInfoz = JSON.parse(blob);
+ 	 *
+	 * rmInfoz.defaultSettings.infoCreationDate = Date.now();
+	 * rmInfoz.defaultSettings.info = roomInfo;
+	*/
 
 	var infoFile = new File(this.userDir + this.roomSettingsFilename);
+
+	if (blob === null) {
+	  blob = JSON.parse("{}");
+	}
+
+	//assuming at this point that moderatorship has been checked against
+	//the current user already
+	blob[user.cursub] = {
+		moderator : user.alias,
+		infoCreationDate : Date.now(),
+		info : roomInfo
+	}
 
 	try {
 	  infoFile.open("w");
@@ -246,7 +261,7 @@ roomData = {
 
 	  return chunky;
 	}
-      }
+    }
   }
 }
 
