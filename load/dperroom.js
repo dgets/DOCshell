@@ -30,11 +30,10 @@ roomData = {
 	 * return:
 	 *	returns JSON object of room setting
          */
-    defaultSettings : function(roomid) {
+    defaultSettings : function() {
 	var settings = {
 	  //roomNo : roomid,
-	  //no need for this, we're organized at the level above in the
-	  //JSON structure here
+	  //no need for that as the next higher level is ordered by code
 	  moderator : null,
 	  infoCreationDate : null,
 	  info : []

@@ -2,16 +2,18 @@
  * dmbase.js
  *
  * by: Damon Getsman
- * contributing/refactoring also by: @Ntwitch (github.com)
  * alpha phase: 25oct14
- * beta phase: 11mar15
+ * beta phase: 
  * started: 21sept14
  * finished:
- *
- * All routines for accessing the message base are ending up here.  I did 
- * try to break it up a bit, but it's still got some monoliths forming in
- * the structures, so there'll be another pass to break it down more once
- * I get it through and into active beta testing. 
+ * 
+ * Moving this to its own file as it's started becoming one hell of a
+ * monolith.  It looks like I might've overlooked some functionality in
+ * the Synchronet ssjs libraries that might be able to fix up some code
+ * that'll now be redundant, like the word-wrap bit.  Need to look
+ * through that a bit more.  Other than that, this is just a very
+ * lobotomized text entry system, and the much simpler subsystems like a
+ * newscan and shit.
  */
 
 load("sbbsdefs.js");
@@ -33,12 +35,12 @@ msg_base = {
          */
   read_cmd : {
         rcMenu : "\n" + green + high_intensity +
-          "<?> help         <a>gain           <A>gain (no More prompt)\n" +
+          "<?> help         <a>gain           <A>gain (no More" +
+          "prompt)\n" +
           "<b>ack           <D>elete msg      <e>nter msg\n" +
           "<E>nter (upload) <h>elp            <i>nfo (forum)\n" +
           "<n>ext           <p>rofile author  <s>top\n" +
-          "<w>ho's online   <x>press msg      <X>press on/off\n\n" +
-	  "<I> change room info\n",
+          "<w>ho's online   <x>press msg      <X>press on/off\n\n",
         /*
          * summary:
          *      Reads choice for valid selection
@@ -56,60 +58,35 @@ msg_base = {
           var valid = false;
           var hollaBack = 0;    //can be used to switch dir, etc
 
-	  if (base == undefined) {
-	    throw new docIface.dDocException("base not defined to rcChoice()");
-	  }
-
-	  if (userSettings.debug.message_posting) {
-	    console.putmsg(red + "rcChoice() called w/base: " + base.cfg.code +
-		"\tndx: " + ndx + "\n");
-	  }
-
           while (!valid) {
-	    msg_base.doMprompt(base,ndx);
-            var uchoice = "";
-
-            do {
-        	bbs.nodesync();       //check for xpress messages
-        	uchoice = console.inkey(K_NOECHO, 1000);
-            } while (uchoice == "");
-
+            uchoice = console.getkey();
             switch (uchoice) {
                 case '?':
                 case 'h':
-                  console.putmsg(this.rcMenu);
+                  console.putmsg(rcMenu);
                   break;
                 case 'a':
-		  console.putmsg(green + high_intensity + "Again\n");
-		  msg_base.dispMsg(base, ndx, true);
-		  break;
                 case 'A':
-		  console.putmsg(green + high_intensity + 
-			"Again (no breaks)\n");
-		  msg_base.dispMsg(base, ndx, false);
-		  break;
+                  console.putmsg(yellow + "Not supported (yet)" +
+                        "...\n");
+                  break;
                 case 'b':
                   valid = true; hollaBack = 2;
 		  docIface.log_str_n_char(this.log_header, 'b');
-                  console.putmsg(green + high_intensity + "Back (change " +
+                  console.putmsg(green + "Back (change " +
                         "direction)...\n");
                   break;
                 case 'D':
                 case 'i':
-		  //display room info
-		  console.putmsg(green + high_intensity + "\nInfo:\n" +
-			roomSettings[bbs.cursub].info + "\n");
-		  break;
-		case 'I':
-		  //change room info
-		  roomData.roomSettingsUX.promptUserForRoomInfo();
-		  break;
                 case 'p':
                 case 'w':
+                case 'x':
+                case 'X':
                   console.putmsg(yellow + "Not supported (yet)" +
                         "...\n");
                   break;
                 case 'E':
+                  //dispMsg();  //how to pass parameters?
                   console.putmsg(red + "\nI'm too dumb yet, just " +
 				 "wait\n");
                   break;
@@ -119,40 +96,34 @@ msg_base = {
                   console.putmsg(yellow + high_intensity + "Stop\n");
                   break;
                 case 'e':
-		  
+                  valid = true; //I think we want to change this
                   console.putmsg(green + high_intensity +
-                        "Enter message\n");
-		  if (userSettings.debug.message_posting) {
-			console.putmsg(red + "Adding message via " +
-			  "poast.addMsg() where base: " +
-			  base.cfg.name + "\n");
-		  }
-
-		  try {
-                    poast.addMsg(base, false, 'All');  //not an upload
-		  } catch (e) {
-		    console.putmsg(red + high_intensity + "Error " +
-			"in poast.addMsg(): " + e.message + "\n");
-		  }
-
+                        "Enter message\n\n");
+                  addMsg(base, false, 'All');  //not an upload
                   break;
 		case ' ':
 		case 'n':
 		  valid = true; hollaBack = 0;
 		  docIface.log_str_n_char(this.log_header, 'n');
-		  console.putmsg(green + high_intensity + "Next\n");
+		  console.putmsg("\n");
 		  break;
-		case 'l':
-		  docIface.util.quitDdoc();
-		  break;
-		case 'x':
-		case 'X':
-		  express.sendX();
+		case 'd':
+		  try {
+		  	msg_base.deleteMsg(base, ndx);
+		  } catch (e) {
+			console.putmsg(red + "Error deleting message!\n" +
+			  e.message + "\n");
+		  }
 		  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
+                  //console.putmsg(msg_base.mprompt);
+                  //uchoice = console.getkey();
                   break;
             }
+
+          //write the prompt again here, durrr; other flow control
+          //issues, as well, here probably
           }
 
         return hollaBack;
@@ -173,58 +144,30 @@ msg_base = {
          *      into the message reading routines in general
          * choice: char
          *      Code for the menu choice
+         * confined: Boolean
+         *      true if restricted to Dystopian Utopia message group
          */
-    handler : function(choice) {
-	var base = null;
-
-	docIface.setNodeAction(NODE_RMSG);
-
+    handler : function(choice, confined) {
 	docIface.log_str_n_char(msg_base.log_header, choice);
 
+        //which way do we go with this?
         switch (choice) {
           //purely message related functionality
           case 'n':     //read new
-	    console.putmsg(green + high_intensity + "Read new\n");
-	    try {
-		msg_base.readNew();
-	    } catch (e) {
-		console.putmsg(yellow + "Exception reading new: " +
-		      e.toString() + "\n");
-	    }
+	    //NOTE: we'll need an enclosing loop to route through
+	    //separate sub-boards now
+	    msg_base.scanSub(msg_area.sub[bbs.cursub_code], true);
+            //console.getkey();
             break;
-	  case 'b':	// scan backwards
-	    console.putmsg(green + high_intensity + "Read backward\n");
-	    try {
-	        msg_base.scanSub(msg_area.sub[bbs.cursub_code], false);
-	    } catch (e) {
-		console.putmsg(yellow + "Exception reading backwards: " +
-		      e.toString() + "\n");
-	    }
-	    break;
           case 'k':     //list scanned bases
-	    console.putmsg(green + high_intensity + "Known rooms list\n");
-            this.listKnown();
+            this.listKnown(confined);
             break;
           case 'e':     //enter a normal message
-	    console.putmsg(green + high_intensity + "Enter message\n");
-
-	    base = msg_base.openNewMBase(user.cursub);
-	    if (base === null) {
-		console.putmsg(yellow + "Could not open MsgBase: "
-		      + user.cursub + "\n");
-		break;
-	    }
-	    try {
-		docIface.setNodeAction(NODE_PMSG);
-		poast.addMsg(base, false, 'All');
-	    } catch (e) {
-		console.putmsg(red + high_intensity + "Error " +
-		      "in poast.addMsg(): " + e.message + "\n");
-	    }
+            poast.addMsg(docIface.nav.chk4Room(user.cursub), false, 'All');
             break;
           //other functionality tie-ins
           case 'w':     //normal wholist
-            wholist.list_long(wholist.populate());
+            wholist.list_long();
             break;
           case 'W':     //short wholist
             wholist.list_short(wholist.populate());
@@ -232,13 +175,9 @@ msg_base = {
           case 'x':     //express msg
             express.sendX();
             break;
-	  case 'l':	//logout
-	    docIface.util.quitDdoc();
-	    break; 
           default:
-            if (userSettings.debug.navigation) {
+            if (debugging)
               console.putmsg("\nNot handled yet . . .\n\n");
-	    }
             break;
         }
     },
@@ -246,14 +185,16 @@ msg_base = {
          * summary:
          *      Lists all known message sub-boards (broken down by
          *      message base group, optionally)
+         * confined: Boolean
+         *      true if restricted to Dystopian Utopia message group
          */
-    listKnown : function() {
-        console.putmsg("\n" + green + high_intensity);
+    listKnown : function(confined) {
+        console.putmsg("\n\n" + green + high_intensity);
 
         //we can fuck with multi-columns later
-        if (!userSettings.confined) {
+        if (!confined) {
          for each (uMsgGrp in msg_area.grp_list) {
-          if (userSettings.debug.navigation) {
+          if (debugging) {
                 console.putmsg(uMsgGrp.description + "\n\n");
           }
           for each (uGrpSub in uMsgGrp.sub_list) {
@@ -262,14 +203,20 @@ msg_base = {
           }
          }
         } else {
+         //uMsgGrp = msg_area.grp_list[topebaseno].sub_list
          for each (uGrpSub in msg_area.grp_list[topebaseno].sub_list) {
                 console.putmsg("\t" + uGrpSub.description + "\n");
          }
         }
         console.putmsg("\n");
     }
+    //[left off] RIGHT FAHKIN' HEAH
 
   },
+  //msg_base properties
+  //these may not be determined dynamically (pretty sure), so this
+  //will be a bug that needs to be fixed inline on a per-message read
+  //basis
   menu : green + high_intensity + "\n\n<?> help\t\t" +
          "<a>gain\t\t<A>gain (no More prompt)\n<b>ack\t\t<D>" +
          "elete msg\t<e>nter msg\n<E>nter (upload)\t<h>elp\t\t\t" +
@@ -279,228 +226,197 @@ msg_base = {
   //---+++***===msg_base methods follow===***+++---
 	/*
 	 * summary:
-	 *	Displays the read menu with room name, message number,
-	 *	and remaining messages.
+	 *	Code checks the ownership and ability to delete messages in
+	 *	this particular message & messagebase and deletes the message
+	 *	accordingly, if all is well
 	 * base:
-	 *	The active and open MsgBase object
-	 * ndx:
-	 *	Index of the current message
-	 * NOTE: I chose to make the message number 1-based for
-	 *	display purposes only.
+	 *	Open MsgBase that we're working with
+	 * ptr:
+	 *	Pointer to the current message (to be toasted)
+	 * return:
+	 *	Zero on success, -1 on abort deletion
 	 */
-  doMprompt : function(base, ndx) {
-	docIface.setNodeAction(NODE_RMSG);
+  deleteMsg : function(base, ptr) {
+	var mHdr;
 
-	base.close();  // Refresh base for any new messages
-	base.open();
-	if (userSettings.debug.message_scan) {
-	    console.putmsg(red + "Reopened " + base.cfg.code
-		  + " to check for updates\n");
+	if (console.noyes("Delete this message? ")) {
+		return -1;
 	}
-	console.putmsg(yellow + high_intensity
-	      + "\n[" + base.cfg.name
-	      + "> msg #" + (ndx + 1)
-	      + " (" + (mBase.total_msgs - ndx) + " remaining)] "
-	      + cyan + "Read cmd -> ");
+
+	//this may not be strictly necessary
+	try {
+	  mHdr = base.get_msg_header(ptr);
+	} catch (e) {
+	  throw new dDocException("deleteMsg() exception",
+		"Unable to fetch message header for deletion", 1);
+	}
+
+	if (mHdr != null) {
+	  try {
+	    base.remove_msg(ptr)
+	  } catch (e) {
+	    throw new dDocException("deleteMsg() exception",
+		"Unable to delete msg: " + e.message, 2);
+	  }
+	} else {
+	  throw new dDocException("deleteMsg() exception",
+		"Header is already null?", 3);
+	}
+
+	console.putmsg(yellow + high_intensity + "\nMessage baleeted\n");
+
+	return;
   },
-        /*
+	/*
 	 * summary:
 	 *	Displays message with or without pauses
 	 * base: MsgBase object
 	 *	Open message base object currently being read
 	 * ptr: Integer
 	 *	Current message index #
-	 * breaks: Boolean
-	 *	Default: true
+	 * break: Boolean
 	 *	true for screen pauses
 	 */
   dispMsg : function(base, ptr, breaks) {
-	var mHdr, mBody, fHdr;
+	var debugging = true;	//we're good here -- LIES!!!
 
-	if (breaks != false) { 
-	    breaks = true;
+        if (breaks != false) { 
+	  breaks = true;
 	}
 
-        try {
-          mHdr = base.get_msg_header(ptr);
-          mBody = base.get_msg_body(ptr);
-	} catch (e) {
-	  throw new dDocException("Error reading mHdr/mBody in dispMsg()",
-		e.message, 1);
+	if (debugging) {
+	  console.putmsg(red + "base: " + base.cfg.grp_name + "\nptr: "
+			 + ptr + "\nbreaks: " + breaks + "\n");
 	}
 
-	if (userSettings.debug.message_scan) {
-	    console.putmsg(red + "ptr: " + ptr + "\tbase.last_msg: "
-		+ base.last_msg + "\n");
-	}
+        //try/catch this
+        var mHdr = base.get_msg_header(ptr);
+        var mBody = base.get_msg_body(ptr);
 
-	if (mHdr === null) {
-	    if (userSettings.debug.message_scan) {
-		console.putmsg(red + "Invalid message? base.cfg.code: "
-		      + base.cfg.code + " ptr: " + ptr + "\n");
-	    }
-	    return;	// Invalid message, skip
-	}
-
-	fHdr = "\n" + magenta + high_intensity + mHdr.date + green + " from "
-	      + cyan + mHdr.from + "\n" + green;
-
-	if (breaks) {
-	    console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into the
-		// putmsg here so it gets included in the line count for breaks
-        } else {
-	    console.putmsg(fHdr + mBody, (P_NOPAUSE | P_WORDWRAP));
-	}
-
-	return 0;
-  },
-  /*
-   * summary:
-   *	Opens a new message base (modularizing)
-   * mb:
-   *	Code of the new message base to open
-   * return:
-   *	new message base object (already open), or 'null' for error
-   */
-  openNewMBase : function(mb) {
-        try {  
-          mBase = new MsgBase(mb);
-	  mBase.open();
-          if (userSettings.debug.message_scan) {
-            console.putmsg(red + "Opened: " + mb +
-        	           " allegedly . . .\n");
-	    console.putmsg(red + "mBase.error: " + mBase.error + "\n");
-          }
-        } catch (e) {
-          console.putmsg(red + "Error opening new mBase:\n"
-		+ e.toString() + "\n");
-          log("Error skipping through scanSub(): " +
-            e.toString());
-          return null;
+        if (breaks) {
+          console.putmsg(magenta + high_intensity + mHdr.date +
+                green + " from " + cyan + mHdr.from + "\n" +
+                green);
+          console.putmsg(mBody);  //this may need to have formatting
+                                  //fixes for vdoc emulation
+          console.putmsg(yellow + high_intensity + "\n[" +
+                msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].name 
+		+ "> msg #" + ptr + " (" +
+                (base.last_msg - ptr) + " remaining)] " +
+                cyan + "Read cmd -> ");
         }
-
-	return mBase;
+  },
+	/*
+	 * summary:
+	 *	Creates and displays the dynamic end of message prompt
+	 */
+  doMPrompt : function() {
+    console.putmsg(yellow + high_intensity + user.cursub + "> msg #" +
+	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr +
+	" (" +
+	(msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].max_msgs -
+	msg_area.grp_list[bbs.curgrp].sub_list[bbs.cursub].scan_ptr) +
+	" remaining)] " + green + high_intensity + "Read cmd -> ");
   },
 	/*
 	 * summary:
 	 *	Sequentially scans for new messages within one
-	 *	particular sub-board; don't forget to add the support
-	 *	for whether confined or not after this is beta working
+	 *	particular sub-board
 	 * sBoard: String
-	 *	Synchronet Sub-board object
+	 *	Sub-board's internal code
 	 * forward: Boolean
 	 *	true for forward read & converse
 	 * return:
-	 *	null/negative for errors; 1 to move on to the next sub, 
-	 *	still working on further shite
+	 *	negative for errors; 1 to move on to the next sub, still
+	 *	working on further shite
 	 */
-  scanSub : function(sBoard, forward) {
-	var tmpPtr, inc, choice = 0;
+  scanSub : function (sBoard, forward) {
+	var mBase = new MsgBase(sBoard.code), tmpPtr, ecode, inc;
+	var fuggit = false;	//because never start with 'fuggit'
+	var debugging = true;
 
-	if (userSettings.debug.message_scan) {
-	  console.putmsg("Entered scanSub(); forward = " + forward +
-	    "  user.cursub: " + user.cursub + "\nsBoard.code: " +
-	    sBoard.code + "\n");
+	if (debugging) {
+	  console.putmsg(red + "In scanSub(); forward = " + forward +
+		"\n");
 	}
 
-	mBase = this.openNewMBase(sBoard.code);
-
-	if (mBase === null) {
-	    if (userSettings.debug.message_scan) {
-		console.putmsg("Error in openNewMBase()\n");
-	    }
-	    throw new docIface.dDocException("scanSubException",
-		  "Error in openNewMBase()", 1);
+	//open
+	try {
+	  mBase.open();
+	} catch (e) {
+	  console.putmsg(red + "Error opening " + sBoard.name +
+	    ": " + e.message + "\nError logged.  Feel free to " +
+	    "pester the SysOp.\n");
+	  log("Error opening " + sBoard.name + ": " + e.message);
+	  return -1;
 	}
 
 	tmpPtr = sBoard.scan_ptr;
-	if (userSettings.debug.message_scan) {
-	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
-	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
-	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
-	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
-	}
-	
-	if (forward) { inc = 1; } else { inc = -1; }
-	
-	// if starting in reverse from the room prompt, unskip one message
-	if (!forward) tmpPtr += 1;  // so we start with the most recently read
-	// message.  In all other cases we want to skip one.
-	
-	if (userSettings.debug.message_scan) {
-	  console.putmsg("Inc: " + inc + "\tbased on forward\n");
+	if (forward) {
+	  inc = 1;
+	} else {
+	  inc = -1;
 	}
 
-	//primary message scan loop
-	while (true) {
-	    if (userSettings.debug.message_scan) {
-		console.putmsg(red + "In main scanSub() loop\ttmpPtr: "
-		      + tmpPtr + " total_msgs: " + mBase.total_msgs
-		      + " is_open: " + (mBase.is_open ? "yes" : "no") + "\n");
+	while (!fuggit) {
+	  debugging = true;
+	 
+	  if (debugging) {
+	    console.putmsg(red + "in while--> tmpPtr: " + tmpPtr + "\n");
+	  }
+ 
+	  if ((inc == 1) && (tmpPtr == mBase.last_msg)) {
+		//no new, skip to next in external flow to n/sub
+		console.putmsg(green + high_intensity + "Next\n");
+		return 1;
+	  } else if ((inc == 1) && (tmpPtr >= mBase.last_msg)) {
+		//corrupt pointers, wtf?
+		console.putmsg(red + high_intensity + "Current " +
+		  "pointer exceeds last_msg pointer; this is bad."
+		  + "\n");
+		//insert debug logging to standard log here
+		return -3;
+	  } else if ((inc == -1) && (tmpPtr < mBase.first_msg)) {
+		console.putmsg(green + high_intensity +
+			"No preceeding messages\n");
+		return 2;	//new value for bottoming out
+	  }
+
+	  //wut's up with the last param on this again?
+	  this.dispMsg(mBase, tmpPtr, true);
+	  if (inc == 1) {
+	    sBoard.lead_read = tmpPtr;
+	  }
+	  ecode = this.read_cmd.rcChoice(mBase, (tmpPtr));
+	  if (ecode == 1) {
+	    fuggit = true;
+	    break;	//not sure if this is strictly necessary still
+	  } else if (ecode == 2) {
+	    if (inc == 1) {
+		inc = -1;
+	    } else {
+		inc = 1;
 	    }
+	  }
+	 
+	  tmpPtr += inc;
+	  if (debugging) {
+	    console.putmsg(red + "tmpPtr += " + inc + "= " + tmpPtr +
+		"\nfuggit: " + fuggit + "\n");
+	  }
 
-	    switch (choice) {
-		case 1:		// Stop scan
-		    if (userSettings.debug.message_scan) {
-			console.putmsg("DEBUG: Stopping scan\n");
-		    }
-		    mBase.close();
-		    return null;
-		case 2:		// Reverse scan direction
-		    if (userSettings.debug.message_scan) {
-			console.putmsg(red + "DEBUG: Reversing direction\n");
-		    }
-		    inc *= -1;
-		    //Fall through to read message (no 'break' purposeful)
-		case 0:		// Next message
-		    if (userSettings.debug.message_scan) {
-			console.putmsg("DEBUG: Next Msg\n");
-		    }
-		    if ((tmpPtr <= 0) && (inc == -1)) {
-			mBase.close();
-			return 0;   //do reverse room to room is no
-		    } else if ((tmpPtr >= mBase.total_msgs) && (inc == 1)) {
-			mBase.close();
-			return 1;   // skip to next room
-		    }
-		    tmpPtr += inc;
-		    if ((tmpPtr >= 0) && (tmpPtr <= mBase.total_msgs)) {
-			this.dispMsg(mBase, tmpPtr, true);
-			if (inc == 1) sBoard.scan_ptr = tmpPtr;
-		    }
-		    break;
-		default:
-		    console.putmsg(red + "\nUnexpected value from rcChoice: "
-			  + choice + "\n");
-		    return null;
-	    }
-
-	    if (userSettings.debug.message_scan) {
-		console.putmsg(red + "End of scanSub() main loop\n"
-		      + "tmpPtr: " + tmpPtr + "\tinc: " + inc + "\n");
-	    }
-	    choice = this.read_cmd.rcChoice(mBase, tmpPtr);
+	  ecode = null;
 	}
 
-	mBase.close();
-	if (userSettings.debug.message_scan) {
-	  console.putmsg(red + "Closed mBase: " + sBoard.code + "\n");
+	//close
+	try {
+	  mBase.close();
+	} catch (e) {
+	  console.putmsg(red + "Error closing " + sBoard.name + ": " +
+	    e.message + "\nError logged.  Feel free to pester the " +
+	    "SysOp.\n");
+	  log("Error opening " + sBoard.name + ": " + e.message);
+	  return -2;
 	}
-    },
-	/*
-	 * summary:
-	 *	Read any new messages in the current room, then call findNew to
-	 *	move to the next room with unread messages
-	 */
-    readNew : function() {
-	var mBase = this.openNewMBase(bbs.cursub_code);
-	
-	if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
-	    this.scanSub(msg_area.sub[bbs.cursub_code], true);
-	}
-	docIface.nav.findNew();
-	mBase.close();
-	return;
-    }
-
+  }
 }
