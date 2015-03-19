@@ -48,6 +48,33 @@ wholist = {
 
 	return ul;
   },
+	/*
+	 * summary:
+	 *	Method returns time online
+	 * u:
+	 *	User being reported on
+	 * return:
+	 *	Returns a string formatted correctly for hh:mm or hhh:mm
+	 *	as to be reported in the long wholist without additional
+	 *	manipulation
+	 */
+  reportOnlineTime : function(u) {
+	var timeOn = time() - u.logontime;
+	var minutes = 0, hours = 0;
+	var formattedTime = new String();
+
+	//don't forget to pad with 0s
+	hours = parseInt(timeOn / 3600);
+	minutes = parseInt((timeOn - (hours * 3600)) / 60);
+
+	formattedTime = hours.toString() + ":";
+	if (minutes < 10) {
+	  formattedTime += "0";
+	}
+	formattedTime += minutes.toString();
+
+	return formattedTime;
+  },
   /*
    * summary:
    *	No longer simply a wrapper for Synchronet's whos_online() method,
@@ -82,15 +109,8 @@ wholist = {
 	  }
 
 	  if (!skip) {
-	    var tabsInUname;
-
 	    console.putmsg(yellow + high_intensity + u.alias);
 
-	    /* tabsInUname = (u.alias.length % 8);
-	    while (tabsInUname < 3) {
-		console.putmsg("\t");
-		tabsInUname++;
-	    } */
 	    if (u.alias.length < 8) {
 		console.putmsg("\t");
 	    }
@@ -101,18 +121,10 @@ wholist = {
 	    console.putmsg("\t");
 
 	    //time online
-	    timeon = time() - u.logontime;
-	    console.putmsg(red + high_intensity + 
-	      ((timeon - (timeon % 60)) / 60) + ":");
-	    if ((timeon % 60) < 10) {
-		console.putmsg(red + high_intensity + "0" + (timeon % 60) +
-		"\t");
-	    } else {
-		console.putmsg(red + high_intensity + (timeon % 60) + "\t");
-	    }
+	    console.putmsg(red + high_intensity + this.reportOnlineTime(u));
 
 	    //doing
-	    console.putmsg(cyan + high_intensity + 
+	    console.putmsg(cyan + high_intensity + "\t" +
 		userRecords.userDataIO.loadSettings(u.number).doing + "\n");
 	  }
 	}
