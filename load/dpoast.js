@@ -110,6 +110,9 @@ poast = {
             uchoice = this.dispSaveMsgPrompt().toUpperCase();
 
             switch (uchoice) {
+                /* note, abort is not checked for when this function
+                 * exits, and I'm pretty sure there are other little
+                 * bugs hiding out in here, as well */
                 case 'A':       //abort
                   return null;
                   break;
@@ -154,7 +157,7 @@ poast = {
 	 * returns:
 	 *	Array of message text lines
 	 */
-    saveMsgBody : function(upload, base, recip) {
+    getMsgBody : function(upload, base, recip) {
 	var mTxt = new Array();
 	var lNdx, uchoice, done = false;
 
@@ -194,6 +197,9 @@ poast = {
          * NOTE: This method is way too big and needs to be chopped the
          * fuck up in order to make this more readable and more reusable
          */
+        //var mTxt = new Array();
+        //var lNdx = 0, done = false;
+        //var uchoice;
 
 	//turn off instant messages coming in while posting
 	bbs.sys_status |= SS_MOFF;
@@ -209,11 +215,66 @@ poast = {
 
         //going to use a generic subject for now; ignoring it from the
         //ddoc interface completely to see how it goes
-	this.saveMsgBody(upload, base, recip);
+	this.getMsgBody(upload, base, recip);
+
+        /*do {
+          mTxt[lNdx] = console.getstr("", 79, K_WRAP);
+          if (((mTxt[lNdx++] == "\03") && (upload)) ||
+              ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r"))) {
+            //end of message
+            uchoice = this.dispSaveMsgPrompt();
+
+            switch (uchoice) {
+		/* note, abort is not checked for when this function
+ 		 * exits, and I'm pretty sure there are other little
+ 		 * bugs hiding out in here, as well */
+                /*case 'A':       //abort
+                  done = true;
+                  break;
+                case 'C':       //continue
+                  lNdx--;
+                  break;
+                case 'P':
+                  this.dispNewMsgHdr();
+                  for each (var derp in mTxt) {
+                    console.putmsg(green + high_intensity + derp);
+                  }
+                  //fall through to continue w/entry here, too
+                  break;
+                case 'S':
+		  //screw those old error codes
+		  try {
+			this.mWrite(mTxt, base, recip);
+			console.putmsg(green + high_intensity
+			      + "Message saved\n");
+		  } catch (e) {
+			bbs.log_str("Err writing to " + base.name);
+                        console.putmsg(red + "There was a problem " +
+                                       "writing to " + base.name +
+                                       "\nSorry; error is logged.\n");
+		  }
+		  done = true;
+		  break;
+                /* case 'X':
+                 * just skipping this right now since I'm impatient
+                 * about losing all of the recoding this morning and
+                 * feeling much more that time is of the essence :| */
+                /*default:
+                  console.putmsg(red + "I have no idea what just " +
+                                 "happened; event logged.\n");
+                  bbs.log_str("Unknown error in addMsg()");
+                  break;
+            }
+          }
+        } while (!done); */
 
 	//turn instant messages back on
 	bbs.sys_status |= SS_MOFF;
     }, 
+	/*
+	 * summary:
+	 *	method exists for returning exception from mWrite()
+	 */
         /*
          * summary:
          *      Writes appropriate message header & body data to the
@@ -249,6 +310,10 @@ poast = {
 	  }
 
 	  if (userSettings.debug.message_posting) {
+	    //debug dump requested by echicken (?) in order to help find
+	    //out what is causing mail sent to the 'mail' sub board is
+	    //ending up in 'all mail' but never a personal account, and
+	    //also (I believe) triggering networked processing
 	    console.putmsg(red + "DEBUGGING\nmHdr values:\n" +
 		"from\t:\t" + mHdr['from'] + " (user.alias)\n" +
 		"to\t:\t" + mHdr['to'] + " selected by code as " +
@@ -256,6 +321,13 @@ poast = {
 		"subject\t:\t" + mHdr['subject'] + " static\n\n");
 	  }
 
+	  /*
+	   * This is really kind of nasty, but I'm not functioning well
+	   * enough right now to get down to the bottom of how it's
+	   * being handled differently for the mail sub as opposed to
+	   * the standards.  :P  Whatever, it'll go into a later
+	   * refactor.
+	   */
 	  if (mBase.subnum == -1) {
 		var dMB = new MsgBase('mail');
 		mHdr["to_ext"] = 1;
@@ -264,6 +336,18 @@ poast = {
 	  } else {
           	var dMB = new MsgBase(mBase.cfg.code);
 	  }
+          //var debugging = false;        //locally, of course
+
+	  /*
+	   * Here, because of being sent to sub['mail'] does not seem to
+	   * be working, we're going to try implementing the bbs.email()
+	   * function which, I believes, has the option granularity to
+	   * be able to make certain that email is manually set or not
+	   * as far as going to the network.  To this point, logs seem
+	   * to indicate that previous messages sent to the 'mail' sub
+	   * have ended up looking for a way out on the network, and not
+	   * at local users.
+	   */
 
 	  //need to move this out into separate code
           try {

@@ -25,21 +25,13 @@ roomData = {
         /*
          * summary:
          *      new defaults for new/undefined rooms
-	 * roomid:
-	 *	sub-board number to set the info on
-	 * return:
-	 *	returns JSON object of room setting
          */
     defaultSettings : function() {
 	var settings = {
-	  //roomNo : roomid,
-	  //no need for that as the next higher level is ordered by code
-	  moderator : null,
-	  infoCreationDate : null,
+	  moderator : "none set",
+	  infoCreationDate : "",
 	  info : []
 	}
-
-	return settings;
     }
   },
   userRoomSettings : {
@@ -48,18 +40,11 @@ roomData = {
 	/*
 	 * summary:
 	 *	Empty for the filling
-	 * userid:
-	 *	User # for modification/writing settings with
-	 * return:
-	 *	Returns JSON object of the user's zapped list
 	 */
-	defaultSettings : function(userid) {
+	defaultSettings : function() {
 		var roomList = {
-		  user : userid,
 		  zRooms : []
 		}
-
-		return roomList;
 	}
   },
   roomSettingsUX : {
@@ -70,11 +55,10 @@ roomData = {
     promptUserForRoomInfo : function() {
 	//can we moderate this?
 	if ((roomSettings.moderator == user.alias) ||
-	    ((roomSettings.moderator == null) &&
+	    ((roomSettings.moderator == "none set") &&
 	     (user.security.level >= 80))) {
-		poast.dispNewMsgHdr();
-		//console.putmsg(green + high_intensity + 
-		//	"Enter new room info here:\n");
+		console.putmsg(green + high_intensity + 
+			"Enter new room info here:\n");
 		this.changeRoomInfo();
 	} else {
 	  console.putmsg(yellow + high_intensity + "You're not allowed!\n\n");
@@ -108,27 +92,12 @@ roomData = {
 	 */
     saveRoomInfo : function(roomInfo) {
 	var blob = this.snagRoomInfoBlob();
-	/*
-	 * yeah this totally wasn't right
-	 * var rmInfoz = JSON.parse(blob);
- 	 *
-	 * rmInfoz.defaultSettings.infoCreationDate = Date.now();
-	 * rmInfoz.defaultSettings.info = roomInfo;
-	*/
+	var rmInfoz = JSON.parse(blob);
+	
+	rmInfoz.defaultSettings.infoCreationDate = Date.now();
+	rmInfoz.defaultSettings.info = roomInfo;
 
 	var infoFile = new File(this.userDir + this.roomSettingsFilename);
-
-	if (blob === null) {
-	  blob = JSON.parse("{}");
-	}
-
-	//assuming at this point that moderatorship has been checked against
-	//the current user already
-	blob[user.cursub] = {
-		moderator : user.alias,
-		infoCreationDate : Date.now(),
-		info : roomInfo
-	}
 
 	try {
 	  infoFile.open("w");
@@ -138,7 +107,7 @@ roomData = {
 	}
 
 	try {
-	  infoFile.write(blob);
+	  infoFile.write(rmInfoz);
 	} catch (e) {
 	  throw new dDocException("Error saving roomInfoBlob",
 		e.message, 2);
@@ -216,7 +185,7 @@ roomData = {
 	//any more testing here?
 	return chunky;
 
-    },
+	}
 	/*
 	 * summary:
 	 *	Method opens file of user's zapped rooms (still need to
@@ -226,7 +195,7 @@ roomData = {
 	 * returns:
 	 *	JSON object specified above
 	 */
-    snagUserZappedRooms : function() {
+      snagUserZappedRooms : function() {
 	var zappedFile = new File(userZapRecFilename);
 	var chunky;
 
@@ -262,7 +231,7 @@ roomData = {
 
 	  return chunky;
 	}
-    }
+      }
   }
 }
 

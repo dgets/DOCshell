@@ -95,23 +95,20 @@ userRecords = {
 		    return null;
 		}
 		line = line.trim();
-		if (line.length === 0 || line.charAt(0) === '#') { continue; }
+		if (line.length === 0 || line.charAt(0) === '#') continue;
 
 		break;
 	    }
 
 	    // We have reached the first line of
 	    // actual data, or we have reached EOF without finding data.
-	    if (infile.eof) {
+	    if (infile.eof)
 	        return infile;
-	    }
-
+	    
 	    // we're already 1 line past where we need to be.
 	    // back up the length of the line we just read, plus one linefeed.
 	    infile.position -= (line.length + "\n".length);
-	    if (infile.position < 0) {
-		infile.position = 0;
-	    }
+	    if (infile.position < 0) infile.position = 0;
 
 	    return infile;
 	},
@@ -142,6 +139,7 @@ userRecords = {
 		throw new dDocException("Unable to open " + 
 			userRecords.userDir + userRecords.settingsFilename,
 			"Can't open user records!", 1);
+		//return null;
 	    }
 
 	    settingsFile = this.stripComments(settingsFile);
@@ -153,6 +151,7 @@ userRecords = {
 		      + e.toString() + "\n");
 		throw new dDocException("Err: " + e.toString(), "Exception" +
 			" reading dDoc settings", 2);
+		//return null;
 	    } finally {
 		settingsFile.close();
 	    }
@@ -160,6 +159,7 @@ userRecords = {
 	    if ((blob == null) || (blob.length < 2)) {
 		throw new dDocException("Exception: blob too small",
 			"blob null or length < 2", 3);
+		//return null;
 	    }
 	    
 	    blob = JSON.parse(blob);
@@ -207,9 +207,8 @@ userRecords = {
 	    var outfile = new File(userRecords.userDir
 		  + userRecords.settingsFilename);
 
-	    if (json === null) {
+	    if (json === null)
 		json = JSON.parse("{}");
-	    }
 
 	    // Update and stringify JSON
 	    json[userid.toString()] = settings;
@@ -244,12 +243,16 @@ userRecords = {
 		fObj.close();
 		throw new dDocException("Exception in openFileWrap", 
 			e.toString(), 1);
+		//return null;
 	    }
 
 	    return fObj;
 	}
     },
     userDataUI: {
+	//pushing/pulling output from the user (sorry, I can't stop using that
+	//terminology now)
+
 	//	  ----++++****====userDataUI methods====****++++----
 	/*
 	 * summary:
@@ -381,6 +384,8 @@ userConfig = {
 		    try {
 			userRecords.userDataIO.saveSettings(user.number,
 			      userSettings);
+			// next line will not execute if there is an exception
+			// while saving
 			console.putmsg(green + high_intensity + "User info " +
 			      "updated.\n\n");
 		    } catch (e) {
@@ -401,6 +406,9 @@ userConfig = {
 		    console.putmsg(excuse);
 		    break;
 	    }
+
 	}
+
     }
+
 }
