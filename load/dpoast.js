@@ -168,6 +168,11 @@ poast = {
         //going to use a generic subject for now; ignoring it from the
         //ddoc interface completely to see how it goes
 	mTxt = this.getTextBlob(null);
+	if (userSettings.debug.message_posting) {
+	  console.putmsg(red + "Got mTxt array of length: " +
+		mTxt.length + " back from getTextBlob()\n");
+	}
+
 	if (mTxt != null) {
                   try {
                         this.mWrite(mTxt, base, recip);
@@ -291,6 +296,11 @@ poast = {
          *      -3 if unable to close the MsgBase
          */
     mWrite : function(txtArray, mBase, recipient) {
+	if (userSettings.debug.message_posting) {
+	  console.putmsg(red + "Given txtArray[] of length: " +
+	    txtArray.length + "\n");
+	}
+
           //create the message for writing
           var mHdr = {
                 'from'          :       user.alias,
@@ -314,7 +324,7 @@ poast = {
 	    //out what is causing mail sent to the 'mail' sub board is
 	    //ending up in 'all mail' but never a personal account, and
 	    //also (I believe) triggering networked processing
-	    console.putmsg(red + "DEBUGGING\nmHdr values:\n" +
+	    console.putmsg(red + "DEBUGGING:\nmHdr values:\n" +
 		"from\t:\t" + mHdr['from'] + " (user.alias)\n" +
 		"to\t:\t" + mHdr['to'] + " selected by code as " +
 		"sysop.alias or recipient name passed (null=ALL)\n" +

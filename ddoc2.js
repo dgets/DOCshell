@@ -25,7 +25,7 @@ load("/sbbs/exec/load/sbbsdefs.js");
 load("/sbbs/exec/load/nodedefs.js");
 
 //pseudo-globals
-const excuse = "\n\nNot implemented yet. . .\n\n",
+const excuse = "\n\nThe rothe strikes!  You die!. . .\n\n",
 	debugOnly = false, topebaseno = 6,
 	alwaysLogout = false, std_logging = true;
 
