@@ -89,8 +89,8 @@ poast = {
 	 */
     getTextBlob : function(maxLines) {
       var mTxt = new Array();
-      var lNdx, uchoice;
-      var done = false, cntr = 0;
+      var uchoice;
+      var done = false, cntr = 0, lNdx = 0;
 
       if (maxLines == null) {
 	maxLines = 5000;
@@ -98,10 +98,16 @@ poast = {
 
       do {
           mTxt[lNdx] = console.getstr("", 79, K_WRAP);
+	  if (userSettings.debug.message_posting) {
+	    console.putmsg(red + "Just got: " + mTxt[lNdx] + "\nAt index: " +
+	      lNdx + "\n");
+	  }
 
           if (((mTxt[lNdx++] == "\03") && (upload)) ||
-              ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r")) ||
+              ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r") ||
+	       (mTxt[lNdx - 1] == "\n")) ||
 	      (cntr++ == maxLines)) {
+
             //end of message
 	    if (cntr >= maxLines) {
 		console.putmsg(red + high_intensity + "\nYou hit the " +
@@ -127,6 +133,11 @@ poast = {
                   //fall through to continue w/entry here, too
                   break;
                 case 'S':
+		  if (userSettings.debug.message_posting) {
+		    console.putmsg(red + "mTxt: " + mTxt.toString() +
+		      "\nlength: " + mTxt.length + "\nBeing returned\n");
+		  }
+
                   return mTxt;
                   break;
                 /* case 'X':
