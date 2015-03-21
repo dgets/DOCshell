@@ -66,7 +66,7 @@ msg_base = {
 	  }
 
           while (!valid) {
-	    msg_base.doMprompt(base,ndx);
+	    msg_base.doMprompt(base, ndx);
             var uchoice = "";
 
             do {
@@ -76,49 +76,50 @@ msg_base = {
 
             switch (uchoice) {
                 case '?':
-                case 'h':
+                case 'h':	//see menu
                   console.putmsg(this.rcMenu);
                   break;
-                case 'a':
+                case 'a':	//see message again
 		  console.putmsg(green + high_intensity + "Again\n");
 		  msg_base.dispMsg(base, ndx, true);
 		  break;
-                case 'A':
+                case 'A':	//see message again
+				//NOTE: not implemented properly
 		  console.putmsg(green + high_intensity + 
 			"Again (no breaks)\n");
 		  msg_base.dispMsg(base, ndx, false);
 		  break;
-                case 'b':
+                case 'b':	//change scan direction
                   valid = true; hollaBack = 2;
 		  docIface.log_str_n_char(this.log_header, 'b');
                   console.putmsg(green + high_intensity + "Back (change " +
                         "direction)...\n");
                   break;
-                case 'D':
-                case 'i':
-		  //display room info
+                //case 'D':
+                case 'i':	//display room info
 		  console.putmsg(green + high_intensity + "\nInfo:\n" +
 			roomSettings[bbs.cursub].info + "\n");
 		  break;
-		case 'I':
+		case 'I':	//prompt for room info
 		  //change room info
 		  roomData.roomSettingsUX.promptUserForRoomInfo();
 		  break;
                 case 'p':
-                case 'w':
-                  console.putmsg(yellow + "Not supported (yet)" +
-                        "...\n");
+                case 'w':	//long wholist
+		  wholist.list_long(wholist.populate);
+                  /* console.putmsg(yellow + "Not supported (yet)" +
+                        "...\n"); */
                   break;
-                case 'E':
+                case 'E':	//enter (upload) message
                   console.putmsg(red + "\nI'm too dumb yet, just " +
 				 "wait\n");
                   break;
-                case 's':
+                case 's':	//stop scan
                   valid = true; hollaBack = 1;
 		  docIface.log_str_n_char(this.log_header, 's');
                   console.putmsg(yellow + high_intensity + "Stop\n");
                   break;
-                case 'e':
+                case 'e':	//enter message
 		  
                   console.putmsg(green + high_intensity +
                         "Enter message\n");
@@ -137,17 +138,25 @@ msg_base = {
 
                   break;
 		case ' ':
-		case 'n':
+		case 'n':	//next message
 		  valid = true; hollaBack = 0;
 		  docIface.log_str_n_char(this.log_header, 'n');
 		  console.putmsg(green + high_intensity + "Next\n");
 		  break;
-		case 'l':
+		case 'l':	//logout
 		  docIface.util.quitDdoc();
 		  break;
-		case 'x':
+		case 'x':	//send X
 		case 'X':
 		  express.sendX();
+		  break;
+		case 'd':	//delete message
+		  try {
+		    msg_base.util.deleteMsg(base, ndx);
+		  } catch (e) {
+		    console.putmsg(red + "Got: " + e.message + ", errno: " +
+			e.number + " back.  :(\n");
+		  }
 		  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
@@ -157,6 +166,56 @@ msg_base = {
 
         return hollaBack;
         }
+  },
+  /*
+   * summary:
+   *	Sub-object created for msgDelete() and any other methods/properties
+   *	that may need to exist that don't exactly fall under reading
+   *	messages
+   */
+  util : {
+	/*
+	 * summary:
+	 *	Deletes the message (if appropriate permissions) at the current
+	 *	message
+	 * mBase:
+	 *	The open message base object for the current room/sub
+	 * ndx:
+	 *	Index to try to delete
+	 */
+    deleteMsg : function(mBase, ndx) {
+	var mHdr;
+
+	if ((!mBase.is_open) || (mBase == null)) {
+	  throw new dDocException("deleteMsg() exception",
+	    "You cannot consume the cockatrice egg!", 1);
+	}
+
+	try {
+	  mHdr = mBase.get_msg_header(ndx);
+	} catch (e) {
+	  console.putmsg(yellow + "Unable to delete message, sysop " +
+		"has been notified\n");
+	  throw new dDocException("deleteMsg() exception",
+	    "Unable to snag message header: " + e.message, 2);
+	}
+
+	if ((mHdr.from_ext == user.number) || (mHdr.from == user.alias) ||
+	    (mHdr.from == user.name)) {
+	  //we are go for trying to delete this message
+	  try {
+	    mBase.remove_msg(ndx);
+	  } catch (e) {
+	    console.putmsg(yellow + "Unable to delete message, sysop " +
+		"has been notified\n");
+	    throw new dDocException("deleteMsg() exception",
+	      "Unable to remove_msg(" + ndx + "):" + e.message, 3);
+	  }
+	}
+
+	console.putmsg(red + high_intensity + "Message baleeted . . .\n"); 
+
+    }
   },
   /*
    * summary:
