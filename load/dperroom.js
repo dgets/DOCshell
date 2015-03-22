@@ -75,6 +75,56 @@ roomData = {
 		//save the new room info
 		this.fileIO.saveRoomInfo(infoTxt);
           }
+    },
+	/*
+	 * summary:
+	 *	Displays the room info header, then displays room info (if
+	 *	set, otherwise amusing nethack message)
+	 */
+    displayRoomInfo : function() {
+	this.displayRoomInfoHdr();
+
+	if (roomSettings[bbs.cursub].settings.info.length == 0) {
+	  //or should we be looking for null here?
+	  console.putmsg(green + high_intensity +
+	    "The scroll is blank!\n\n");
+	} else {
+	  for each (var ln in roomSettings[bbs.cursub].settings.info) {
+	    console.putmsg(green + high_intensity + ln + "\n");
+	  }
+	}
+
+	console.putmsg("\n");
+    },
+	/*
+	 * summary:
+	 *	Displays header for the room info, consisting of the
+	 *	moderator's alias, total messages, info modification date,
+	 *	and all that jazz properly formatted
+	 */
+    displayRoomInfoHdr : function() {
+	var mBase = new MsgBase(bbs.cursub);
+
+	console.putmsg(green + high_intensity + "\nForum Moderator is " +
+	  cyan + roomSettings[bbs.cursub].settings.moderator + ".  " +
+	  "Total messages: ");
+
+	try {
+	  mBase.open();
+	} catch (e) {
+	  console.putmsg(red + "\nUnable to obtain room information; " +
+	    "throwing exception!\nThe wizard is about to die!\n\n");
+	  throw new dDocException("displayRoomInfoHdr() exception",
+	    "Unable to open mBase: " + e.message, 1);
+	}
+
+	console.putmsg(red + high_intensity + mBase.total_msgs + "\n" +
+	  green + "Forum info last updated: " + magenta + 
+	  roomSettings[bbs.cursub].settings.infoCreationDate + green +
+	  " by " + cyan + roomSettings[bbs.cursub].settings.moderator +
+	  "\n\n");
+
+	mBase.close();
     }
   },
   fileIO : {
@@ -94,22 +144,22 @@ roomData = {
 	var blob = this.snagRoomInfoBlob();
 	var rmInfoz = JSON.parse(blob);
 	
-	rmInfoz.defaultSettings.infoCreationDate = Date.now();
-	rmInfoz.defaultSettings.info = roomInfo;
+	rmInfoz[bbs.cursub_code].defaultSettings.infoCreationDate = Date.now();
+	rmInfoz[bbs.cursub_code].defaultSettings.info = roomInfo;
 
 	var infoFile = new File(this.userDir + this.roomSettingsFilename);
 
 	try {
 	  infoFile.open("w");
 	} catch (e) {
-	  throw new dDocException("Error saving roomInfoBlob", 
+	  throw new dDocException("Exception in saveRoomInfo()",
 		e.message , 1);
 	}
 
 	try {
 	  infoFile.write(rmInfoz);
 	} catch (e) {
-	  throw new dDocException("Error saving roomInfoBlob",
+	  throw new dDocException("Exception in saveRoomInfo()",
 		e.message, 2);
 	} finally {
 	  infoFile.close();
@@ -176,8 +226,8 @@ roomData = {
 
 	if ((chunky == null) || (chunky.length < 30)) {
 	    //one would think that creating a template would be good here
-	    throw new dDocException("Exception: blob too small/null",
-		"blob null or length < 30", 4);
+	    throw new dDocException("Exception in stripNRead()",
+		"blob null or length < 30", 2);
 	}
 
 	chunky = JSON.parse(chunky);
