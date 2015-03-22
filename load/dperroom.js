@@ -235,7 +235,7 @@ roomData = {
 	//any more testing here?
 	return chunky;
 
-	}
+     },
 	/*
 	 * summary:
 	 *	Method opens file of user's zapped rooms (still need to

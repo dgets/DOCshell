@@ -18,7 +18,7 @@ load("load/dmbase.js");
 load("load/dpoast.js");
 load("load/dexpress.js");
 load("load/dperuser.js");
-//load("load/dperroom.js");
+load("load/dperroom.js");
 
 //other includes
 load("/sbbs/exec/load/sbbsdefs.js");
@@ -651,6 +651,9 @@ if (!debugOnly) {
 		      console.putmsg(red + "Exception saving settings: "
 			    + e.toString() + "\n");
 		  }
+		  break;
+		case 'i':	//display room info
+		  roomData.roomSettingsUX.displayRoomInfo();
 		  break;
 		default:
 		  console.putmsg(excuse);

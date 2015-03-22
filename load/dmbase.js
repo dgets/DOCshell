@@ -97,8 +97,7 @@ msg_base = {
                   break;
                 //case 'D':
                 case 'i':	//display room info
-		  console.putmsg(green + high_intensity + "\nInfo:\n" +
-			roomSettings[bbs.cursub].info + "\n");
+		  roomSettings.roomSettingsUX.displayRoomInfo();
 		  break;
 		case 'I':	//prompt for room info
 		  //change room info
@@ -167,6 +166,30 @@ msg_base = {
         return hollaBack;
         }
   },
+  /*
+   * summary:
+   *	Sub-object holds all of the components to deal with Mail> properly
+   */
+  //uMail : {
+	/*
+	 * summary:
+	 *	Method exists to read mail, pump it into the DOC format,
+	 *	and display it to the end user
+	 */
+    /*readMail : function() {
+	var mmBase = new MsgBase("mail");
+	try {
+	  mmBase.open();
+	} catch (e) {
+	  console.putmsg(red + high_intensity + "Unable to open mmBase\n");
+	  throw new dDocException("readMail() exception",
+	    "The cave is too dark to read yr scroll", 1);
+	}
+
+	var mNdx = 
+
+	NOTE: might want to finish off here some time */
+
   /*
    * summary:
    *	Sub-object created for msgDelete() and any other methods/properties
