@@ -25,13 +25,17 @@ roomData = {
         /*
          * summary:
          *      new defaults for new/undefined rooms
+	 * return:
+	 *	new empty object for room settings
          */
     defaultSettings : function() {
 	var settings = {
-	  moderator : "none set",
+	  moderator : null,
 	  infoCreationDate : "",
 	  info : []
 	}
+
+	return settings;
     }
   },
   userRoomSettings : {
@@ -40,11 +44,15 @@ roomData = {
 	/*
 	 * summary:
 	 *	Empty for the filling
+	 * return:
+	 *	new empty object for userRoomSettings
 	 */
 	defaultSettings : function() {
 		var roomList = {
 		  zRooms : []
 		}
+
+		return roomList;
 	}
   },
   roomSettingsUX : {
@@ -104,6 +112,19 @@ roomData = {
 	 */
     displayRoomInfoHdr : function() {
 	var mBase = new MsgBase(bbs.cursub);
+
+	if (roomSettings == null) {
+	  if (userSettings.debug.misc) {
+	    console.putmsg(green + high_intensity +"\nNo roominfo has been " +
+	      "set yet for " + cyan + bbs.cursub + "\n\n");
+	  }
+
+	  roomSettings[bbs.cursub].settings = 
+	    new roomRecords.defaultSettings().settings;
+
+	  //this will have to throw an exception after we learn to create
+	  //the new entries
+	} 
 
 	console.putmsg(green + high_intensity + "\nForum Moderator is " +
 	  cyan + roomSettings[bbs.cursub].settings.moderator + ".  " +

@@ -42,7 +42,7 @@ const maxnodes = 10;
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
-userSettings = null; roomSettings = null;
+userSettings = null; roomSettings = new Object;
 
 /*
  * obviously, with all of the other places that we've got debugging
