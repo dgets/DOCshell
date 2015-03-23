@@ -208,7 +208,7 @@ msg_base = {
 	 */
     readMail : function() {
 	var mmBase = new MsgBase("mail");
-	var fuggit = false;
+	var fuggit = false, increment = 1;
 	var mNdx, uChoice, mHdr, mBody;
 
 	try {
@@ -232,7 +232,8 @@ msg_base = {
 	  switch (uChoice) {
 	    case ' ':
 		//display, if exists, otherwise exit
-		if (mNdx == mmBase.total_msgs) {
+		if (((mNdx == mmBase.total_msgs) && (increment == 1)) ||
+		    ((mNdx == 0) && (increment == -1))) {
 		  console.putmsg(green + high_intensity + "Goto\n");
 		  return;
 		}
@@ -252,6 +253,21 @@ msg_base = {
 
 		//display body
 
+		//wrap up
+		mNdx += increment;
+	    break;
+	    case 'b':
+		//switch direction
+		if (increment == 1) {
+			increment = -1;
+		} else {
+			increment = 1;
+		}
+	    break;
+	    case 'd':
+		//delete message
+
+	
 	    break;
 	    default:
 		//wut
