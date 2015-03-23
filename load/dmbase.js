@@ -170,16 +170,44 @@ msg_base = {
    * summary:
    *	Sub-object holds all of the components to deal with Mail> properly
    */
-  //uMail : {
+  uMail : {
+	/*
+	 * summary:
+	 *	Method finds the current pseudo-scan_ptr for the mail 
+	 *	pseudo-sub
+	 * return:
+	 *	Returns the integer pointer, or 0
+	 */
+    getMailScanPtr : function(mmBase) {
+        var mNdx = 0;
+        var mHdr;
+
+        for (var i = 0; i < mmBase.total_msgs; ++i) {
+          try {
+            mHdr = mmBase.get_msg_header(true, i, true);
+          } catch (e) {
+            console.putmsg(red + high_intensity + "Error reading mail " +
+                "headers!\n");
+            throw new dDocException("readMail() exception",
+                "Unable to read message header(s): " + e.message, 2);
+          }
+
+          if ((mHdr.to_ext == user.number) &&
+              ((mHdr.attr & MSG_READ) == MSG_READ)) {
+                mNdx = i;
+          }
+        }
+
+	return mNdx;
+    },
 	/*
 	 * summary:
 	 *	Method exists to read mail, pump it into the DOC format,
 	 *	and display it to the end user
 	 */
-  readMail : function() {
+    readMail : function() {
 	var mmBase = new MsgBase("mail");
-	var mNdx = 0;
-	var mHdr;
+	var mNdx;
 
 	try {
 	  mmBase.open();
@@ -189,26 +217,12 @@ msg_base = {
 	    "The cave is too dark to read yr scroll", 1);
 	}
 
-	for (var i = 0; i < mmBase.total_msgs; ++i) {
-	  try {
-	    mHdr = mmBase.get_msg_header(true, i, true);
-	  } catch (e) {
-	    console.putmsg(red + high_intensity + "Error reading mail " +
-		"headers!\n");
-	    throw new dDocException("readMail() exception",
-		"Unable to read message header(s): " + e.message, 2);
-	  }
-
-	  if ((mHdr.to_ext == user.number) && 
-	      ((mHdr.attr & MSG_READ) == MSG_READ)) {
-		mNdx = i;
-	  }
-	}
-
+	
 	//so that mess should have gotten us the current message index scan
 	//pointer (or pseudo-version thereof); now we can start
+	mNdx = this.getMailScanPtr(mmBase);
 
-  },
+    },
   /*
    * summary:
    *	Sub-object created for msgDelete() and any other methods/properties
