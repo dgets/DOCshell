@@ -171,6 +171,7 @@ msg_base = {
    *	Sub-object holds all of the components to deal with Mail> properly
    */
   uMail : {
+    mailPrompt : yellow + high_intensity + "Mail> ",
 	/*
 	 * summary:
 	 *	Method finds the current pseudo-scan_ptr for the mail 
@@ -207,7 +208,8 @@ msg_base = {
 	 */
     readMail : function() {
 	var mmBase = new MsgBase("mail");
-	var mNdx;
+	var fuggit = false;
+	var mNdx, uChoice, mHdr, mBody;
 
 	try {
 	  mmBase.open();
@@ -222,7 +224,41 @@ msg_base = {
 	//pointer (or pseudo-version thereof); now we can start
 	mNdx = this.getMailScanPtr(mmBase);
 
+	while (!fuggit) {
+	  //let's read da shit
+	  console.putmsg(this.mailPrompt);
+	  uChoice = console.inkey();
+
+	  switch (uChoice) {
+	    case ' ':
+		//display, if exists, otherwise exit
+		if (mNdx == mmBase.total_msgs) {
+		  console.putmsg(green + high_intensity + "Goto\n");
+		  return;
+		}
+
+		try {
+		  mHdr = mmBase.get_msg_header(true, mNdx);
+		  mBody = mmBase.get_msg_body(true, mNdx);
+		} catch (e) {
+		  console.putmsg(red + high_intensity + "Unable to read " +
+		    "mail header|body\n");
+		  throw new dDocException("readMail() exception",
+		    "Unable to fetch this mail's header|body: " + e.message, 
+		    3);
+		}
+
+		//display header
+
+		//display body
+
+	    break;
+	    default:
+		//wut
+	  }
+
     },
+  },
   /*
    * summary:
    *	Sub-object created for msgDelete() and any other methods/properties
