@@ -235,7 +235,9 @@ msg_base = {
 		if (((mNdx == mmBase.total_msgs) && (increment == 1)) ||
 		    ((mNdx == 0) && (increment == -1))) {
 		  console.putmsg(green + high_intensity + "Goto\n");
-		  return;
+		  return;	/* there should probably be a different
+				   exit from this for reverse reading, in the
+				   future :P */
 		}
 
 		try {
@@ -250,11 +252,11 @@ msg_base = {
 		}
 
 		//display header
+		msg_base.doMPrompt(mmBase, mNdx);
 
 		//display body
+		msg_base.dispMsg(mmBase, mNdx++, false);
 
-		//wrap up
-		mNdx += increment;
 	    break;
 	    case 'b':
 		//switch direction
@@ -269,9 +271,17 @@ msg_base = {
 
 	
 	    break;
+	    case 's':
+		//stop reading Mail>
+		fuggit = true;
+	    break;
 	    default:
 		//wut
+		console.putmsg(yellow + high_intensity + "Wut?\n\n");
+	    break;
+
 	  }
+
 
     },
   },
@@ -470,11 +480,9 @@ msg_base = {
 	    console.putmsg(red + "Reopened " + base.cfg.code
 		  + " to check for updates\n");
 	}
-	console.putmsg(yellow + high_intensity
-	      + "\n[" + base.cfg.name
-	      + "> msg #" + (ndx + 1)
-	      + " (" + (mBase.total_msgs - ndx) + " remaining)] "
-	      + cyan + "Read cmd -> ");
+	console.putmsg(yellow + high_intensity + "\n[" + base.cfg.name +
+	      "> msg #" + (ndx + 1) + " (" + (mBase.total_msgs - ndx) +
+	      " remaining)] " + cyan + "Read cmd -> ");
   },
         /*
 	 * summary:
