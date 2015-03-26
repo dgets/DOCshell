@@ -135,7 +135,7 @@ roomData = {
 	} catch (e) {
 	  console.putmsg(red + "\nUnable to obtain room information; " +
 	    "throwing exception!\nThe wizard is about to die!\n\n");
-	  throw new dDocException("displayRoomInfoHdr() exception",
+	  throw new docIface.dDocException("displayRoomInfoHdr() exception",
 	    "Unable to open mBase: " + e.message, 1);
 	}
 
@@ -173,14 +173,14 @@ roomData = {
 	try {
 	  infoFile.open("w");
 	} catch (e) {
-	  throw new dDocException("Exception in saveRoomInfo()",
+	  throw new docIface.dDocException("Exception in saveRoomInfo()",
 		e.message , 1);
 	}
 
 	try {
 	  infoFile.write(rmInfoz);
 	} catch (e) {
-	  throw new dDocException("Exception in saveRoomInfo()",
+	  throw new docIface.dDocException("Exception in saveRoomInfo()",
 		e.message, 2);
 	} finally {
 	  infoFile.close();
@@ -205,7 +205,7 @@ roomData = {
 	    console.putmsg(red + "Unable to open conf file: " + 
 		configurationFile + "\n");
 	  }
-	  throw new dDocException("Unable to open JSON conf file",
+	  throw new docIface.dDocException("Unable to open JSON conf file",
 		"Unable to open " + configurationFile, 1);
 	}
 	configurationFile = userRecords.userDataIO.stripComments(
@@ -217,7 +217,8 @@ roomData = {
 	  if (userSettings.debug.file_io) {
 		console.putmsg(yellow + "Unable to read configurationFile\n");
 	  }
-	  throw new dDocException("Exception reading configurationFile\n",
+	  throw new docIface.dDocException("Exception reading " +
+		"configurationFile\n",
 		"Unable to read from " + configurationFile, 2);
 	} finally {
 	  configurationFile.close();
@@ -241,13 +242,13 @@ roomData = {
 	} catch (e) {
 	    console.putmsg(yellow + "Error in stripNRead(): " +
 		e.message + "\n");
-	    throw new dDocException("Exception in stripNRead()",
+	    throw new docIface.dDocException("Exception in stripNRead()",
 		e.message, 1);
 	}
 
 	if ((chunky == null) || (chunky.length < 30)) {
 	    //one would think that creating a template would be good here
-	    throw new dDocException("Exception in stripNRead()",
+	    throw new docIface.dDocException("Exception in stripNRead()",
 		"blob null or length < 30", 2);
 	}
 
@@ -279,8 +280,8 @@ roomData = {
 	    zappedFile.open("r");
 	  } catch (e) {
 	    zappedFile.close();
-	    throw new dDocException("Exception opening " + zappedFile.name,
-		e.message, 1);
+	    throw new docIface.dDocException("Exception opening " + 
+		zappedFile.name, e.message, 1);
 	  }
 
 	  try {
@@ -288,13 +289,13 @@ roomData = {
 	  } catch (e) {
 	    console.putmsg(yellow + "Error in stripNRead(): " +
 		e.message + "\n");
-	    throw new dDocException("Exception in stripNRead()",
+	    throw new docIface.dDocException("Exception in stripNRead()",
 		e.message, 2);
 	  }
 	
 	  if ((chunky == null) || (chunky.length < 30)) {
 	    //create template?
-	    throw new dDocException("Exception: blob too small/null",
+	    throw new docIface.dDocException("Exception: blob too small/null",
 		"blob null or length < 30", 5);
 	  }
 
