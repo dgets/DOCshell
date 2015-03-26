@@ -265,20 +265,27 @@ docIface = {
 
 	console.putmsg(green + high_intensity + "Jump to forum " +
 	  "name? -> ");
-	try {
-	  ouah = this.chk4Room(uChoice = console.getstr().toUpperCase());
-	} catch (e) {
-	  if (e.number == 1) {
-	    console.putmsg(red + "No list returned\n");
-	  } else if (e.number == 2) {
-	    console.putmsg(red + high_intensity + "Room not found");
+
+	uChoice = console.getstr().toUpperCase();
+	if (uChoice == 'MAIL') {
+	  msg_base.uMail.readMail();
+	  ouah = "Mail";
+	} else {
+	  try {
+	    ouah = this.chk4Room(uChoice);
+	  } catch (e) {
+	    if (e.number == 1) {
+	      console.putmsg(red + "No list returned\n");
+	    } else if (e.number == 2) {
+	      console.putmsg(red + high_intensity + "Room not found");
+	    }
+
+	    return;
 	  }
 
-	  return;
-	}
-
-	if (userSettings.debug.navigation) {
-	  console.putmsg("Got back " + ouah.name + " from chk4Room\n");
+	  if (userSettings.debug.navigation) {
+	    console.putmsg("Got back " + ouah.name + " from chk4Room\n");
+	  }
 	}
 
 	bbs.log_str("Jumped to " + this.setSub(ouah));

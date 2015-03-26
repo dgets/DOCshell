@@ -227,7 +227,8 @@ msg_base = {
 	while (!fuggit) {
 	  //let's read da shit
 	  console.putmsg(this.mailPrompt);
-	  uChoice = console.inkey();
+	  uChoice = console.getkey();	//NOTE: this will have to be replaced
+					//w/one checking for Xes
 
 	  switch (uChoice) {
 	    case ' ':
@@ -273,6 +274,7 @@ msg_base = {
 	    break;
 	    case 's':
 		//stop reading Mail>
+		console.putmsg(yellow + high_intensity + "Stop\n");
 		fuggit = true;
 	    break;
 	    default:
@@ -282,8 +284,7 @@ msg_base = {
 
 	  }
 
-
-    },
+    }
   },
   /*
    * summary:
@@ -683,4 +684,5 @@ msg_base = {
 	return;
     }
 
+  }
 }

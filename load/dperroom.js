@@ -234,12 +234,12 @@ roomData = {
 	 *	JSON blob specified above
 	 */
     snagRoomInfoBlob : function() {
-	var roomInfoFile = new File(roomRecFilename);
+	var roomInfoFile = new File(this.roomRecFilename);
 
 	try {
 	    chunky = this.stripNRead(roomInfoFile);
 	} catch (e) {
-	    console.putmstg(yellow + "Error in stripNRead(): " +
+	    console.putmsg(yellow + "Error in stripNRead(): " +
 		e.message + "\n");
 	    throw new dDocException("Exception in stripNRead()",
 		e.message, 1);
