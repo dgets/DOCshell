@@ -151,10 +151,10 @@ roomData = {
   fileIO : {
     //getting and setting the different shit above
     //--++==**properties**==++--
-    roomRecFilename : roomData.userDir + 
-		      roomData.roomSettingsFilename,
-    userZapRecFilename : roomData.userDir + 
-			 roomData.userRoomSettingsFilename,
+    roomRecFilename : this.userDir + 
+		      this.roomSettingsFilename,
+    userZapRecFilename : this.userDir + 
+			 this.userRoomSettingsFilename,
 
     //--++==**methods**==++--
 	/*
@@ -162,7 +162,7 @@ roomData = {
 	 *	Method saves the text as room info
 	 */
     saveRoomInfo : function(roomInfo) {
-	var blob = this.snagRoomInfoBlob();
+	var blob = this.snagRoomInfoBlob(this.roomRecFilename, bbs.cursub_code);
 	var rmInfoz = JSON.parse(blob);
 	
 	rmInfoz[bbs.cursub_code].defaultSettings.infoCreationDate = Date.now();
@@ -234,29 +234,39 @@ roomData = {
 	 * returns:
 	 *	JSON blob specified above
 	 */
-    snagRoomInfoBlob : function() {
+    snagRoomInfoBlob : function(roomFile, roomReq) {
 	var roomInfoFile = new File(this.roomRecFilename);
 
-	try {
+	if (roomInfoFile.exists) {
+	  try {
 	    chunky = this.stripNRead(roomInfoFile);
-	} catch (e) {
+	  } catch (e) {
 	    console.putmsg(yellow + "Error in stripNRead(): " +
 		e.message + "\nFile: " + roomInfoFile.name
 		+ "\n");
 	    throw new docIface.dDocException("Exception in stripNRead()",
 		e.message, 1);
+	  }
+	} else {
+	  return roomData.roomRecords.defaultSettings;
 	}
+
 
 	if ((chunky == null) || (chunky.length < 30)) {
 	    //one would think that creating a template would be good here
-	    throw new docIface.dDocException("Exception in stripNRead()",
-		"blob null or length < 30", 2);
+	    /* throw new docIface.dDocException("Exception in stripNRead()",
+		"blob null or length < 30", 2); */
+	    return roomData.roomRecords.defaultSettings;
 	}
 
 	chunky = JSON.parse(chunky);
 
 	//any more testing here?
-	return chunky;
+	if (chunky[roomReq] != null) {
+	  return chunky[roomReq];
+	} else {
+	  return roomData.roomRecords.defaultSettings;
+	}
 
      },
 	/*
