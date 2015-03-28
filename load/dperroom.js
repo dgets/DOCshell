@@ -151,10 +151,10 @@ roomData = {
   fileIO : {
     //getting and setting the different shit above
     //--++==**properties**==++--
-    roomRecFilename : this.userDir + 
-		      this.roomSettingsFilename,
-    userZapRecFilename : this.userDir + 
-			 this.userRoomSettingsFilename,
+    roomRecFilename : roomData.userDir + 
+		      roomData.roomSettingsFilename,
+    userZapRecFilename : roomData.userDir + 
+			 roomData.userRoomSettingsFilename,
 
     //--++==**methods**==++--
 	/*
@@ -241,7 +241,8 @@ roomData = {
 	    chunky = this.stripNRead(roomInfoFile);
 	} catch (e) {
 	    console.putmsg(yellow + "Error in stripNRead(): " +
-		e.message + "\n");
+		e.message + "\nFile: " + roomInfoFile.name
+		+ "\n");
 	    throw new docIface.dDocException("Exception in stripNRead()",
 		e.message, 1);
 	}
