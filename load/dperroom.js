@@ -92,12 +92,12 @@ roomData = {
     displayRoomInfo : function() {
 	this.displayRoomInfoHdr();
 
-	if (roomSettings[bbs.cursub].settings.info.length == 0) {
+	if (roomSettings[bbs.cursub_code].settings.info.length == 0) {
 	  //or should we be looking for null here?
 	  console.putmsg(green + high_intensity +
 	    "The scroll is blank!\n\n");
 	} else {
-	  for each (var ln in roomSettings[bbs.cursub].settings.info) {
+	  for each (var ln in roomSettings[bbs.cursub_code].settings.info) {
 	    console.putmsg(green + high_intensity + ln + "\n");
 	  }
 	}
@@ -111,23 +111,24 @@ roomData = {
 	 *	and all that jazz properly formatted
 	 */
     displayRoomInfoHdr : function() {
-	var mBase = new MsgBase(bbs.cursub);
+	var mBase = new MsgBase(bbs.cursub_code);
 
-	if (roomSettings == null) {
+	if (roomSettings[bbs.cursub_code] == null) {
 	  if (userSettings.debug.misc) {
 	    console.putmsg(green + high_intensity +"\nNo roominfo has been " +
-	      "set yet for " + cyan + bbs.cursub + "\n\n");
+	      "set yet for " + cyan + bbs.cursub_code + "\n\n");
 	  }
 
-	  roomSettings[bbs.cursub].settings = 
-	    new roomRecords.defaultSettings().settings;
+	  roomSettings[bbs.cursub_code] = { };
+	  roomSettings[bbs.cursub_code].settings = 
+	    new roomData.roomRecords.defaultSettings();
 
 	  //this will have to throw an exception after we learn to create
 	  //the new entries
 	} 
 
 	console.putmsg(green + high_intensity + "\nForum Moderator is " +
-	  cyan + roomSettings[bbs.cursub].settings.moderator + ".  " +
+	  cyan + roomSettings[bbs.cursub_code].settings.moderator + ".  " +
 	  "Total messages: ");
 
 	try {
@@ -141,8 +142,8 @@ roomData = {
 
 	console.putmsg(red + high_intensity + mBase.total_msgs + "\n" +
 	  green + "Forum info last updated: " + magenta + 
-	  roomSettings[bbs.cursub].settings.infoCreationDate + green +
-	  " by " + cyan + roomSettings[bbs.cursub].settings.moderator +
+	  roomSettings[bbs.cursub_code].settings.infoCreationDate + green +
+	  " by " + cyan + roomSettings[bbs.cursub_code].settings.moderator +
 	  "\n\n");
 
 	mBase.close();
