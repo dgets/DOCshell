@@ -14,6 +14,11 @@
  * I get it through and into active beta testing. 
  */
 
+//directives for JSLint
+/*global red, cyan, blue, green, magenta, high_intensity, white, normal,
+	  yellow, base, ndx, userSettings, console, bbs, load, K_NOECHO */
+/*jslint devel: true, node: true, sloppy: true, vars: true, white: true */
+
 load("sbbsdefs.js");
 load("dpoast.js");
 load("dperuser.js");
@@ -56,7 +61,7 @@ msg_base = {
           var valid = false;
           var hollaBack = 0;    //can be used to switch dir, etc
 
-	  if (base == undefined) {
+	  if (base === undefined) {
 	    throw new docIface.dDocException("base not defined to rcChoice()");
 	  }
 
@@ -67,7 +72,7 @@ msg_base = {
 
           while (!valid) {
 	    msg_base.doMprompt(base, ndx);
-            var uchoice = "";
+            uchoice = "";
 
             do {
         	bbs.nodesync();       //check for xpress messages
