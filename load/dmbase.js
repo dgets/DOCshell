@@ -83,7 +83,7 @@ msg_base = {
                 case '?':
 		  bbs.log_key("?");
                 case 'h':	//see menu
-		  if (uchoice == "h");
+		  if (uchoice == "h") {
 		    bbs.log_key("h");
 		  }
                   console.putmsg(this.rcMenu);
@@ -314,6 +314,7 @@ msg_base = {
 
 	  }
 
+	}
     }
   },
   /*
@@ -714,5 +715,4 @@ msg_base = {
 	return;
     }
 
-  }
 }
