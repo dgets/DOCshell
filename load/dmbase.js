@@ -77,24 +77,31 @@ msg_base = {
             do {
         	bbs.nodesync();       //check for xpress messages
         	uchoice = console.inkey(K_NOECHO, 1000);
-            } while (uchoice == "");
+            } while (uchoice === "");
 
             switch (uchoice) {
                 case '?':
+		  bbs.log_key("?");
                 case 'h':	//see menu
+		  if (uchoice == "h");
+		    bbs.log_key("h");
+		  }
                   console.putmsg(this.rcMenu);
                   break;
                 case 'a':	//see message again
+		  bbs.log_key("a");
 		  console.putmsg(green + high_intensity + "Again\n");
 		  msg_base.dispMsg(base, ndx, true);
 		  break;
                 case 'A':	//see message again
 				//NOTE: not implemented properly
+		  bbs.log_key("A");
 		  console.putmsg(green + high_intensity + 
 			"Again (no breaks)\n");
 		  msg_base.dispMsg(base, ndx, false);
 		  break;
                 case 'b':	//change scan direction
+		  bbs.log_key("b");
                   valid = true; hollaBack = 2;
 		  docIface.log_str_n_char(this.log_header, 'b');
                   console.putmsg(green + high_intensity + "Back (change " +
@@ -102,29 +109,37 @@ msg_base = {
                   break;
                 //case 'D':
                 case 'i':	//display room info
+		  bbs.log_key("i");
 		  roomSettings.roomSettingsUX.displayRoomInfo();
 		  break;
 		case 'I':	//prompt for room info
 		  //change room info
+		  bbs.log_key("I");
 		  roomData.roomSettingsUX.promptUserForRoomInfo();
 		  break;
                 case 'p':
+		  bbs.log_key("p");
                 case 'w':	//long wholist
+		  if (uchoice == "w") {
+		    bbs.log_key("w");
+		  }
 		  wholist.list_long(wholist.populate);
                   /* console.putmsg(yellow + "Not supported (yet)" +
                         "...\n"); */
                   break;
                 case 'E':	//enter (upload) message
+		  bbs.log_key("E");
                   console.putmsg(red + "\nI'm too dumb yet, just " +
 				 "wait\n");
                   break;
                 case 's':	//stop scan
+		  bbs.log_key("s");
                   valid = true; hollaBack = 1;
 		  docIface.log_str_n_char(this.log_header, 's');
                   console.putmsg(yellow + high_intensity + "Stop\n");
                   break;
                 case 'e':	//enter message
-		  
+		  bbs.log_key("e");
                   console.putmsg(green + high_intensity +
                         "Enter message\n");
 		  if (userSettings.debug.message_posting) {
@@ -142,19 +157,29 @@ msg_base = {
 
                   break;
 		case ' ':
+		  bbs.log_key(" ");
 		case 'n':	//next message
+		  if (uchoice == "n") {
+		    bbs.log_key("n");
+		  }
 		  valid = true; hollaBack = 0;
 		  docIface.log_str_n_char(this.log_header, 'n');
 		  console.putmsg(green + high_intensity + "Next\n");
 		  break;
 		case 'l':	//logout
+		  bbs.log_key("l");
 		  docIface.util.quitDdoc();
 		  break;
 		case 'x':	//send X
+		  bbs.log_key("x");
 		case 'X':
+		  if (uchoice == "X") {
+		    bbs.log_key("X");
+		  }
 		  express.sendX();
 		  break;
 		case 'd':	//delete message
+		  bbs.log_key("d");
 		  try {
 		    msg_base.util.deleteMsg(base, ndx);
 		  } catch (e) {
