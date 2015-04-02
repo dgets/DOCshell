@@ -396,7 +396,7 @@ docIface = {
 	//load room settings
 	try {
 	  roomSettings = roomData.fileIO.snagRoomInfoBlob(
-				roomData.FileIO.roomRecFilename, bbs.cursub);
+				roomData.fileIO.roomRecFilename, bbs.cursub);
 	} catch (e) {
 	  console.putmsg(red + high_intensity + "Loading room data in " +
 		"initDdoc:\n");
