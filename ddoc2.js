@@ -267,12 +267,19 @@ docIface = {
 	  "name? -> ");
 
 	uChoice = console.getstr().toUpperCase();
-	if (uChoice == 'MAIL') {
+	if (uChoice == "MAIL") {
+	  if (userSettings.debug.navigation) {
+	    console.putmsg("Entering Mail> code\n");
+	  }
+
 	  msg_base.uMail.readMail();
 	  ouah = "Mail";
 	} else {
 	  try {
 	    ouah = this.chk4Room(uChoice);
+	    if (userSettings.debug.navigation) {	
+		console.putmsg("Got back " + ouah + " from chk4Room()\n");
+	    }
 	  } catch (e) {
 	    if (e.number == 1) {
 	      console.putmsg(red + "No list returned\n");
@@ -288,7 +295,12 @@ docIface = {
 	  }
 	}
 
-	bbs.log_str("Jumped to " + this.setSub(ouah));
+	if (ouah == "Mail") {
+	  bbs.log_str("Jumped to Mail");
+	} else {
+	  bbs.log_str("Jumped to " + this.setSub(ouah));
+	}
+
 	return;
     },
       /*
