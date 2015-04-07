@@ -201,7 +201,7 @@ msg_base = {
    *	Sub-object holds all of the components to deal with Mail> properly
    */
   uMail : {
-    mailPrompt : yellow + high_intensity + "Mail> ",
+    //mailPrompt : yellow + high_intensity + "Mail> ",
 	/*
 	 * summary:
 	 *	Method finds the current pseudo-scan_ptr for the mail 
@@ -256,11 +256,17 @@ msg_base = {
 
 	while (!fuggit) {
 	  //let's read da shit
-	  console.putmsg(this.mailPrompt);
+	  console.putmsg(yellow + high_intensity + "Mail> ");//this.mailPrompt);
 	  uChoice = console.getkey();	//NOTE: this will have to be replaced
 					//w/one checking for Xes
 
+	  if (userSettings.debug.message_scan) {
+	    //should probably add a 'mail' option to the debugging opts
+	    console.putmsg(yellow + "Working with mNdx: " + mNdx + "\n");
+	  }
+
 	  switch (uChoice) {
+	    case 'n':
 	    case ' ':
 		//display, if exists, otherwise exit
 		if (((mNdx == mmBase.total_msgs) && (increment == 1)) ||
@@ -286,15 +292,15 @@ msg_base = {
 		msg_base.doMPrompt(mmBase, mNdx);
 
 		//display body
-		msg_base.dispMsg(mmBase, mNdx++, false);
+		msg_base.dispMsg(mmBase, (mNdx += increment), false);
 
 	    break;
 	    case 'b':
 		//switch direction
-		if (increment == 1) {
-			increment = -1;
-		} else {
-			increment = 1;
+		increment *= -1;
+
+		if (userSettings.debug.message_scan) {
+		  console.putmsg("Changed increment to: " + increment + "\n");
 		}
 	    break;
 	    case 'd':
@@ -438,7 +444,7 @@ msg_base = {
             break;
           case 'W':     //short wholist
             wholist.list_short(wholist.populate());
-            break;
+           break;
           case 'x':     //express msg
             express.sendX();
             break;
