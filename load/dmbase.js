@@ -207,9 +207,10 @@ msg_base = {
 	 *	Method finds the current pseudo-scan_ptr for the mail 
 	 *	pseudo-sub
 	 * return:
-	 *	Returns the integer pointer, or 0
+	 *	Returns an array of applicable message indices, or -1
 	 */
     getMailScanPtr : function(mmBase, prevNdx) {
+	var applicableMailList = new Array();
         var mNdx = prevNdx;
         var mHdr;
 
@@ -219,7 +220,10 @@ msg_base = {
 	  console.putmsg(yellow + "Scanning . . .  ");
 	}
 
-        for (var i = 0; i < mmBase.total_msgs; ++i) {
+	//there will have to be more elegant handling of the present/prevNdx
+	//message pointer at some point in the future here; just trying to
+	//get this working for now
+        for (var i = prevNdx; i < mmBase.total_msgs; ++i) {
 	  if (userSettings.debug.message_scan) {
 	    console.putmsg(red + i + " ");
 	  }
@@ -243,17 +247,22 @@ msg_base = {
 	    } else { console.putmsg("\n"); }
 	  }
 
-          if ((mHdr.to_ext == user.number) &&
-              ((mHdr.attr & MSG_READ) == MSG_READ)) {
-                mNdx = i;
-          }
+	  if (mHdx.to_ext == user.number) {
+	    if (((mHdr.attr & MSG_READ) == MSG_READ) &&
+		(mNdx == prevNdx)) {
+		mNdx = i;
+	    }
+
+	    applicableMailList.push(i);
+	  }
+
         }
 
 	if (userSettings.debug.message_scan) {
 	  console.putmsg(" ");
 	}
 
-	return mNdx;
+	return applicableMailList;
     },
 	/*
 	 * summary:
@@ -263,7 +272,7 @@ msg_base = {
     readMail : function() {
 	var mmBase = new MsgBase("mail");
 	var fuggit = false, increment = 1, mNdx = 0;
-	var uChoice, mHdr, mBody;
+	var uChoice, mHdr, mBody, mailList;
 
 	try {
 	  mmBase.open();
@@ -272,11 +281,10 @@ msg_base = {
 	  throw new dDocException("readMail() exception",
 	    "The cave is too dark to read yr scroll", 1);
 	}
-
 	
 	//so that mess should have gotten us the current message index scan
 	//pointer (or pseudo-version thereof); now we can start
-	mNdx = this.getMailScanPtr(mmBase, mNdx);
+	mailList = this.getMailScanPtr(mmBase, mNdx);
 
 	while (!fuggit) {
 	  //let's read da shit
@@ -293,17 +301,18 @@ msg_base = {
 	    case 'n':
 	    case ' ':
 		//display, if exists, otherwise exit
-		if (((mNdx == mmBase.total_msgs) && (increment == 1)) ||
+		if (((mNdx == (mailList.length - 1)) && (increment == 1)) ||
 		    ((mNdx == 0) && (increment == -1))) {
 		  console.putmsg(green + high_intensity + "Goto\n");
+		  fuggit = true;	//which way are we handling this?
 		  return;	/* there should probably be a different
 				   exit from this for reverse reading, in the
 				   future :P */
 		}
 
 		try {
-		  mHdr = mmBase.get_msg_header(true, mNdx);
-		  mBody = mmBase.get_msg_body(true, mNdx);
+		  mHdr = mmBase.get_msg_header(true, mailList[mNdx]);
+		  mBody = mmBase.get_msg_body(true, mailList[mNdx]);
 		} catch (e) {
 		  console.putmsg(red + high_intensity + "Unable to read " +
 		    "mail header|body\n");
@@ -329,8 +338,8 @@ msg_base = {
 	    break;
 	    case 'd':
 		//delete message
-
-	
+		mmBase.remove_msg(mailList[mNdx]);
+		break;
 	    break;
 	    case 's':
 		//stop reading Mail>
