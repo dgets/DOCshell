@@ -209,11 +209,21 @@ msg_base = {
 	 * return:
 	 *	Returns the integer pointer, or 0
 	 */
-    getMailScanPtr : function(mmBase) {
-        var mNdx = 0;
+    getMailScanPtr : function(mmBase, prevNdx) {
+        var mNdx = prevNdx;
         var mHdr;
 
+	if (userSettings.debug.message_scan) {
+	  console.putmsg(yellow + "total_msgs: " + mmBase.total_msgs +
+		"\n");
+	  console.putmsg(yellow + "Scanning . . .  ");
+	}
+
         for (var i = 0; i < mmBase.total_msgs; ++i) {
+	  if (userSettings.debug.message_scan) {
+	    console.putmsg(red + i + " ");
+	  }
+
           try {
             mHdr = mmBase.get_msg_header(true, i, true);
           } catch (e) {
@@ -223,11 +233,25 @@ msg_base = {
                 "Unable to read message header(s): " + e.message, 2);
           }
 
+	  if (userSettings.debug.message_scan) {
+	    //in-depth debugging for message attributes
+	    if (mHdr.to_ext == user.number) {
+		console.putmsg("Message to " + user.number + " found.");
+	    }
+	    if ((mHdr.attr & MSG_READ) == MSG_READ) {
+		console.putmsg("  MSG_READ\n");
+	    } else { console.putmsg("\n"); }
+	  }
+
           if ((mHdr.to_ext == user.number) &&
               ((mHdr.attr & MSG_READ) == MSG_READ)) {
                 mNdx = i;
           }
         }
+
+	if (userSettings.debug.message_scan) {
+	  console.putmsg(" ");
+	}
 
 	return mNdx;
     },
@@ -238,8 +262,8 @@ msg_base = {
 	 */
     readMail : function() {
 	var mmBase = new MsgBase("mail");
-	var fuggit = false, increment = 1;
-	var mNdx, uChoice, mHdr, mBody;
+	var fuggit = false, increment = 1, mNdx = 0;
+	var uChoice, mHdr, mBody;
 
 	try {
 	  mmBase.open();
@@ -252,7 +276,7 @@ msg_base = {
 	
 	//so that mess should have gotten us the current message index scan
 	//pointer (or pseudo-version thereof); now we can start
-	mNdx = this.getMailScanPtr(mmBase);
+	mNdx = this.getMailScanPtr(mmBase, mNdx);
 
 	while (!fuggit) {
 	  //let's read da shit
@@ -312,6 +336,11 @@ msg_base = {
 		//stop reading Mail>
 		console.putmsg(yellow + high_intensity + "Stop\n");
 		fuggit = true;
+	    break;
+	    case 'l':
+		if (!console.noyes("Logout?")) {
+		  docIface.util.quitDdoc();
+		}
 	    break;
 	    default:
 		//wut
