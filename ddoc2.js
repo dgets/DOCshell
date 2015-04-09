@@ -210,13 +210,18 @@ docIface = {
 	 *	String of the human-readable sub name.
 	 */
     setSub : function(room) {
-	if (room === null) return "";
-	
-	bbs.curgrp = room.grp_number;
-	bbs.cursub = room.index;
-	user.cursub = bbs.cursub_code;
-	
-	return room.name;
+	if (room === null) {
+	  throw new dDocException("setSub() error", "Passed null room", 1);
+	}
+
+	if (room != "Mail") {
+	  bbs.curgrp = room.grp_number;
+	  bbs.cursub = room.index;
+	  user.cursub = bbs.cursub_code;
+	  return room.name;
+	} else {
+	  return "Mail";
+	}
     },
     	/*
 	 * summary:

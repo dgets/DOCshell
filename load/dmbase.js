@@ -325,7 +325,7 @@ msg_base = {
 		msg_base.doMprompt(mmBase, mNdx);
 
 		//display body
-		msg_base.dispMsg(mmBase, (mNdx += increment), false);
+		msg_base.dispMsg(mmBase, mailList[mNdx += increment], false);
 
 	    break;
 	    case 'b':
