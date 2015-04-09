@@ -243,8 +243,8 @@ msg_base = {
 		console.putmsg("Message to " + user.number + " found.");
 	    }
 	    if ((mHdr.attr & MSG_READ) == MSG_READ) {
-		console.putmsg("  MSG_READ\n");
-	    } else { console.putmsg("\n"); }
+		console.putmsg("  MSG_READ ");
+	    } else { console.putmsg(" "); }
 	  }
 
 	  if (mHdr.to_ext == user.number) {
@@ -257,6 +257,7 @@ msg_base = {
 	  }
 
         }
+	console.putmsg("\n");
 
 	if (userSettings.debug.message_scan) {
 	  console.putmsg(" ");
@@ -268,6 +269,9 @@ msg_base = {
 	 * summary:
 	 *	Method exists to read mail, pump it into the DOC format,
 	 *	and display it to the end user
+	 * return:
+	 *	Returns nothing, unless signalling to primary code flow that
+	 *	a logout has been requested (-1 value)
 	 */
     readMail : function() {
 	var mmBase = new MsgBase("mail");
@@ -358,7 +362,10 @@ msg_base = {
 	    break;
 	    case 'l':
 		if (!console.noyes("Logout?")) {
-		  docIface.util.quitDdoc();
+		  if (userSettings.debug.navigation) {
+		    console.putmsg(red + "Sending -1 to request logout\n");
+		  }
+		  return -1;	//god ouah
 		}
 	    break;
 	    default:

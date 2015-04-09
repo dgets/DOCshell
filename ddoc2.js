@@ -277,8 +277,13 @@ docIface = {
 	    console.putmsg("Entering Mail> code\n");
 	  }
 
-	  msg_base.uMail.readMail();
-	  ouah = "Mail";
+	  if (msg_base.uMail.readMail() == -1) {
+	    if (userSettings.debug.navigation) {
+		console.putmsg(red + "Logout requested from Mail> code\n");
+	    }
+	    docIface.util.quitDdoc();
+	  }
+	  ouah = "Mail";	//vestigial?
 	} else {
 	  try {
 	    ouah = this.chk4Room(uChoice);
@@ -508,6 +513,7 @@ docIface = {
                 "again soon!\n\nPeace out!\n");
 
 	bbs.logout();
+	return;
     },
 	/*
 	 * summary:
