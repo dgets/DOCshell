@@ -338,7 +338,17 @@ msg_base = {
 	    break;
 	    case 'd':
 		//delete message
-		mmBase.remove_msg(mailList[mNdx]);
+		try {
+		  mmBase.remove_msg(mailList[mNdx]);
+		} catch (e) {
+		  console.putmsg(red + high_intensity + "Unable to delete " +
+		    "mail due to " + e.message + "\n");
+		  throw new dDocException("readMail() exception",
+		    "Unable to delete message: " + e.message, 4);
+		}
+
+		console.putmsg(yellow + high_intensity + "Mail message " +
+			"baleeted . . .\n");
 		break;
 	    break;
 	    case 's':
