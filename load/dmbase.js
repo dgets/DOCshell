@@ -247,7 +247,7 @@ msg_base = {
 	    } else { console.putmsg("\n"); }
 	  }
 
-	  if (mHdx.to_ext == user.number) {
+	  if (mHdr.to_ext == user.number) {
 	    if (((mHdr.attr & MSG_READ) == MSG_READ) &&
 		(mNdx == prevNdx)) {
 		mNdx = i;
@@ -292,10 +292,10 @@ msg_base = {
 	  uChoice = console.getkey();	//NOTE: this will have to be replaced
 					//w/one checking for Xes
 
-	  if (userSettings.debug.message_scan) {
+	  /* if (userSettings.debug.message_scan) {
 	    //should probably add a 'mail' option to the debugging opts
 	    console.putmsg(yellow + "Working with mNdx: " + mNdx + "\n");
-	  }
+	  } */
 
 	  switch (uChoice) {
 	    case 'n':
@@ -322,7 +322,7 @@ msg_base = {
 		}
 
 		//display header
-		msg_base.doMPrompt(mmBase, mNdx);
+		msg_base.doMprompt(mmBase, mNdx);
 
 		//display body
 		msg_base.dispMsg(mmBase, (mNdx += increment), false);
