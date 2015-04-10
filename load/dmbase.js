@@ -383,13 +383,18 @@ msg_base = {
 
 	base.close();  // Refresh base for any new messages
 	base.open();
-	if (userSettings.debug.message_scan) {
+	if (base.subnum != -1) {
+	  if (userSettings.debug.message_scan) {
 	    console.putmsg(red + "Reopened " + base.cfg.code
 		  + " to check for updates\n");
-	}
-	console.putmsg(yellow + high_intensity + "\n[" + base.cfg.name +
+	  }
+	  console.putmsg(yellow + high_intensity + "\n[" + base.cfg.name +
 	      "> msg #" + (ndx + 1) + " (" + (mBase.total_msgs - ndx) +
 	      " remaining)] " + cyan + "Read cmd -> ");
+	} else {
+	  console.putmsg(yellow + high_intensity + "\n[Mail> msg #" + 
+	    (ndx + 1) + " (unknown remaining)] " + cyan + "Read cmd -> ");
+	}
   },
         /*
 	 * summary:
@@ -413,17 +418,19 @@ msg_base = {
         mHdr = base.get_msg_header(ptr);
         mBody = base.get_msg_body(ptr);
 
-	if (userSettings.debug.message_scan) {
+	if (base.subnum != -1) {
+	  if (userSettings.debug.message_scan) {
 	    console.putmsg(red + "ptr: " + ptr + "\tbase.last_msg: "
 		+ base.last_msg + "\n");
-	}
+	  }
 
-	if (mHdr === null) {
+	  if (mHdr === null) {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg(red + "Invalid message? base.cfg.code: "
 		      + base.cfg.code + " ptr: " + ptr + "\n");
 	    }
 	    return;	// Invalid message, skip
+	  }
 	}
 
 	fHdr = "\n" + magenta + high_intensity + mHdr.date + green + " from "

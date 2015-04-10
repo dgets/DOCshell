@@ -134,11 +134,14 @@ uMail = {
                     3);
                 }
 
-                //display header
+                //display message
+                msg_base.dispMsg(mmBase, mailList[mNdx], false);
+
+                //display prompt
                 msg_base.doMprompt(mmBase, mNdx);
 
-                //display body
-                msg_base.dispMsg(mmBase, mailList[mNdx += increment], false);
+		//get ready for next
+		mNdx += increment;
             break;
             case 'b':
                 //switch direction
