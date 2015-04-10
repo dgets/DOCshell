@@ -15,6 +15,7 @@
 
 //includes
 load("load/dmbase.js");
+load("load/dmail.js");
 load("load/dpoast.js");
 load("load/dexpress.js");
 load("load/dperuser.js");
@@ -277,7 +278,7 @@ docIface = {
 	    console.putmsg("Entering Mail> code\n");
 	  }
 
-	  if (msg_base.uMail.readMail() == -1) {
+	  if (uMail.readMail() == -1) {
 	    if (userSettings.debug.navigation) {
 		console.putmsg(red + "Logout requested from Mail> code\n");
 	    }
