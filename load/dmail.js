@@ -1,7 +1,14 @@
-  /*
-   * summary:
-   *    Sub-object holds all of the components to deal with Mail> properly
-   */
+/*
+ * dmail.js
+ * by: Damon Getsman
+ * started: 10 Apr 15 (at least in a separate file)
+ * finished:
+ */
+
+/*
+ * summary:
+ *    Sub-object holds all of the components to deal with Mail> properly
+ */
 uMail = {
     //mailPrompt : yellow + high_intensity + "Mail> ",
         /*
@@ -19,7 +26,8 @@ uMail = {
         if (userSettings.debug.message_scan) {
           console.putmsg(yellow + "total_msgs: " + mmBase.total_msgs +
                 "\n");
-          console.putmsg(yellow + "Scanning . . .  ");
+          console.putmsg(yellow + "Scanning for messages to " + user.number +
+		" . . .  ");
         }
 
         //there will have to be more elegant handling of the present/prevNdx
@@ -41,20 +49,23 @@ uMail = {
 
           if (userSettings.debug.message_scan) {
             //in-depth debugging for message attributes
-            if (mHdr.to_ext == user.number) {
+	    console.putmsg(" to_ext: " + mHdr.to_ext + " to: " + mHdr.to +
+		"; ");
+
+            if ((mHdr.to == user.name) || (mHdr.to == user.alias)) {
                 console.putmsg("Message to " + user.number + " found.");
             }
             if ((mHdr.attr & MSG_READ) == MSG_READ) {
-                console.putmsg(" MSG_READ ");
-            } else { console.putmsg(" "); }
+                console.putmsg("MSG_READ ");
+            } else { 
+		console.putmsg(" "); 
+	    }
           }
 
           if (mHdr.to_ext == user.number) {
-            if (((mHdr.attr & MSG_READ) == MSG_READ) &&
-                (mNdx == prevNdx)) {
-                mNdx = i;
-            }
-
+	    if (userSettings.debug.message_scan) {
+		console.putmsg("Pushing " + i + " to list\n");
+	    }
             applicableMailList.push(i);
           }
 
@@ -62,7 +73,8 @@ uMail = {
         console.putmsg("\n");
 
         if (userSettings.debug.message_scan) {
-          console.putmsg(" ");
+          console.putmsg("\nReturning: " + applicableMailList.toString() +
+		"\n");
         }
 
         return applicableMailList;
