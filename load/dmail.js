@@ -104,6 +104,10 @@ uMail = {
         //pointer (or pseudo-version thereof); now we can start
         mailList = this.getMailScanPtr(mmBase, mNdx);
 
+	if (userSettings.debug.message_scan) {
+	  console.putmsg("Got back mailList: " + mailList.toString() + "\n");
+	}
+
         while (!fuggit) {
           //let's read da shit
           console.putmsg(yellow + high_intensity + "Mail> ");//this.mailPrompt);
@@ -119,15 +123,6 @@ uMail = {
             case 'n':
             case ' ':
                 //display, if exists, otherwise exit
-                if (((mNdx == (mailList.length - 1)) && (increment == 1)) ||
-                    ((mNdx == 0) && (increment == -1))) {
-                  console.putmsg(green + high_intensity + "Goto\n");
-                  fuggit = true;        //which way are we handling this?
-                  return;       /* there should probably be a different
-                                   exit from this for reverse reading, in the
-                                   future :P */
-                }
-
                 try {
                   mHdr = mmBase.get_msg_header(true, mailList[mNdx]);
                   mBody = mmBase.get_msg_body(true, mailList[mNdx]);
@@ -144,7 +139,6 @@ uMail = {
 
                 //display body
                 msg_base.dispMsg(mmBase, mailList[mNdx += increment], false);
-
             break;
             case 'b':
                 //switch direction
@@ -188,6 +182,20 @@ uMail = {
             break;
 
           }
+
+          if (((mNdx == (mailList.length - 1)) && (increment == 1)) ||
+              ((mNdx == 0) && (increment == -1))) {
+            if (userSettings.debug.message_scan) {
+                  console.putmsg("End of messages detected\n");
+            }
+
+            console.putmsg(green + high_intensity + "Goto\n");
+            fuggit = true;        //which way are we handling this?
+            return;       /* there should probably be a different
+                             exit from this for reverse reading, in the
+                             future :P */
+          }
+
 
         }
     }
