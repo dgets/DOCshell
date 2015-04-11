@@ -440,6 +440,10 @@ msg_base = {
 	    console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into the
 		// putmsg here so it gets included in the line count for breaks
         } else {
+	    if (userSettings.debug.message_scan) {
+		console.putmsg("Putting out message next:\n");
+	    }
+
 	    console.putmsg(fHdr + mBody, (P_NOPAUSE | P_WORDWRAP));
 	}
 

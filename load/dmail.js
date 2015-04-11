@@ -134,6 +134,10 @@ uMail = {
                     3);
                 }
 
+		if (userSettings.debug.message_scan) {
+		  console.putmsg("Made it to be displaying Mail>\n");
+		}
+
                 //display message
                 msg_base.dispMsg(mmBase, mailList[mNdx], false);
 
