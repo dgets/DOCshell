@@ -136,10 +136,18 @@ uMail = {
 
 		if (userSettings.debug.message_scan) {
 		  console.putmsg("Made it to be displaying Mail>\n");
+		  console.putmsg("Calling dispMsg() w/mmBase: " + 
+		    mmBase.subnum + "\tindex: " + mailList[mNdx] + 
+		    "\tbreaks: true\n");
 		}
 
                 //display message
-                msg_base.dispMsg(mmBase, mailList[mNdx], false);
+		try {
+                  msg_base.dispMsg(mmBase, mailList[mNdx], true);
+		} catch (e) {
+		  console.putmsg(red + "Error in dispMsg(): " + e.message +
+		    "\nNumber: " + e.number + "\tName: " + e.name + "\n");
+		}
 
                 //display prompt
                 msg_base.doMprompt(mmBase, mNdx);

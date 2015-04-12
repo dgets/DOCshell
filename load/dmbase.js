@@ -414,23 +414,33 @@ msg_base = {
 	    breaks = true;
 	}
 
-        //try/catch this
-        mHdr = base.get_msg_header(ptr);
-        mBody = base.get_msg_body(ptr);
+	if (userSettings.debug.message_scan) {
+	  console.putmsg("Received base: " + base + "\tptr: " + ptr + 
+	    "\tbreaks: " + breaks + "\n");
+	}
 
-	if (base.subnum != -1) {
-	  if (userSettings.debug.message_scan) {
+        //try/catch this
+	try {
+          mHdr = base.get_msg_header(ptr);
+          mBody = base.get_msg_body(ptr);
+	} catch (e) {
+	  console.putmsg(red + "Error fetching mHdr & mBody\nName: " + e.name +
+	    "\tNumber: " + e.number + "\nMessage: " + e.message + "\n");
+	  throw new dDocException("dispMsg() Error",
+		"Unable to fetch message header/body", 1);
+	}
+
+	if (userSettings.debug.message_scan) {
 	    console.putmsg(red + "ptr: " + ptr + "\tbase.last_msg: "
 		+ base.last_msg + "\n");
-	  }
+	}
 
-	  if (mHdr === null) {
+	if (mHdr === null) {
 	    if (userSettings.debug.message_scan) {
-		console.putmsg(red + "Invalid message? base.cfg.code: "
-		      + base.cfg.code + " ptr: " + ptr + "\n");
+		console.putmsg(red + "Invalid message? base.subnum: "
+		      + base.subnum + " ptr: " + ptr + "\n");
 	    }
 	    return;	// Invalid message, skip
-	  }
 	}
 
 	fHdr = "\n" + magenta + high_intensity + mHdr.date + green + " from "
