@@ -181,13 +181,19 @@ roomData = {
 		console.putmsg(red + "Unable to parse rmInfoz\n");
 	  }
 	  //no need to throw an error for now
-	  rmInfoz = {
+	  /*rmInfoz = {
 	    bbs.cursub_code: {
 		"defaultSettings": {
 		  "infoCreationDate": null,
 		  "info": []
 		}
 	    }
+	  }; */
+	  rmInfoz[bbs.cursub_code] = { 
+		"defaultSettings" : {
+			"infoCreationDate" : null,
+			"info" : [ ]
+		}
 	  };
 	}
 	
