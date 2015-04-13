@@ -62,6 +62,7 @@ docIface = {
        "\n<E>\tenter (upload)\n<f>\tread forum forward\n" +
        "<F>\tshow Fortune\n<G>\tGoto next room\n" +
        "<Q>\tAsk a question of a guide\n<i>\tforum information\n" +
+       "<I>\tchange forum information\n" +
        "<j>\tjump to a room name/number\n<k>\tknown rooms list\n" +
        "<l>\tlogout\n<N>\tselect new shell\n" +
        "<n>\tread new msgs\n<o>\tread old msgs reverse" +
@@ -686,6 +687,9 @@ if (!debugOnly) {
 		  break;
 		case 'i':	//display room info
 		  roomData.roomSettingsUX.displayRoomInfo();
+		  break;
+		case 'I':	//change room info (if applicable)
+		  roomData.roomSettingsUX.promptUserForRoomInfo();
 		  break;
 		default:
 		  console.putmsg(excuse);

@@ -191,9 +191,11 @@ userRecords = {
 	    if (blob == null
 	        || (Object.getOwnPropertyNames(blob).length === 0)
 		|| (blob[userid.toString()] == null)) {
-		if (debugging) console.putmsg("No user found, returning" + 
-					      "default settings.\n");
-		return new userRecords.defaultSettings(userid);
+		  if (debugging) {
+		   console.putmsg("No user found, returning default settings" +
+		    ".\n");
+		  }
+		  return new userRecords.defaultSettings(userid);
 	    }
 
 	    return blob[userid.toString()];

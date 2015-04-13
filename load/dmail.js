@@ -139,6 +139,8 @@ uMail = {
 		  console.putmsg("Calling dispMsg() w/mmBase: " + 
 		    mmBase.subnum + "\tindex: " + mailList[mNdx] + 
 		    "\tbreaks: true\n");
+		  console.putmsg("Pulling mHdr from dmail.js is landing: " +
+		    mHdr + "\n");
 		}
 
                 //display message

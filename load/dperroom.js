@@ -61,15 +61,23 @@ roomData = {
 	 *	Call to prompt user and change room info
 	 */
     promptUserForRoomInfo : function() {
-	//can we moderate this?
-	if ((roomSettings.moderator == user.alias) ||
-	    ((roomSettings.moderator == "none set") &&
-	     (user.security.level >= 80))) {
+	this.displayRoomInfo();
+
+	if (!console.noyes("Change this?")) {
+	  //can we moderate this?
+	  if ((roomSettings.moderator == user.alias) ||
+	      (((roomSettings.moderator == "none set") ||
+		(roomSettings.moderator == null)) &&
+	       (user.security.level >= 80))) {
 		console.putmsg(green + high_intensity + 
 			"Enter new room info here:\n");
 		this.changeRoomInfo();
+	  } else {
+	    console.putmsg(yellow + high_intensity + "You're not allowed!\n\n");
+	  }
 	} else {
-	  console.putmsg(yellow + high_intensity + "You're not allowed!\n\n");
+	  console.putmsg(green + high_intensity + "\nStaying the same for " +
+		"now . . .\n");
 	}
     },
 	/*
@@ -81,7 +89,7 @@ roomData = {
 
 	  if ((infoTxt = poast.getTextBlob(this.maxInfoLines)) != null) {
 		//save the new room info
-		this.fileIO.saveRoomInfo(infoTxt);
+		roomData.fileIO.saveRoomInfo(infoTxt);
           }
     },
 	/*
@@ -164,7 +172,24 @@ roomData = {
 	 */
     saveRoomInfo : function(roomInfo) {
 	var blob = this.snagRoomInfoBlob(this.roomRecFilename, bbs.cursub_code);
-	var rmInfoz = JSON.parse(blob);
+	var rmInfoz = { };
+
+	try {
+	  rmInfoz = JSON.parse(blob);
+	} catch (e) {
+	  if (userSettings.debug.misc) {
+		console.putmsg(red + "Unable to parse rmInfoz\n");
+	  }
+	  //no need to throw an error for now
+	  rmInfoz = {
+	    bbs.cursub_code: {
+		"defaultSettings": {
+		  "infoCreationDate": null,
+		  "info": []
+		}
+	    }
+	  };
+	}
 	
 	rmInfoz[bbs.cursub_code].defaultSettings.infoCreationDate = Date.now();
 	rmInfoz[bbs.cursub_code].defaultSettings.info = roomInfo;
@@ -253,7 +278,7 @@ roomData = {
 	}
 
 
-	if ((chunky == null) || (chunky.length < 30)) {
+	if ((chunky == null) || (chunky.length == 0)) {
 	    //one would think that creating a template would be good here
 	    /* throw new docIface.dDocException("Exception in stripNRead()",
 		"blob null or length < 30", 2); */
