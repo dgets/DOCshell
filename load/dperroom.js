@@ -89,7 +89,13 @@ roomData = {
 
 	  if ((infoTxt = poast.getTextBlob(this.maxInfoLines)) != null) {
 		//save the new room info
-		roomData.fileIO.saveRoomInfo(infoTxt);
+		try {
+		  roomData.fileIO.saveRoomInfo(infoTxt);
+		} catch (e) {
+		  console.putmsg(red + "changeRoomInfo() exception: " +
+		    e.name + "\nmessage: " + e.message + "\tnum: " + e.number +
+		    "\n");
+		}
           }
     },
 	/*
@@ -99,6 +105,9 @@ roomData = {
 	 */
     displayRoomInfo : function() {
 	this.displayRoomInfoHdr();
+
+	try {
+	  roomSettings = snagRoomInfoBlob();
 
 	if (roomSettings[bbs.cursub_code].settings.info.length == 0) {
 	  //or should we be looking for null here?
@@ -181,14 +190,6 @@ roomData = {
 		console.putmsg(red + "Unable to parse rmInfoz\n");
 	  }
 	  //no need to throw an error for now
-	  /*rmInfoz = {
-	    bbs.cursub_code: {
-		"defaultSettings": {
-		  "infoCreationDate": null,
-		  "info": []
-		}
-	    }
-	  }; */
 	  rmInfoz[bbs.cursub_code] = { 
 		"defaultSettings" : {
 			"infoCreationDate" : null,
@@ -205,19 +206,26 @@ roomData = {
 	try {
 	  infoFile.open("w");
 	} catch (e) {
+	  console.putmsg(yellow + "Error opening info file\n");
 	  throw new docIface.dDocException("Exception in saveRoomInfo()",
 		e.message , 1);
 	}
 
 	try {
+	  if (userSettings.debug.misc) {
+	    console.putmsg(yellow + "Trying to save rmInfoz blob\n");
+	  }
 	  infoFile.write(rmInfoz);
 	} catch (e) {
+	  if (userSettings.debug.misc) {
+	    console.putmsg(red + "Error trying to save rmInfoz blob: " +
+		e.message + "\n");
+	  }
 	  throw new docIface.dDocException("Exception in saveRoomInfo()",
 		e.message, 2);
 	} finally {
 	  infoFile.close();
 	}
-
     },
 	/*
 	 * summary:
