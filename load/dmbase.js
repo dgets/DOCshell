@@ -419,6 +419,22 @@ msg_base = {
 	    "\tbreaks: " + breaks + "\n");
 	}
 
+	if (!base.is_open) {
+	  //let's give this a shot
+	  if (userSettings.debug.message_scan) {
+	    console.putmsg(yellow + "base was closed; reopening\n");
+	  }
+
+	  try {
+	    base.open();
+	  } catch (e) {
+	    console.putmsg(red + "Unable to open Mail> sub:\t" + e.message +
+		"\n");
+	    throw new dDocException("dispMsg() Error", 
+		"Unable to open mail sub: " + e.message, 2);
+	  }
+	}
+
         //try/catch this
 	try {
           mHdr = base.get_msg_header(ptr);

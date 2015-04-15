@@ -140,8 +140,31 @@ uMail = {
 		    mmBase.subnum + "\tindex: " + mailList[mNdx] + 
 		    "\tbreaks: true\n");
 		  console.putmsg("Pulling mHdr from dmail.js is landing: " +
-		    mHdr + "\n");
+		    mHdr.subject + "\n");
 		}
+
+		if (mHdr === null) {
+            		if (userSettings.debug.message_scan) {
+                	  console.putmsg(red + "Invalid message? base.subnum: "
+                          + base.subnum + " ptr: " + ptr + "\n");
+            	}
+            	//return;     // Invalid message, skip
+                }
+
+                fHdr = "\n" + magenta + high_intensity + mHdr.date + green + 
+                  " from " + cyan + mHdr.from + "\n" + green;
+
+                if (breaks) {
+            	  console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into
+                  // putmsg here so it gets included in the line count for
+		  // breaks
+                } else {
+            	    if (userSettings.debug.message_scan) {
+                	console.putmsg("Putting out message next:\n");
+                    }
+
+                    console.putmsg(fHdr + mBody, (P_NOPAUSE | P_WORDWRAP));
+                }
 
                 //display message
 		try {
