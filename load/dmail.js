@@ -154,25 +154,26 @@ uMail = {
                 fHdr = "\n" + magenta + high_intensity + mHdr.date + green + 
                   " from " + cyan + mHdr.from + "\n" + green;
 
-                if (breaks) {
+                //if (breaks) {
             	  console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into
                   // putmsg here so it gets included in the line count for
 		  // breaks
-                } else {
+                /*} else {
             	    if (userSettings.debug.message_scan) {
                 	console.putmsg("Putting out message next:\n");
                     }
 
                     console.putmsg(fHdr + mBody, (P_NOPAUSE | P_WORDWRAP));
-                }
+                } */
 
                 //display message
-		try {
+		/* try {
                   msg_base.dispMsg(mmBase, mailList[mNdx], true);
 		} catch (e) {
 		  console.putmsg(red + "Error in dispMsg(): " + e.message +
 		    "\nNumber: " + e.number + "\tName: " + e.name + "\n");
 		}
+		*/
 
                 //display prompt
                 msg_base.doMprompt(mmBase, mNdx);
