@@ -183,6 +183,30 @@ uMail = {
 		//get ready for next
 		mNdx += increment;
             break;
+	    case 'r':
+		if (userSettings.debug.message_posting) {
+		  console.putmsg("Attempting email reply in Mail>\n");
+		}
+
+		try {
+		  this.sendMail(mHdr.from_ext, false);
+		} catch (e) {
+		  console.putmsg(yellow + "Unable to send email reply: " 
+		    + e.message + "\n");
+		}
+	    break;
+	    case 'e':
+		if (userSettings.debug.message_posting) {
+		  console.putmsg("Attempting initial email in Mail>\n");
+		}
+
+		try {
+		  this.sendMail(null, false);
+		} catch (e) {
+		  console.putmsg(yellow + "Unable to send email: " +
+		    e.message + "\n");
+		}
+	    break;
             case 'b':
                 //switch direction
                 increment *= -1;
@@ -241,6 +265,34 @@ uMail = {
 
 
         }
-    }
+    },
+    sendMail : function(recip, upload) {
+	var uData;
+
+	if (userSettings.debug.message_posting) {
+	  console.putmsg("Entered sendMail()\n");
+	}
+
+	if (recip == null) {
+	  console.putmsg(green + high_intensity + "Recipient: ");
+	  recip = console.getstr("", 40);
+
+	  while ((uData = system.matchuser(recip)) == 0) {
+	    console.putmsg(yellow + high_intensity + "User: " + recip + 
+	      " not found!\n" + green + high_intensity + "Recipient (or " +
+	      "'quit' to exit): ");
+	    recip = console.getstr("", 40);
+
+	    if (recip == "quit") {
+		console.putmsg(yellow + high_intensity + "Abort\n");
+		return -1;	//user abort
+	    }
+	  }
+	} else {
+	  uData = system.matchuser(recip);	//add error testing here
+	}
+
+	
+
 }
 
