@@ -108,9 +108,10 @@ uMail = {
 	  console.putmsg("Got back mailList: " + mailList.toString() + "\n");
 	}
 
+	console.putmsg(yellow + high_intensity + "Mail> ");
+
         while (!fuggit) {
           //let's read da shit
-          console.putmsg(yellow + high_intensity + "Mail> ");//this.mailPrompt);
           uChoice = console.getkey();   //NOTE: this will have to be replaced
                                         //w/one checking for Xes
 
@@ -123,6 +124,7 @@ uMail = {
             case 'n':
             case ' ':
                 //display, if exists, otherwise exit
+		//the 'otherwise exit' part being currently not completed
                 try {
                   mHdr = mmBase.get_msg_header(true, mailList[mNdx]);
                   mBody = mmBase.get_msg_body(true, mailList[mNdx]);
@@ -224,7 +226,7 @@ uMail = {
 
           }
 
-          if (((mNdx == (mailList.length - 1)) && (increment == 1)) ||
+          if (((mNdx >= mailList.length) && (increment == 1)) ||
               ((mNdx == 0) && (increment == -1))) {
             if (userSettings.debug.message_scan) {
                   console.putmsg("End of messages detected\n");
