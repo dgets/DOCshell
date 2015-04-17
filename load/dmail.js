@@ -266,8 +266,36 @@ uMail = {
 
         }
     },
+	/*
+	 * summary:
+	 * 	Method displays a new header for a mail message utilizing the
+	 *	lookup for the appropriate username
+	 * recip:
+	 *	User number for the recipient
+	 */
+    dispNewMailHdr : function(recip) {
+	var nao = new Date();
+
+	console.putmsg("\n" + magenta + high_intensity + nao.toString() +
+		green + " from " + cyan + user.alias + green + " to " +
+		system.userstring(recip) + "\n");
+    },
+	/*
+	 * summary:
+	 *	Method handles sending mail to a user from within the Mail>
+	 *	sub/room
+	 * recip:
+	 *	Alias of the recipient
+	 * upload:
+	 *	Boolean value for whether or not the message is handled as
+	 *	uploaded text
+	 * return:
+	 *	-1 for recipient not found/successfully prompted for, -2 for
+	 *	trying to send a null message
+	 */
     sendMail : function(recip, upload) {
-	var uData;
+	var uData, uNum;
+	var mailTxt = new Array();
 
 	if (userSettings.debug.message_posting) {
 	  console.putmsg("Entered sendMail()\n");
@@ -277,10 +305,10 @@ uMail = {
 	  console.putmsg(green + high_intensity + "Recipient: ");
 	  recip = console.getstr("", 40);
 
-	  while ((uData = system.matchuser(recip)) == 0) {
+	  while ((uNum = system.matchuser(recip)) == 0) {
 	    console.putmsg(yellow + high_intensity + "User: " + recip + 
 	      " not found!\n" + green + high_intensity + "Recipient (or " +
-	      "'quit' to exit): ");
+	      "'quit' to abort email): ");
 	    recip = console.getstr("", 40);
 
 	    if (recip == "quit") {
@@ -289,10 +317,29 @@ uMail = {
 	    }
 	  }
 	} else {
-	  uData = system.matchuser(recip);	//add error testing here
+	  uNum = system.matchuser(recip);	//add error testing here
 	}
 
-	
+	/*
+	 * Are we going to do anything in the future hear to deal with the
+	 * subjects that we have available to us?
+	 */
+	this.dispNewMailHdr(uNum);
+	mailTxt = poast.getTextBlob(null);
 
+	if (mTxt != null) {
+	  try {
+	    poast.mWrite(mTxt, new MsgBase('mail'), uNum);
+	  } catch (e) {
+	    console.putmsg(red + "Unable to poast.mWrite Mail>: " + e.message +
+		"\n");
+	  }
+	} else {
+	  console.putmsg(red + high_intensity + "Not sending a null " +
+	    "message!\n");
+	  return -2;
+	}
+
+    }
 }
 

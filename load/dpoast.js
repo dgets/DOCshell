@@ -321,7 +321,8 @@ poast = {
 	  if ((recipient != null) && 
 	      (recipient.toString().toUpperCase() != "ALL")) {
 		if (recipient !== 1) {
-		  mHdr['to'] = recipient;
+		  var tmpUser = new User(recipient);
+		  mHdr['to'] = tmpUser.alias;
 		} else {
 		  var sysop = new User(recipient);
 		  mHdr['to'] = sysop.alias;
@@ -351,9 +352,14 @@ poast = {
 	   */
 	  if (mBase.subnum == -1) {
 		var dMB = new MsgBase('mail');
-		mHdr["to_ext"] = 1;
+		mHdr["to_ext"] = recipient;
 		mHdr["from_ext"] = user.number;
-		mHdr["subject"] = "<Y>ell mail to SysOp";
+		if (recipient == 1) {
+		  mHdr["subject"] = "<Y>ell mail to SysOp";
+		  //this should be handled better
+		} else {
+		  mHdr["subject"] = "dDoc Mail>";
+		}
 	  } else {
           	var dMB = new MsgBase(mBase.cfg.code);
 	  }
