@@ -314,6 +314,26 @@ roomData = {
      },
 	/*
 	 * summary:
+	 *	Method scans for the room number that it is passed within the
+	 *	zappedRooms.zRooms array; if it finds the number it signifies
+	 *	that this room is, indeed, zapped, and should be eschewed from
+	 *	the message scan
+	 * roomNo:
+	 *	Room number being tested
+	 * return:
+	 *	True for success (room is zapped), false otherwise
+	 */
+     isZapped : function(roomNo) {
+	for each(zNo in zappedRooms.zRooms) {
+	  if (roomNo == zNo) {
+		return true;
+	  }
+	}
+
+	return false;
+     },
+	/*
+	 * summary:
 	 *	Method opens file of user's zapped rooms (still need to
 	 *	come up with the JSON for that), strips irrelevant,
 	 *	and [ideally] returns the parsed JSON that should just
@@ -326,7 +346,7 @@ roomData = {
 	var zappedChunx = { };
 	var blob;
 
-	if (!file_esists(zappedFile.name)) {
+	if (!file_exists(zappedFile.name)) {
 	  //create a dummy file or move it from misc, throw exception,
 	  //something for the love of all things holy
 
@@ -342,12 +362,18 @@ roomData = {
 	  try {
 	    blob = this.stripNRead(zappedFile);
 	  } catch (e) {
+	    zappedFile.close();
 	    console.putmsg(yellow + "Error in stripNRead(): " +
 		e.message + "\n");
 	    throw new docIface.dDocException("Exception in stripNRead()",
 		e.message, 2);
 	  }
-	
+
+	  /*
+	   * TODO: This should end up holding the contents of the default
+	   * record if things haven't been set just yet as a precursor to
+	   * saving the new user's zapped array
+	   */	
 	  if ((blob == null) || (blob.length == 0)) {
 	    //create template?
 	    throw new docIface.dDocException("Exception: blob too small/null",
