@@ -323,7 +323,8 @@ roomData = {
 	 */
       snagUserZappedRooms : function() {
 	var zappedFile = new File(userZapRecFilename);
-	var chunky;
+	var zappedChunx = { };
+	var blob;
 
 	if (!file_esists(zappedFile.name)) {
 	  //create a dummy file or move it from misc, throw exception,
@@ -339,7 +340,7 @@ roomData = {
 	  }
 
 	  try {
-	    chunky = this.stripNRead(zappedFile);
+	    blob = this.stripNRead(zappedFile);
 	  } catch (e) {
 	    console.putmsg(yellow + "Error in stripNRead(): " +
 		e.message + "\n");
@@ -347,15 +348,15 @@ roomData = {
 		e.message, 2);
 	  }
 	
-	  if ((chunky == null) || (chunky.length < 30)) {
+	  if ((blob == null) || (blob.length == 0)) {
 	    //create template?
 	    throw new docIface.dDocException("Exception: blob too small/null",
-		"blob null or length < 30", 5);
+		"blob null or length == 30", 5);
 	  }
 
-	  chunky = JSON.parse(chunky);
+	  zappedChunx = JSON.parse(blob);
 
-	  return chunky;
+	  return zappedChunx;
 	}
       }
   }
