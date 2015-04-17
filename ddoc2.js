@@ -431,7 +431,9 @@ docIface = {
 		userRecords.userDataUI.displayDebugFlags(user.number);
 		console.putmsg("Turning off Synchronet defaults for dDoc\n");
 	}
-	
+
+	//save user setting defaults
+	docIface.util.preUserSettings = user.settings;	
 	this.turnOffSynchronetDefaults();
 	if (userSettings.confined) {
 		bbs.log_str(user.alias + " is entering dDOC shell and " +
@@ -452,6 +454,7 @@ docIface = {
 	//turn on user pauses
 	user.settings |= USER_PAUSE;
 
+	//save bbs defaults
 	docIface.util.preSubBoard = bbs.cursub;
 	docIface.util.preMsgGroup = bbs.curgrp;
 	docIface.util.preFileDir = bbs.curdir;
@@ -476,9 +479,12 @@ docIface = {
 	user.settings &= ~USER_ASK_NSCAN;
 	user.settings &= ~USER_ASK_SSCAN;
 	user.settings &= ~USER_ANFSCAN;
-	//turn off garish interface settings
-	/* user.settings &= USER_NOPAUSESPIN;	//set this, too, why not
-	user.settings &= USER_SPIN; */
+	/*
+	 * NOTE: These should be saved and turned back on afterwards; this
+	 * will probably fix the issue with timeouts or at least some of the
+	 * aberrant behavior that happens when one drops from this shell back
+	 * out to the synchronet default when not logging in with it
+	 */
     },
 	/*
 	 * summary:
@@ -497,6 +503,7 @@ docIface = {
 	    " bbs.cursub: " + docIface.util.preSubBoard + "\n" + 
 	    " bbs.curgrp: " + docIface.util.preMsgGroup + "\n" + 
 	    " bbs.curdir: " + docIface.util.preFileDir + "\n");
+	  console.putmsg(red + "\nRestoring user.settings . . .\n");
 	}
 
 	//restore initial settings prior to exit
@@ -504,6 +511,7 @@ docIface = {
 	user.cursub = bbs.cursub_code;
 	bbs.curgrp = docIface.util.preMsgGroup;
 	bbs.curdir = docIface.util.preFileDir;
+	user.settings = docIface.util.preUserSettings;
 
 	//disable H exemption in case they go back to usual shell so that
 	//we can handle events, etc
@@ -548,7 +556,7 @@ docIface = {
 
 //		---+++***===Execution Begins===***+++---
 
-var preSubBoard, preFileDir, preMsgGrp;
+var preSubBoard, preFileDir, preMsgGrp, preUserSettings;
 var uchoice;
 
 //save initial conditions

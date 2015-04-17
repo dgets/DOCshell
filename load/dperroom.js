@@ -108,6 +108,9 @@ roomData = {
 
 	try {
 	  roomSettings = snagRoomInfoBlob();
+	} catch (e) {
+	  console.putmsg("Unable to snagRoomInfoBlob()\n");
+	}
 
 	if (roomSettings[bbs.cursub_code].settings.info.length == 0) {
 	  //or should we be looking for null here?
