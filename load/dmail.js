@@ -185,7 +185,8 @@ uMail = {
             break;
 	    case 'r':
 		if (userSettings.debug.message_posting) {
-		  console.putmsg("Attempting email reply in Mail>\n");
+		  console.putmsg("Attempting email reply in Mail>\n" +
+		    "Utilizing from_ext: " + mHdr.from_ext + "\n");
 		}
 
 		try {
@@ -276,6 +277,11 @@ uMail = {
     dispNewMailHdr : function(recip) {
 	var nao = new Date();
 
+	if (userSettings.debug.message_posting) {
+	  console.putmsg(red + "system.username(" + recip + ") is turning up " 
+	    + system.username(recip) + "\n");
+	}
+
 	console.putmsg("\n" + magenta + high_intensity + nao.toString() +
 		green + " from " + cyan + user.alias + green + " to " +
 		system.username(recip) + "\n");
@@ -285,7 +291,8 @@ uMail = {
 	 *	Method handles sending mail to a user from within the Mail>
 	 *	sub/room
 	 * recip:
-	 *	Alias of the recipient
+	 *	Alias of the recipient; trying to add support for straight-up
+	 *	user number to be parsed here, as well
 	 * upload:
 	 *	Boolean value for whether or not the message is handled as
 	 *	uploaded text
@@ -317,7 +324,30 @@ uMail = {
 	    }
 	  }
 	} else {
-	  uNum = system.matchuser(recip);	//add error testing here
+	  /*switch (typeof recip) {
+	    case "number":
+		if (userSettings.debug.message_posting) {
+		  console.putmsg("Using user number: " + recip + "\n");
+		}
+		uNum = recip;
+	    break;
+	    case "string":
+		if (userSettings.debug.message_posting) {
+		  console.putmsg("Using user name: " + recip + "\n");
+		}
+		uNum = system.matchuser(recip);
+	    break;
+	    default:
+		console.putmsg(red + "Issues looking up user by " +
+			"number/alias: " + recip + "\n");
+	    break;
+	  } */
+
+	  if (!isNaN(parseInt(recip))) {
+		uNum = recip;
+	  } else {
+	    uNum = system.matchuser(recip);	//add error testing here
+	  }
 	}
 
 	/*
