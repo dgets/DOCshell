@@ -278,7 +278,7 @@ uMail = {
 
 	console.putmsg("\n" + magenta + high_intensity + nao.toString() +
 		green + " from " + cyan + user.alias + green + " to " +
-		system.userstring(recip) + "\n");
+		system.username(recip) + "\n");
     },
 	/*
 	 * summary:
@@ -327,9 +327,9 @@ uMail = {
 	this.dispNewMailHdr(uNum);
 	mailTxt = poast.getTextBlob(null);
 
-	if (mTxt != null) {
+	if (mailTxt != null) {
 	  try {
-	    poast.mWrite(mTxt, new MsgBase('mail'), uNum);
+	    poast.mWrite(mailTxt, new MsgBase('mail'), uNum);
 	  } catch (e) {
 	    console.putmsg(red + "Unable to poast.mWrite Mail>: " + e.message +
 		"\n");
