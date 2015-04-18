@@ -49,7 +49,8 @@ roomData = {
 	 */
 	defaultSettings : function() {
 		var roomList = {
-		  zRooms : []
+		  "alias" : null,
+		  "zRooms" : []
 		}
 
 		return roomList;
@@ -339,17 +340,20 @@ roomData = {
 	 *	and [ideally] returns the parsed JSON that should just
 	 *	include the user's list of zapped rooms (prolly by #)
 	 * returns:
-	 *	JSON object specified above
+	 *	Just the array of rooms zapped for this user; also sets the
+	 *	global zappedRooms object with all of the data for each user
+	 *	though this is not strictly necessary or even advisable at
+	 *	this point
 	 */
       snagUserZappedRooms : function() {
 	var zappedFile = new File(userZapRecFilename);
-	var zappedChunx = { };
+	var zappedChunx = { }, success = false;
 	var blob;
 
 	if (!file_exists(zappedFile.name)) {
 	  //create a dummy file or move it from misc, throw exception,
 	  //something for the love of all things holy
-
+	  
 	} else {
 	  try {
 	    zappedFile.open("r");
@@ -377,13 +381,58 @@ roomData = {
 	  if ((blob == null) || (blob.length == 0)) {
 	    //create template?
 	    throw new docIface.dDocException("Exception: blob too small/null",
-		"blob null or length == 30", 5);
+		"blob null or length == 0", 5);
 	  }
 
 	  zappedChunx = JSON.parse(blob);
 
-	  return zappedChunx;
+	  for each(entry in zappedChunx) {
+	    if (entry.alias == user.alias) {
+		success = true;		//shouldn't be necessary now
+		zappedRooms = zappedChunx;
+		return entry.zRooms;
+		break;
+	    }
+	  }
+
+	  if (!success) {
+		return [ ];
+	  }
 	}
+      },
+	/*
+	 * summary:
+	 *	Writes out whole block of zapped rooms, creating the file if
+	 *	necessary, to record the entries
+	 */
+      writeUserZappedRooms : function() {
+	var success = false;
+	var outfile = new File(roomData.userDir + userRoomSettingsFilename);
+
+	for each(ouah in zappedRooms) {
+	  if (ouah.alias == user.alias) {
+		success = true;
+	  }
+	}
+
+	if (!success) {
+	  zappedRooms[user.number].alias = user.alias;
+	  zappedRooms[user.number].zRooms = [ ];
+	}
+
+	try {
+	  userRecords.userDataIO.openFileWrap(outfile, "r+");
+	  outfile = userRecords.userDataIO.stripComments(outfile);
+	  outfile.truncate(outfile.position);
+	  outfile.write(zappedRooms);
+	  //outfile.close();
+	} catch (e) {
+	  console.putmsg(red + "Unable to save in writeUserZappedRooms():\n" +
+	    e.message + "\n");
+	} finally {
+	  outfile.close();
+	}
+
       }
   }
 }
