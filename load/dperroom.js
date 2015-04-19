@@ -409,7 +409,14 @@ roomData = {
 	var success = false;
 	var outfile = new File(roomData.userDir + userRoomSettingsFilename);
 
+	if (userSettings.debug.nav) {
+	  console.putmsg("Working with zapped data:\n" + cyan +
+		JSON.stringify(zappedRooms) + "\n");
+	}
 	for each(ouah in zappedRooms) {
+	  /*if (userSettings.debugging.nav) {
+		console.putmsg(cyan + JSON.stringify(ouah));
+	  }*/
 	  if (ouah.alias == user.alias) {
 		success = true;
 	  }
@@ -433,7 +440,83 @@ roomData = {
 	  outfile.close();
 	}
 
+      },
+      zapRoom : function(roomNo) {
+	var success = false;
+	var curZapped = new Array;
+
+	for each(var ouah in zappedRooms) {
+	  if (ouah.alias == user.alias) {
+	    curZapped = ouah.zRooms;
+	    break;
+	  }
+	}
+
+	if ((curZapped == [ ]) || (curZapped == null)) {
+	  curZapped.push(roomNo);
+	} else {
+	  //see if it's already there
+	  for each(var ouah in curZapped) {
+	    if (ouah == roomNo) {
+		success = true;
+	    }
+	  }
+
+	  if (!success) {
+	    curZapped.push(roomNo);
+	  } else {
+	    if (userSettings.debugging.nav) {
+		console.putmsg("This room already exists in zRooms.\n");
+	    }
+	  }
+	}
+
+	//save the new settings
+	zappedRooms[user.alias].zRooms = curZapped;
+	try {
+	  this.writeUserZappedRooms();
+	} catch (e) {
+	  console.putmsg("Error in writeUserZappedRooms(): " + e.message +
+		"\n");
+	}
+      },
+      unzapRoom : function(roomNo) {
+	var success = false;
+	var curZapped = new Array, newCurZapped = new Array;
+
+	for each(var ouah in zappedRooms) {
+	  if (ouah.alias == user.alias) {
+	    curZapped = ouah.zRooms;
+	    break;
+	  }
+	}
+
+	if ((curZapped == [ ]) || (curZapped == null)) {
+	  return;
+	} else {
+	  //does it already exist?
+	  for (var ouah = 0; ouah < curZapped.length; ouah++) {
+	    if (curZapped[ouah] != roomNo) {
+		if (success) {
+		  newCurZapped[ouah - 1] = curZapped[ouah];
+		} else {
+		  newCurZapped[ouah] = curZapped[ouah];
+		}
+	    } else {
+		success = true;
+	    }
+	  }
+	}
+
+	zappedRooms[user.alias].zRooms = newCurZapped;
+        try {
+          this.writeUserZappedRooms();
+        } catch (e) {
+          console.putmsg("Error in writeUserZappedRooms(): " + e.message +
+                "\n");
+        }
       }
+
   }
 }
 
