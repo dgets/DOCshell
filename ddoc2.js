@@ -627,6 +627,12 @@ if (!debugOnly) {
 		    console.putmsg(red + "Error in jump()\n" + e.message +
 			"\t#: " + e.number + "\n");
 		  }
+
+		  //is this room zapped?
+                  if (roomData.fileIO.isZapped(bbs.cursub)) {
+                    //unzap it
+                    roomData.fileIO.unzapRoom(bbs.cursub);
+                  }
 		  break;
 		//logout
 		case 'l':
@@ -698,6 +704,12 @@ if (!debugOnly) {
 		  break;
 		case 'I':	//change room info (if applicable)
 		  roomData.roomSettingsUX.promptUserForRoomInfo();
+		  break;
+		case 'z':	//zap room
+		  if (console.yesno("Are you sure you want to forget this " +
+		      "forum? ")) {
+		    roomData.fileIO.zapRoom(bbs.cursub);
+		  }
 		  break;
 		default:
 		  console.putmsg(excuse);
