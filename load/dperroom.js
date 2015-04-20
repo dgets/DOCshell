@@ -49,7 +49,7 @@ roomData = {
 	 */
 	defaultSettings : function() {
 		var roomList = {
-		  "alias" : null,
+		  //"alias" : null,
 		  "zRooms" : []
 		}
 
@@ -407,14 +407,16 @@ roomData = {
 	 */
       writeUserZappedRooms : function() {
 	var success = false;
-	var outfile = new File(roomData.userDir + userRoomSettingsFilename);
+	/*var outfile = new File(this.roomData.userDir + 
+				this.userRoomSettingsFilename); */
+	var outfile = new File(system.data_dir + "user/userrooms");
 
-	if (userSettings.debug.nav) {
+	if (userSettings.debug.navigation) {
 	  console.putmsg("Working with zapped data:\n" + cyan +
 		JSON.stringify(zappedRooms) + "\n");
 	}
 	for each(ouah in zappedRooms) {
-	  /*if (userSettings.debugging.nav) {
+	  /*if (userSettings.debug.nav) {
 		console.putmsg(cyan + JSON.stringify(ouah));
 	  }*/
 	  if (ouah.alias == user.alias) {
@@ -428,10 +430,11 @@ roomData = {
 	}
 
 	try {
-	  userRecords.userDataIO.openFileWrap(outfile, "r+");
-	  outfile = userRecords.userDataIO.stripComments(outfile);
-	  outfile.truncate(outfile.position);
-	  outfile.write(zappedRooms);
+	  //userRecords.userDataIO.openFileWrap(outfile, "r+");
+	  outfile.open("w");
+	  //outfile = userRecords.userDataIO.stripComments(outfile);
+	  //outfile.truncate(outfile.position);
+	  outfile.write(JSON.stringify(zappedRooms));
 	  //outfile.close();
 	} catch (e) {
 	  console.putmsg(red + "Unable to save in writeUserZappedRooms():\n" +
@@ -445,8 +448,10 @@ roomData = {
 	var success = false;
 	var curZapped = new Array;
 
+	//this shouldn't even be necessary since we're going to just work 
+	//with the JSON object in here by user.number
 	for each(var ouah in zappedRooms) {
-	  if (ouah.alias == user.alias) {
+	  if (ouah[user.number] != null) {
 	    curZapped = ouah.zRooms;
 	    break;
 	  }
@@ -465,14 +470,19 @@ roomData = {
 	  if (!success) {
 	    curZapped.push(roomNo);
 	  } else {
-	    if (userSettings.debugging.nav) {
+	    if (userSettings.debug.navigation) {
 		console.putmsg("This room already exists in zRooms.\n");
 	    }
 	  }
 	}
 
 	//save the new settings
-	zappedRooms[user.alias].zRooms = curZapped;
+	/*if (zappedRooms[user.number] == null) {
+	  zappedRooms[user.number] = { };
+	} */
+	zappedRooms[user.number] = { };
+	zappedRooms[user.number].zRooms = curZapped;
+
 	try {
 	  this.writeUserZappedRooms();
 	} catch (e) {
