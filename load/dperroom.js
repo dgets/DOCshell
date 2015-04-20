@@ -350,14 +350,35 @@ roomData = {
 	 *	this point
 	 */
       snagUserZappedRooms : function() {
-	var zappedFile = new File(userZapRecFilename);
+	var zappedFile = new File(this.userZapRecFilename);
 	var zappedChunx = { }, success = false;
 	var blob;
 
 	if (!file_exists(zappedFile.name)) {
 	  //create a dummy file or move it from misc, throw exception,
 	  //something for the love of all things holy
-	  
+	  zappedRooms[user.number] = { };
+	  zappedRooms[user.number].zRooms = [ ];
+
+	  try {
+	    zappedFile.open("w");
+	  } catch (e) {
+	    zappedFile.close();
+	    throw new docIface.dDocException("Exception opening " +
+	      zappedFile.name + " for writing", e.message, 3);
+	  }
+
+	  try {
+	    zappedFile.write(JSON.stringify(zappedRooms));
+	  } catch (e) {
+	    zappedFile.close();
+	    throw new docIface.dDocException("Exception writing to " +
+	      zappedFile.name, e.message, 5);
+	  }
+
+	  //with all good luck, that is it
+	  zappedFile.close();
+	  blob = JSON.stringify(zappedRooms);
 	} else {
 	  try {
 	    zappedFile.open("r");
@@ -385,7 +406,7 @@ roomData = {
 	  if ((blob == null) || (blob.length == 0)) {
 	    //create template?
 	    throw new docIface.dDocException("Exception: blob too small/null",
-		"blob null or length == 0", 5);
+		"blob null or length == 0", 4);
 	  }
 
 	  zappedChunx = JSON.parse(blob);

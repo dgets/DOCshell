@@ -459,6 +459,14 @@ docIface = {
 	docIface.util.preMsgGroup = bbs.curgrp;
 	docIface.util.preFileDir = bbs.curdir;
 
+	//snag user zapped rooms list
+	try {
+	  roomData.fileIO.snagUserZappedRooms();
+	} catch (e) {
+	  console.putmsg(red + "Not sure what happened in " +
+	    "snagUserZappedRooms()\nMsg: " + e.message + "\n");
+	}
+
 	if (userSettings.confined) {
 	  if (userSettings.debug.flow_control) {
 	    console.putmsg("Moving user to " + 
