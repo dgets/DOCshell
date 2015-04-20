@@ -325,13 +325,17 @@ roomData = {
 	 *	True for success (room is zapped), false otherwise
 	 */
      isZapped : function(roomNo) {
-	for each(zNo in zappedRooms.zRooms) {
+	if (zappedRooms == null) {
+	  zappedRooms = roomData.roomRecords.defaultSettings;
+	  return false;
+	} else {
+	 for each(zNo in zappedRooms.zRooms) {
 	  if (roomNo == zNo) {
 		return true;
 	  }
+	 }
+	 return false;
 	}
-
-	return false;
      },
 	/*
 	 * summary:
