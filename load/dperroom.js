@@ -17,7 +17,7 @@ roomData = {
   userDir : system.data_dir + "user/",
   roomSettingsFilename : "docrooms",
   maxInfoLines : 160,
-  userRoomSettingsFilename : "userrooms",
+  userRoomSettingsFilename : "durooms",
 
   //sub-objects
   roomRecords : {
@@ -391,7 +391,7 @@ roomData = {
 	  zappedChunx = JSON.parse(blob);
 
 	  for each(entry in zappedChunx) {
-	    if (entry.alias == user.alias) {
+	    if (entry.number == user.number) {
 		success = true;		//shouldn't be necessary now
 		zappedRooms = zappedChunx;
 		return entry.zRooms;
@@ -413,7 +413,7 @@ roomData = {
 	var success = false;
 	/*var outfile = new File(this.roomData.userDir + 
 				this.userRoomSettingsFilename); */
-	var outfile = new File(system.data_dir + "user/userrooms");
+	var outfile = new File(system.data_dir + "user/durooms");
 
 	if (userSettings.debug.navigation) {
 	  console.putmsg("Working with zapped data:\n" + cyan +
@@ -423,7 +423,7 @@ roomData = {
 	  /*if (userSettings.debug.nav) {
 		console.putmsg(cyan + JSON.stringify(ouah));
 	  }*/
-	  if (ouah.alias == user.alias) {
+	  if (ouah.number == user.number) {
 		success = true;
 	  }
 	}
@@ -499,7 +499,7 @@ roomData = {
 	var curZapped = new Array, newCurZapped = new Array;
 
 	for each(var ouah in zappedRooms) {
-	  if (ouah.alias == user.alias) {
+	  if (ouah.number == user.number) {
 	    curZapped = ouah.zRooms;
 	    break;
 	  }
@@ -522,7 +522,7 @@ roomData = {
 	  }
 	}
 
-	zappedRooms[user.alias].zRooms = newCurZapped;
+	zappedRooms[user.number].zRooms = newCurZapped;
         try {
           this.writeUserZappedRooms();
         } catch (e) {
