@@ -354,6 +354,11 @@ roomData = {
 	var zappedChunx = { }, success = false;
 	var blob;
 
+	if (userSettings.debug.navigation) {
+	  console.putmsg(yellow + "Testing for existance of: " +
+	    zappedFile.name + "\n");
+	}
+
 	if (!file_exists(zappedFile.name)) {
 	  //create a dummy file or move it from misc, throw exception,
 	  //something for the love of all things holy
@@ -366,6 +371,13 @@ roomData = {
 	    zappedFile.close();
 	    throw new docIface.dDocException("Exception opening " +
 	      zappedFile.name + " for writing", e.message, 3);
+	  }
+
+	  //let's try to figure out why in the hell shit is ending up 
+	  //undefined here
+	  if (userSettings.debug.navigation) {
+	    console.putmsg(red + "Trying to write to: " + zappedFile.name +
+		"\nzappedRooms: " + JSON.stringify(zappedRooms) + "\n");
 	  }
 
 	  try {
@@ -414,12 +426,13 @@ roomData = {
 	  for each(entry in zappedChunx) {
 	    if (entry.number == user.number) {
 		success = true;		//shouldn't be necessary now
-		zappedRooms = zappedChunx;
+		//zappedRooms = zappedChunx;
 		return entry.zRooms;
 		break;
 	    }
 	  }
 
+	  zappedRooms = zappedChunx;
 	  if (!success) {
 		return [ ];
 	  }
