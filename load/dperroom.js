@@ -175,8 +175,9 @@ roomData = {
     //--++==**properties**==++--
     roomRecFilename : this.userDir + 
 		      this.roomSettingsFilename,
-    userZapRecFilename : this.userDir + 
-			 this.userRoomSettingsFilename,
+    /*userZapRecFilename : this.userDir + 
+			 this.userRoomSettingsFilename, */
+    userZapRecFilename : "/sbbs/data/user/durooms",
 
     //--++==**methods**==++--
 	/*
@@ -359,7 +360,7 @@ roomData = {
 	    zappedFile.name + "\n");
 	}
 
-	if (!file_exists(zappedFile.name)) {
+	if (!zappedFile.exists) {
 	  //create a dummy file or move it from misc, throw exception,
 	  //something for the love of all things holy
 	  zappedRooms[user.number] = { };
