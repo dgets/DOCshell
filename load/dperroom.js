@@ -245,7 +245,8 @@ roomData = {
     stripNRead : function(configurationFile) {
 	var chunky;
 
-	if ((configurationFile == null) || (!configurationFile.is_open)) {
+	if ((configurationFile == null) || (!configurationFile.is_open) ||
+	    (!configurationFile.exists)) {
 	  if (userSettings.debug.file_io) {
 	    console.putmsg(red + "Unable to open conf file: " + 
 		configurationFile + "\n");
@@ -253,8 +254,8 @@ roomData = {
 	  throw new docIface.dDocException("Unable to open JSON conf file",
 		"Unable to open " + configurationFile, 1);
 	}
-	configurationFile = userRecords.userDataIO.stripComments(
-				configurationFile);
+	/*configurationFile = userRecords.userDataIO.stripComments(
+				configurationFile); */
 
 	try {
 	  chunky = configurationFile.read();
@@ -267,6 +268,11 @@ roomData = {
 		"Unable to read from " + configurationFile, 2);
 	} finally {
 	  configurationFile.close();
+	}
+
+	if (userSettings.debug.file_io) {
+	  console.putmsg(yellow + "Got back chunky: " + chunky + " in " +
+	    "stripNRead()\n");
 	}
 
 	return chunky;
@@ -338,6 +344,11 @@ roomData = {
 	 return false;
 	}
      },
+     /*getZapped : function() {
+	var blob;
+	var zappedFile = new FIle(this.userZapRecFilename);
+
+     */
 	/*
 	 * summary:
 	 *	Method opens file of user's zapped rooms (still need to
@@ -357,16 +368,17 @@ roomData = {
 
 	if (userSettings.debug.navigation) {
 	  console.putmsg(yellow + "Testing for existance of: " +
-	    zappedFile.name + "\n");
+	    zappedFile.name + ": " + zappedFile.exists + "\n");
 	}
 
 	if (!zappedFile.exists) {
 	  //create a dummy file or move it from misc, throw exception,
 	  //something for the love of all things holy
-	  if (zappedRooms[user.number] == null) {
+	  //if (zappedRooms[user.number] == null) {
+	    zappedRooms = zappedChunx;
 	    zappedRooms[user.number] = { };
 	    zappedRooms[user.number].zRooms = [ ];
-	  }
+	  //}
 
 	  if (userSettings.debug.navigation) {
 	    console.putmsg(red + "Couldn't find " + zappedFile.name + "\n");
@@ -422,6 +434,10 @@ roomData = {
 		e.message, 2);
 	  }
 
+	  if (userSettings.debug.navigation) {
+	    console.putmsg(yellow + "Got back blob: " + blob + "\n");
+	  }
+
 	  /*
 	   * TODO: This should end up holding the contents of the default
 	   * record if things haven't been set just yet as a precursor to
@@ -429,7 +445,7 @@ roomData = {
 	   */	
 	  if ((blob == null) || (blob.length == 0)) {
 	    //create template?
-	    throw new docIface.dDocException("Exception: blob too small/null",
+	    throw new docIface.dDocException("Exception: blob zero length/null",
 		"blob null or length == 0", 4);
 	  }
 
