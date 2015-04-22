@@ -324,27 +324,8 @@ uMail = {
 	    }
 	  }
 	} else {
-	  /*switch (typeof recip) {
-	    case "number":
-		if (userSettings.debug.message_posting) {
-		  console.putmsg("Using user number: " + recip + "\n");
-		}
-		uNum = recip;
-	    break;
-	    case "string":
-		if (userSettings.debug.message_posting) {
-		  console.putmsg("Using user name: " + recip + "\n");
-		}
-		uNum = system.matchuser(recip);
-	    break;
-	    default:
-		console.putmsg(red + "Issues looking up user by " +
-			"number/alias: " + recip + "\n");
-	    break;
-	  } */
-
 	  if (!isNaN(parseInt(recip))) {
-		uNum = recip;
+	    uNum = recip;
 	  } else {
 	    uNum = system.matchuser(recip);	//add error testing here
 	  }

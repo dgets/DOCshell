@@ -482,7 +482,7 @@ roomData = {
 		JSON.stringify(zappedRooms) + "\n");
 	}
 	for each(ouah in zappedRooms) {
-	  /*if (userSettings.debug.nav) {
+	  /*if (userSettings.debug.navigation) {
 		console.putmsg(cyan + JSON.stringify(ouah));
 	  }*/
 	  if (ouah.number == user.number) {
@@ -491,7 +491,7 @@ roomData = {
 	}
 
 	if (!success) {
-	  zappedRooms[user.number].alias = user.alias;
+	  //zappedRooms[user.number].alias = user.alias;
 	  zappedRooms[user.number].zRooms = [ ];
 	}
 
@@ -518,7 +518,7 @@ roomData = {
 	//with the JSON object in here by user.number
 	for each(var ouah in zappedRooms) {
 	  if (ouah[user.number] != null) {
-	    curZapped = ouah.zRooms;
+	    curZapped = ouah[user.number].zRooms;
 	    break;
 	  }
 	}
@@ -527,7 +527,7 @@ roomData = {
 	  curZapped.push(roomNo);
 	} else {
 	  //see if it's already there
-	  for each(var ouah in curZapped) {
+	  for each(var ouah in curZapped.zRooms) {
 	    if (ouah == roomNo) {
 		success = true;
 	    }
@@ -546,7 +546,7 @@ roomData = {
 	/*if (zappedRooms[user.number] == null) {
 	  zappedRooms[user.number] = { };
 	} */
-	zappedRooms[user.number] = { };
+	//zappedRooms[user.number] = { };
 	zappedRooms[user.number].zRooms = curZapped;
 
 	try {
