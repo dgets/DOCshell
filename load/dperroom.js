@@ -363,8 +363,14 @@ roomData = {
 	if (!zappedFile.exists) {
 	  //create a dummy file or move it from misc, throw exception,
 	  //something for the love of all things holy
-	  zappedRooms[user.number] = { };
-	  zappedRooms[user.number].zRooms = [ ];
+	  if (zappedRooms[user.number] == null) {
+	    zappedRooms[user.number] = { };
+	    zappedRooms[user.number].zRooms = [ ];
+	  }
+
+	  if (userSettings.debug.navigation) {
+	    console.putmsg(red + "Couldn't find " + zappedFile.name + "\n");
+	  }
 
 	  try {
 	    zappedFile.open("w");
@@ -393,6 +399,11 @@ roomData = {
 	  zappedFile.close();
 	  blob = JSON.stringify(zappedRooms);
 	} else {
+	  if (userSettings.debug.navigation) {
+	    console.putmsg(red + "Allegedly " + zappedFile.name + " exists, " +
+	      "according to zappedFile.exists: " + zappedFile.exists + "\n");
+	  }
+
 	  try {
 	    zappedFile.open("r");
 	  } catch (e) {

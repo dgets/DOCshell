@@ -464,7 +464,8 @@ docIface = {
 	  roomData.fileIO.snagUserZappedRooms();
 	} catch (e) {
 	  console.putmsg(red + "Not sure what happened in " +
-	    "snagUserZappedRooms()\nMsg: " + e.message + "\n");
+	    "snagUserZappedRooms()\nExc:\t" + e.name + "\nMsg:\t" + e.message 
+	    + "\nNumber:\t " + e.number + "\n");
 	}
 
 	if (userSettings.confined) {
