@@ -241,7 +241,8 @@ docIface = {
 
 	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
 	    // TODO: tie this into the zapped rooms list once it is finished
-	    if (true /* if (room not zapped) */ ) {
+	    if (!roomData.fileIO.isZapped(bbs.cursub) 
+		/* if (room not zapped) -- previously 'true' */ ) {
 		mBase = msg_base.openNewMBase(subList[ndx].code);
 		if (mBase == null) break;
 
