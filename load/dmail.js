@@ -120,6 +120,21 @@ uMail = {
             console.putmsg(yellow + "Working with mNdx: " + mNdx + "\n");
           } */
 
+          if (((uChoice == 'n') || (uChoice != ' ')) &&
+	      (((mNdx >= mailList.length) && (increment == 1)) ||
+              ((mNdx == 0) && (increment == -1)))) {
+            if (userSettings.debug.message_scan) {
+                  console.putmsg("End of messages detected\n");
+            }
+
+            console.putmsg(green + high_intensity + "Goto\n");
+            fuggit = true;        //which way are we handling this?
+            return;       /* there should probably be a different
+                             exit from this for reverse reading, in the
+                             future :P */
+          }
+
+
           switch (uChoice) {
             case 'n':
             case ' ':
@@ -251,6 +266,7 @@ uMail = {
 
           }
 
+	  /*
           if (((mNdx >= mailList.length) && (increment == 1)) ||
               ((mNdx == 0) && (increment == -1))) {
             if (userSettings.debug.message_scan) {
@@ -259,10 +275,10 @@ uMail = {
 
             console.putmsg(green + high_intensity + "Goto\n");
             fuggit = true;        //which way are we handling this?
-            return;       /* there should probably be a different
+            return; */      /* there should probably be a different
                              exit from this for reverse reading, in the
                              future :P */
-          }
+          //}
 
 
         }
