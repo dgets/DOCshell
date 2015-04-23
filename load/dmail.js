@@ -47,7 +47,7 @@ uMail = {
                 "Unable to read message header(s): " + e.message, 2);
           }
 
-          if (userSettings.debug.message_scan) {
+          /*if (userSettings.debug.message_scan) {
             //in-depth debugging for message attributes
 	    console.putmsg(" to_ext: " + mHdr.to_ext + " to: " + mHdr.to +
 		"; ");
@@ -60,7 +60,7 @@ uMail = {
             } else { 
 		console.putmsg(" "); 
 	    }
-          }
+          } */
 
           if (mHdr.to_ext == user.number) {
 	    if (userSettings.debug.message_scan) {
@@ -120,7 +120,7 @@ uMail = {
             console.putmsg(yellow + "Working with mNdx: " + mNdx + "\n");
           } */
 
-          if (((uChoice == 'n') || (uChoice != ' ')) &&
+          if (((uChoice == 'n') && (uChoice != ' ')) &&
 	      (((mNdx >= mailList.length) && (increment == 1)) ||
               ((mNdx == 0) && (increment == -1)))) {
             if (userSettings.debug.message_scan) {
@@ -182,15 +182,6 @@ uMail = {
 
                     console.putmsg(fHdr + mBody, (P_NOPAUSE | P_WORDWRAP));
                 } */
-
-                //display message
-		/* try {
-                  msg_base.dispMsg(mmBase, mailList[mNdx], true);
-		} catch (e) {
-		  console.putmsg(red + "Error in dispMsg(): " + e.message +
-		    "\nNumber: " + e.number + "\tName: " + e.name + "\n");
-		}
-		*/
 
                 //display prompt
                 msg_base.doMprompt(mmBase, mNdx);
@@ -263,7 +254,6 @@ uMail = {
                 //wut
                 console.putmsg(yellow + high_intensity + "Wut?\n\n");
             break;
-
           }
 
 	  /*
