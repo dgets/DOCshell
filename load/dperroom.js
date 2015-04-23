@@ -490,10 +490,10 @@ roomData = {
 	  }
 	}
 
-	if (!success) {
-	  //zappedRooms[user.number].alias = user.alias;
+	/*if (!success) {
+	  zappedRooms[user.number].alias = user.alias;
 	  zappedRooms[user.number].zRooms = [ ];
-	}
+	}*/
 
 	try {
 	  //userRecords.userDataIO.openFileWrap(outfile, "r+");
@@ -512,35 +512,42 @@ roomData = {
       },
       zapRoom : function(roomNo) {
 	var success = false;
-	var curZapped = new Array;
+	var curZapped = [ ];
 
-	//this shouldn't even be necessary since we're going to just work 
-	//with the JSON object in here by user.number
-	for each(var ouah in zappedRooms) {
-	  if (ouah[user.number] != null) {
-	    curZapped = ouah[user.number].zRooms;
-	    break;
+	if (zappedRooms[user.number] != null) {
+	    curZapped = zappedRooms[user.number].zRooms;
+	    //break;
 	  }
 	}
 
-	if ((curZapped == [ ]) || (curZapped == null)) {
-	  curZapped.push(roomNo);
+	if (curZapped.length == 0) {
+	  curZapped[0] = roomNo;
 	} else {
 	  //see if it's already there
-	  for each(var ouah in curZapped.zRooms) {
+	  for each(var ouah in curZapped) {
 	    if (ouah == roomNo) {
 		success = true;
+              if (userSettings.debug.navigation) {
+                console.putmsg("This room already exists in zRooms.\n");
+              }
+	    } else {
+	      curZapped[curZapped.length - 1] = roomNo;
+	      if (userSettings.debug.navigation) {
+		console.putmsg("Adding this room to zRooms.\n");
+	      }
 	    }
 	  }
 
-	  if (!success) {
+	//NOTE: There may well be a block level error going on right around
+	//this area heah
+	  /*if (!success) {
 	    curZapped.push(roomNo);
 	  } else {
 	    if (userSettings.debug.navigation) {
 		console.putmsg("This room already exists in zRooms.\n");
 	    }
-	  }
-	}
+	  } */
+	//}
 
 	//save the new settings
 	/*if (zappedRooms[user.number] == null) {
