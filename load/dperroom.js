@@ -512,34 +512,28 @@ roomData = {
       },
       zapRoom : function(roomNo) {
 	var success = false;
-	var curZapped = [ ];
 
-	if (zappedRooms[user.number] != null) {
-	    curZapped = zappedRooms[user.number].zRooms;
-	    //break;
-	  }
-	}
-
-	if (curZapped.length == 0) {
-	  curZapped[0] = roomNo;
+	if (zappedRooms[user.number] == null) {
+	    zappedRooms[user.number] = { };
+	    zappedRooms[user.number].zRooms = [ roomNo ];
 	} else {
 	  //see if it's already there
-	  for each(var ouah in curZapped) {
+	  for each(var ouah in zappedRooms[user.number].zRooms) {
 	    if (ouah == roomNo) {
 		success = true;
               if (userSettings.debug.navigation) {
                 console.putmsg("This room already exists in zRooms.\n");
               }
 	    } else {
-	      curZapped[curZapped.length - 1] = roomNo;
+	      zappedRooms[user.number].zRooms[
+		zappedRooms[user.number].zRooms.length] = roomNo;
 	      if (userSettings.debug.navigation) {
-		console.putmsg("Adding this room to zRooms.\n");
+		console.putmsg("Added this room to zRooms.\n");
 	      }
 	    }
 	  }
+	}
 
-	//NOTE: There may well be a block level error going on right around
-	//this area heah
 	  /*if (!success) {
 	    curZapped.push(roomNo);
 	  } else {
@@ -554,7 +548,7 @@ roomData = {
 	  zappedRooms[user.number] = { };
 	} */
 	//zappedRooms[user.number] = { };
-	zappedRooms[user.number].zRooms = curZapped;
+	//zappedRooms[user.number].zRooms = curZapped;
 
 	try {
 	  this.writeUserZappedRooms();
