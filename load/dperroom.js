@@ -512,42 +512,21 @@ roomData = {
 
       },
       zapRoom : function(roomNo) {
-	var success = false;
-
 	if (zappedRooms[user.number] == null) {
 	    zappedRooms[user.number] = { };
 	    zappedRooms[user.number].zRooms = [ roomNo ];
-	} else {
+	} else if (this.isZapped(roomNo)) {
 	  //see if it's already there
-	  /*for each(var ouah in zappedRooms[user.number].zRooms) {
-	    if (ouah == roomNo) {
-		success = true;
-              if (userSettings.debug.navigation) {
-                console.putmsg("This room already exists in zRooms.\n");
-              }
-	    } else {
-	      zappedRooms[user.number].zRooms[
-		zappedRooms[user.number].zRooms.length] = roomNo;
-	      if (userSettings.debug.navigation) {
-		console.putmsg("Added this room to zRooms.\n");
-	      }
-	    }
-	  } */
-
 	  //let's use what we've already got, mm'kay?
-	  if (this.isZapped(roomNo)) {
 		if (userSettings.debug.navigation) {
 		  console.putmsg(yellow + "Room already exists in zRooms.\n");
 		}
-		success = true;
-	  } else {
+	} else {
 		zappedRooms[user.number].zRooms[
 		  zappedRooms[user.number].zRooms.length] = roomNo;
 		if (userSettings.debug.navigation) {
 		  console.putmsg(yellow + "Added to zRooms.\n");
 		}
-	  }
-
 	}
 
 	try {
