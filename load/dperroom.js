@@ -170,6 +170,12 @@ roomData = {
 	mBase.close();
     }
   },
+  /*
+   * summary:
+   *	Desperately in need of refactoring, but this was supposed to just
+   *	contain the different methods/properties necessary for file IO internal
+   *	to the processing in this file
+   */
   fileIO : {
     //getting and setting the different shit above
     //--++==**properties**==++--
@@ -332,11 +338,11 @@ roomData = {
 	 *	True for success (room is zapped), false otherwise
 	 */
      isZapped : function(roomNo) {
-	if (zappedRooms == null) {
-	  zappedRooms = roomData.roomRecords.defaultSettings;
+	if (zappedRooms[user.number] == null) {
+	  zappedRooms[user.number] = roomData.roomRecords.defaultSettings;
 	  return false;
 	} else {
-	 for each(zNo in zappedRooms.zRooms) {
+	 for each(zNo in zappedRooms[user.number].zRooms) {
 	  if (roomNo == zNo) {
 		return true;
 	  }
@@ -344,11 +350,6 @@ roomData = {
 	 return false;
 	}
      },
-     /*getZapped : function() {
-	var blob;
-	var zappedFile = new FIle(this.userZapRecFilename);
-
-     */
 	/*
 	 * summary:
 	 *	Method opens file of user's zapped rooms (still need to
@@ -518,7 +519,7 @@ roomData = {
 	    zappedRooms[user.number].zRooms = [ roomNo ];
 	} else {
 	  //see if it's already there
-	  for each(var ouah in zappedRooms[user.number].zRooms) {
+	  /*for each(var ouah in zappedRooms[user.number].zRooms) {
 	    if (ouah == roomNo) {
 		success = true;
               if (userSettings.debug.navigation) {
@@ -531,24 +532,23 @@ roomData = {
 		console.putmsg("Added this room to zRooms.\n");
 	      }
 	    }
-	  }
-	}
-
-	  /*if (!success) {
-	    curZapped.push(roomNo);
-	  } else {
-	    if (userSettings.debug.navigation) {
-		console.putmsg("This room already exists in zRooms.\n");
-	    }
 	  } */
-	//}
 
-	//save the new settings
-	/*if (zappedRooms[user.number] == null) {
-	  zappedRooms[user.number] = { };
-	} */
-	//zappedRooms[user.number] = { };
-	//zappedRooms[user.number].zRooms = curZapped;
+	  //let's use what we've already got, mm'kay?
+	  if (this.isZapped(roomNo)) {
+		if (userSettings.debug.navigation) {
+		  console.putmsg(yellow + "Room already exists in zRooms.\n");
+		}
+		success = true;
+	  } else {
+		zappedRooms[user.number].zRooms[
+		  zappedRooms[user.number].zRooms.length] = roomNo;
+		if (userSettings.debug.navigation) {
+		  console.putmsg(yellow + "Added to zRooms.\n");
+		}
+	  }
+
+	}
 
 	try {
 	  this.writeUserZappedRooms();
