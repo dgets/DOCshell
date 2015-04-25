@@ -315,7 +315,7 @@ docIface = {
 	  var tmpBase = new MsgBase(ouah);
 	  if (roomData.fileIO.isZapped(tmpBase.subnum)) {
 	    //we're working with a zapped room
-	    roomData.fileIO.unzapRoom(tmpBase.subnum));
+	    roomData.fileIO.unzapRoom(tmpBase.subnum);
 	  }
 	}
 
