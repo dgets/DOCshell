@@ -312,6 +312,11 @@ docIface = {
 	  bbs.log_str("Jumped to Mail");
 	} else {
 	  bbs.log_str("Jumped to " + this.setSub(ouah));
+	  var tmpBase = new MsgBase(ouah);
+	  if (roomData.fileIO.isZapped(tmpBase.subnum)) {
+	    //we're working with a zapped room
+	    roomData.fileIO.unzapRoom(tmpBase.subnum));
+	  }
 	}
 
 	return;
