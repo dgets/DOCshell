@@ -456,7 +456,8 @@ msg_base = {
 		console.putmsg(red + "Invalid message? base.subnum: "
 		      + base.subnum + " ptr: " + ptr + "\n");
 	    }
-	    return;	// Invalid message, skip
+	    throw new dDocException("dispMsg() error", 
+		"Invalid message slot", 3);	// Invalid message, skip
 	}
 
 	fHdr = "\n" + magenta + high_intensity + mHdr.date + green + " from "
@@ -582,14 +583,20 @@ msg_base = {
 		    }
 		    if ((tmpPtr <= 0) && (inc == -1)) {
 			mBase.close();
-			return 0;   // do we reverse scan from room to room also?
+			return 0; // do we reverse scan from room to room also?
 		    } else if ((tmpPtr >= mBase.total_msgs) && (inc == 1)) {
 			mBase.close();
 			return 1;   // skip to next room
 		    }
 		    tmpPtr += inc;
 		    if ((tmpPtr >= 0) && (tmpPtr <= mBase.total_msgs)) {
-			this.dispMsg(mBase, tmpPtr, true);
+			while (this.dispMsg(mBase, tmpPtr, true) == null) {
+			  tmpPtr += inc;
+			  if ((tmpPtr == 0) || (tmpPtr > mBase.total_msgs)) {
+			    break;
+			  }
+			}
+			//this.dispMsg(mBase, tmpPtr, true);
 			if (inc == 1) sBoard.scan_ptr = tmpPtr;
 		    }
 		    break;

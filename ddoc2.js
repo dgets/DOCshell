@@ -241,7 +241,7 @@ docIface = {
 
 	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
 	    // TODO: tie this into the zapped rooms list once it is finished
-	    if (!roomData.fileIO.isZapped(bbs.cursub) 
+	    if (!roomData.tieIns.isZapped(bbs.cursub) 
 		/* if (room not zapped) -- previously 'true' */ ) {
 		mBase = msg_base.openNewMBase(subList[ndx].code);
 		if (mBase == null) break;
@@ -313,9 +313,9 @@ docIface = {
 	} else {
 	  bbs.log_str("Jumped to " + this.setSub(ouah));
 	  var tmpBase = new MsgBase(ouah);
-	  if (roomData.fileIO.isZapped(tmpBase.subnum)) {
+	  if (roomData.tieIns.isZapped(tmpBase.subnum)) {
 	    //we're working with a zapped room
-	    roomData.fileIO.unzapRoom(tmpBase.subnum);
+	    roomData.tieIns.unzapRoom(tmpBase.subnum);
 	  }
 	}
 
@@ -644,9 +644,9 @@ if (!debugOnly) {
 		  }
 
 		  //is this room zapped?
-                  if (roomData.fileIO.isZapped(bbs.cursub)) {
+                  if (roomData.tieIns.isZapped(bbs.cursub)) {
                     //unzap it
-                    roomData.fileIO.unzapRoom(bbs.cursub);
+                    roomData.tieIns.unzapRoom(bbs.cursub);
                   }
 		  break;
 		//logout
@@ -723,7 +723,7 @@ if (!debugOnly) {
 		case 'z':	//zap room
 		  if (console.yesno("Are you sure you want to forget this " +
 		      "forum? ")) {
-		    roomData.fileIO.zapRoom(bbs.cursub);
+		    roomData.tieIns.zapRoom(bbs.cursub);
 		  }
 		  break;
 		default:

@@ -328,30 +328,6 @@ roomData = {
      },
 	/*
 	 * summary:
-	 *	Method scans for the room number that it is passed within the
-	 *	zappedRooms.zRooms array; if it finds the number it signifies
-	 *	that this room is, indeed, zapped, and should be eschewed from
-	 *	the message scan
-	 * roomNo:
-	 *	Room number being tested
-	 * return:
-	 *	True for success (room is zapped), false otherwise
-	 */
-     isZapped : function(roomNo) {
-	if (zappedRooms[user.number] == null) {
-	  zappedRooms[user.number] = roomData.roomRecords.defaultSettings;
-	  return false;
-	} else {
-	 for each(zNo in zappedRooms[user.number].zRooms) {
-	  if (roomNo == zNo) {
-		return true;
-	  }
-	 }
-	 return false;
-	}
-     },
-	/*
-	 * summary:
 	 *	Method opens file of user's zapped rooms (still need to
 	 *	come up with the JSON for that), strips irrelevant,
 	 *	and [ideally] returns the parsed JSON that should just
@@ -510,8 +486,34 @@ roomData = {
 	  outfile.close();
 	}
 
-      },
-      zapRoom : function(roomNo) {
+      }
+  },
+  tieIns : {
+        /*
+         * summary:
+         *      Method scans for the room number that it is passed within the
+         *      zappedRooms.zRooms array; if it finds the number it signifies
+         *      that this room is, indeed, zapped, and should be eschewed from
+         *      the message scan
+         * roomNo:
+         *      Room number being tested
+         * return:
+         *      True for success (room is zapped), false otherwise
+         */
+    isZapped : function(roomNo) {
+        if (zappedRooms[user.number] == null) {
+          zappedRooms[user.number] = roomData.roomRecords.defaultSettings;
+          return false;
+        } else {
+         for each(zNo in zappedRooms[user.number].zRooms) {
+          if (roomNo == zNo) {
+                return true;
+          }
+         }
+         return false;
+        }
+    },
+    zapRoom : function(roomNo) {
 	if (zappedRooms[user.number] == null) {
 	    zappedRooms[user.number] = { };
 	    zappedRooms[user.number].zRooms = [ roomNo ];
@@ -530,13 +532,13 @@ roomData = {
 	}
 
 	try {
-	  this.writeUserZappedRooms();
+	  roomData.fileIO.writeUserZappedRooms();
 	} catch (e) {
 	  console.putmsg("Error in writeUserZappedRooms(): " + e.message +
 		"\n");
 	}
-      },
-      unzapRoom : function(roomNo) {
+    },
+    unzapRoom : function(roomNo) {
 	var success = false;
 	var curZapped = new Array, newCurZapped = new Array;
 
@@ -566,13 +568,12 @@ roomData = {
 
 	zappedRooms[user.number].zRooms = newCurZapped;
         try {
-          this.writeUserZappedRooms();
+          roomData.fileIO.writeUserZappedRooms();
         } catch (e) {
           console.putmsg("Error in writeUserZappedRooms(): " + e.message +
                 "\n");
         }
-      }
-
+    }
   }
 }
 
