@@ -239,12 +239,30 @@ docIface = {
 	var ndx = subList[bbs.cursub].index;
 	var mBase;
 
+	if (userSettings.debug.navigation) {
+	  console.putmsg(yellow + "Entering findNew()\nWorking with subList" +
+	    " of length: " + subList.length + "\nContents: " + 
+	    subList.toString() + "\n");
+	}
+
 	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
-	    // TODO: tie this into the zapped rooms list once it is finished
-	    if (!roomData.tieIns.isZapped(bbs.cursub) 
-		/* if (room not zapped) -- previously 'true' */ ) {
+	    if (userSettings.debug.navigation) {
+		console.putmsg(yellow + msg_area.sub[bbs.cursub_code].index +
+		  ": " + roomData.tieIns.isZapped(
+					msg_area.sub[bbs.cursub_code].index) +
+		  "\n");
+	    }
+
+	    if (!roomData.tieIns.isZapped(
+					msg_area.sub[bbs.cursub_code].index)) {
+		if (userSettings.debug.navigation) {
+		  console.putmsg("Room not zapped\n");
+		}
+
 		mBase = msg_base.openNewMBase(subList[ndx].code);
-		if (mBase == null) break;
+		if (mBase == null) {
+		  break;
+		}
 
 		if (subList[ndx].scan_ptr != mBase.total_msgs) {
 		    docIface.nav.setSub(subList[ndx]);

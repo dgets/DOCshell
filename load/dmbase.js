@@ -573,7 +573,8 @@ msg_base = {
 	}
 
 	//primary message scan loop
-	while (true) {	// a bit shady, but we exit from within the switch/case
+	while (true) {  // a bit shady, but we exit from within the switch/case
+	//while (roomData.tieIns.isZapped(mBase.index)) {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg(red + "In main scanSub() loop\ttmpPtr: "
 		      + tmpPtr + " total_msgs: " + mBase.total_msgs
@@ -642,10 +643,18 @@ msg_base = {
 	 */
     readNew : function() {
 	var mBase = this.openNewMBase(bbs.cursub_code);
-	
-	if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
-	    this.scanSub(msg_area.sub[bbs.cursub_code], true);
+
+	if (userSettings.debug.navigation) {
+	  console.putmsg(yellow + msg_area.sub[bbs.cursub_code].index + ": " +
+	    roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index) +
+	    "\n");
 	}
+
+	//if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
+	  if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
+	    this.scanSub(msg_area.sub[bbs.cursub_code], true);
+	  }
+	//}
 	docIface.nav.findNew();
 	mBase.close();
 	return;
