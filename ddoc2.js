@@ -247,14 +247,15 @@ docIface = {
 
 	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
 	    if (userSettings.debug.navigation) {
-		console.putmsg(yellow + msg_area.sub[bbs.cursub_code].index +
-		  ": " + roomData.tieIns.isZapped(
-					msg_area.sub[bbs.cursub_code].index) +
-		  "\n");
+		console.putmsg(yellow + /*msg_area.sub[bbs.cursub_code].index*/
+		  + ndx + ": " + roomData.tieIns.isZapped(ndx)
+					/*msg_area.sub[bbs.cursub_code].index)*/
+		  + "\n");
 	    }
 
-	    if (!roomData.tieIns.isZapped(
-					msg_area.sub[bbs.cursub_code].index)) {
+	    if (!roomData.tieIns.isZapped(ndx)
+					/*msg_area.sub[bbs.cursub_code].index)*/
+		) {
 		if (userSettings.debug.navigation) {
 		  console.putmsg("Room not zapped\n");
 		}
