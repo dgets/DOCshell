@@ -342,14 +342,31 @@ msg_base = {
                 console.putmsg(uMsgGrp.description + "\n\n");
           }
           for each (uGrpSub in uMsgGrp.sub_list) {
-                console.putmsg("\t" + uMsgGrp.name + ": " +
-                  uGrpSub.description + "\n");
+		if (userSettings.debug.navigation) {
+		  console.putmsg(red + uGrpSub.index + ": zapped : " +
+		    roomData.tieIns.isZapped(uGrpSub.index));
+		}
+		if (!roomData.tieIns.isZapped(uGrpSub.index)) {
+                  console.putmsg(green + high_intensity + "\t" + uMsgGrp.name +
+                    ": " + uGrpSub.description + "\n");
+		} else if (userSettings.debug.navigation) {
+		  console.putmsg("\n");
+		}
           }
          }
         } else {
          //uMsgGrp = msg_area.grp_list[topebaseno].sub_list
          for each (uGrpSub in msg_area.grp_list[topebaseno].sub_list) {
-                console.putmsg("\t" + uGrpSub.description + "\n");
+                if (userSettings.debug.navigation) {
+                  console.putmsg(red + uGrpSub.index + ": zapped : " +
+                    roomData.tieIns.isZapped(uGrpSub.index));
+                }
+		if (!roomData.tieIns.isZapped(uGrpSub.index)) {
+                  console.putmsg(green + high_intensity + "\t" + 
+		    uGrpSub.description + "\n");
+		} else if (userSettings.debug.navigation) {
+		  console.putmsg("\n");
+		}
          }
         }
         console.putmsg("\n");
