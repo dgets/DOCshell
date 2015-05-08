@@ -288,6 +288,10 @@ docIface = {
     jump : function() {
 	var uChoice, ouah;
 
+	if (userSettings.debug.navigation) {
+	  console.putmsg(green + "Entered jump()\n");
+	}
+
 	bbs.log_key("J");
 
 	console.putmsg(green + high_intensity + "Jump to forum " +
@@ -309,9 +313,6 @@ docIface = {
 	} else {
 	  try {
 	    ouah = this.chk4Room(uChoice);
-	    if (userSettings.debug.navigation) {	
-		console.putmsg("Got back " + ouah + " from chk4Room()\n");
-	    }
 	  } catch (e) {
 	    if (e.number == 1) {
 	      console.putmsg(red + "No list returned\n");
@@ -324,6 +325,8 @@ docIface = {
 
 	  if (userSettings.debug.navigation) {
 	    console.putmsg("Got back " + ouah.name + " from chk4Room\n");
+	    console.putmsg(yellow + "Zapped contains: " +
+		zappedRooms[user.number].zRooms + "\n");
 	  }
 	}
 
@@ -331,10 +334,36 @@ docIface = {
 	  bbs.log_str("Jumped to Mail");
 	} else {
 	  bbs.log_str("Jumped to " + this.setSub(ouah));
-	  var tmpBase = new MsgBase(ouah);
-	  if (roomData.tieIns.isZapped(tmpBase.subnum)) {
+	  if (userSettings.debug.navigation) {
+	    console.putmsg(cyan + "Set sub/tmpBase to " + ouah.code + "\n");
+	  }
+
+	  var tmpBase = new MsgBase(ouah.code);
+	  /* if (!ouah.is_open) {
+	    try {
+		ouah.open();
+	    } catch (e) {
+		console.putmsg(red + e.message + "\n");
+	    }
+	  } */
+
+	  if (userSettings.debug.navigation) {
+	    console.putmsg(yellow + "Testing for index: " + tmpBase.index +
+		"\t(Name: " + tmpBase.name + ")\n");
+	  }
+
+	  if (roomData.tieIns.isZapped(tmpBase.cfg.index)) {
 	    //we're working with a zapped room
-	    roomData.tieIns.unzapRoom(tmpBase.subnum);
+	    if (userSettings.debug.navigation) {
+		console.putmsg(yellow + "Rooms zapped: " + 
+		  zappedRooms[user.number].zRooms + "\nUnzapping " + 
+		  tmpBase.cfg.index + "\n");
+	    }
+	    roomData.tieIns.unzapRoom(tmpBase.cfg.index);
+	    if (userSettings.debug.navigation) {
+		console.putmsg(yellow + "Rooms zapped: " +
+		  zappedRooms[user.number].zRooms + "\n");
+	    }
 	  }
 	}
 
