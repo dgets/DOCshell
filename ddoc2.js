@@ -339,17 +339,19 @@ docIface = {
 	  }
 
 	  var tmpBase = new MsgBase(ouah.code);
-	  /* if (!ouah.is_open) {
+	  if (!tmpBase.is_open) {
 	    try {
-		ouah.open();
+		tmpBase.open();
 	    } catch (e) {
 		console.putmsg(red + e.message + "\n");
 	    }
-	  } */
+	  } 
 
 	  if (userSettings.debug.navigation) {
-	    console.putmsg(yellow + "Testing for index: " + tmpBase.index +
-		"\t(Name: " + tmpBase.name + ")\n");
+	    console.putmsg(blue + high_intensity + "tmpBase is open: " +
+		tmpBase.is_open + "\n");
+	    console.putmsg(yellow + "Testing for subnum: " + tmpBase.subnum +
+		"\t(File: " + tmpBase.file + ")\n");
 	  }
 
 	  if (roomData.tieIns.isZapped(tmpBase.cfg.index)) {
@@ -692,9 +694,23 @@ if (!debugOnly) {
 		  }
 
 		  //is this room zapped?
+		  if (userSettings.debug.navigation) {
+			console.putmsg(yellow + "Testing for zapped status on" +
+			  " room no: " + bbs.cursub + "\n");
+		  }
                   if (roomData.tieIns.isZapped(bbs.cursub)) {
+		    if (userSettings.debug.navigation) {
+			console.putmsg(red + "zRooms contents: " +
+			  zappedRooms[user.number].zRooms + "\n");	
+			console.putmsg(yellow + "Attempting to unZap() " +
+			  bbs.cursub + "\n");
+		    }
                     //unzap it
                     roomData.tieIns.unzapRoom(bbs.cursub);
+		    if (userSettings.debug.navigation) {
+			console.putmsg(red + "zRooms contents: " +
+			  zappedRooms[user.number].zRooms + "\n");
+		    }
                   }
 		  break;
 		//logout
