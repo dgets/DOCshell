@@ -539,10 +539,10 @@ roomData = {
 	}
     },
     unzapRoom : function(roomNo) {
-	var success = false;
-	var curZapped = new Array, newCurZapped = new Array;
+	var success = false, tmp = 0;
+	var curZapped = new Array; //, newCurZapped = new Array;
 
-	for each(var ouah in zappedRooms) {
+	/* for each(var ouah in zappedRooms) {
 	  if (ouah.number == user.number) {
 	    curZapped = ouah.zRooms;
 	    break;
@@ -564,9 +564,16 @@ roomData = {
 		success = true;
 	    }
 	  }
+
+	} */
+
+	for each(var ouah in zappedRooms[user.number].zRooms) {
+	  if (ouah != roomNo) {
+	    curZapped[tmp++] = ouah;
+	  }
 	}
 
-	zappedRooms[user.number].zRooms = newCurZapped;
+	zappedRooms[user.number].zRooms = curZapped;
         try {
           roomData.fileIO.writeUserZappedRooms();
         } catch (e) {
