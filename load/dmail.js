@@ -89,7 +89,7 @@ uMail = {
          */
     readMail : function() {
         var mmBase = new MsgBase("mail");
-        var fuggit = false, increment = 1, mNdx = 0;
+        var fuggit = false, displayed = true, increment = 1, mNdx = 0;
         var uChoice, mHdr, mBody, mailList;
 
         try {
@@ -131,8 +131,13 @@ uMail = {
 
 
           switch (uChoice) {
-            case 'n':
-            case ' ':
+	    case 'a':	//again
+		if (displayed) {
+		  mNdx += (increment * -1);
+		  displayed = false;
+		}
+            case 'n':	//next
+            case ' ':	//also next
                 //display, if exists, otherwise exit
 		//the 'otherwise exit' part being currently not completed
                 try {
@@ -159,7 +164,7 @@ uMail = {
             		if (userSettings.debug.message_scan) {
                 	  console.putmsg(red + "Invalid message? base.subnum: "
                           + base.subnum + " ptr: " + ptr + "\n");
-            	}
+            		}
             	//return;     // Invalid message, skip
                 }
 
@@ -182,7 +187,7 @@ uMail = {
                 msg_base.doMprompt(mmBase, mNdx);
 
 		//get ready for next
-		mNdx += increment;
+		mNdx += increment; displayed = true;
             break;
 	    case 'r':
 		if (userSettings.debug.message_posting) {

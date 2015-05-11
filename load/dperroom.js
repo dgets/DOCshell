@@ -539,33 +539,8 @@ roomData = {
 	}
     },
     unzapRoom : function(roomNo) {
-	var success = false, tmp = 0;
+	var tmp = 0;
 	var curZapped = new Array; //, newCurZapped = new Array;
-
-	/* for each(var ouah in zappedRooms) {
-	  if (ouah.number == user.number) {
-	    curZapped = ouah.zRooms;
-	    break;
-	  }
-	}
-
-	if ((curZapped == [ ]) || (curZapped == null)) {
-	  return;
-	} else {
-	  //does it already exist?
-	  for (var ouah = 0; ouah < curZapped.length; ouah++) {
-	    if (curZapped[ouah] != roomNo) {
-		if (success) {
-		  newCurZapped[ouah - 1] = curZapped[ouah];
-		} else {
-		  newCurZapped[ouah] = curZapped[ouah];
-		}
-	    } else {
-		success = true;
-	    }
-	  }
-
-	} */
 
 	for each(var ouah in zappedRooms[user.number].zRooms) {
 	  if (ouah != roomNo) {
