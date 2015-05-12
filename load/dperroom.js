@@ -292,7 +292,13 @@ roomData = {
 	 *	JSON blob specified above
 	 */
     snagRoomInfoBlob : function(roomFile, roomReq) {
-	var roomInfoFile = new File(this.roomRecFilename);
+	//var roomInfoFile = new File(this.roomRecFilename);
+        var roomInfoFile = new File(roomFile);
+
+        if (userSettings.debug.file_io) {
+            console.putmsg("Trying to load room info file: " +
+              this.roomRecFilename + " (in snagRoomInfoBlob)\n");
+        }
 
 	if (roomInfoFile.exists) {
 	  try {
@@ -449,7 +455,7 @@ roomData = {
 	 *	necessary, to record the entries
 	 */
       writeUserZappedRooms : function() {
-	var success = false;
+	//var success = false;
 	/*var outfile = new File(this.roomData.userDir + 
 				this.userRoomSettingsFilename); */
 	var outfile = new File(system.data_dir + "user/durooms");
@@ -505,7 +511,7 @@ roomData = {
           zappedRooms[user.number] = roomData.roomRecords.defaultSettings;
           return false;
         } else {
-         for each(zNo in zappedRooms[user.number].zRooms) {
+         for each(var zNo in zappedRooms[user.number].zRooms) {
           if (roomNo == zNo) {
                 return true;
           }

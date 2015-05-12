@@ -475,8 +475,14 @@ docIface = {
 
 	//load room settings
 	try {
+          if (userSettings.debug.file_io) {
+              console.putmsg(cyan + "Looking for room info file: " +
+                roomData.fileIO.roomRecFilename + "\n");
+          }
 	  roomSettings = roomData.fileIO.snagRoomInfoBlob(
-				roomData.fileIO.roomRecFilename, bbs.cursub);
+                                "/sbbs/data/user/docrooms",
+				//roomData.fileIO.roomRecFilename,
+                                bbs.cursub);
 	} catch (e) {
 	  console.putmsg(red + high_intensity + "Loading room data in " +
 		"initDdoc:\n");

@@ -644,11 +644,11 @@ msg_base = {
     readNew : function() {
 	var mBase = this.openNewMBase(bbs.cursub_code);
 
-	if (userSettings.debug.navigation) {
+	/*if (userSettings.debug.navigation) {
 	  console.putmsg(yellow + msg_area.sub[bbs.cursub_code].index + ": " +
 	    roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index) +
 	    "\n");
-	}
+	}*/
 
 	//if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
 	  if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
