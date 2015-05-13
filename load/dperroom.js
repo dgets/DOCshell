@@ -3,7 +3,7 @@
  * contributing/refactoring also by: @Ntwitch (github.com)
  * started: 26Jan15
  * alpha phase: 28Feb15
- * beta phase:
+ * beta phase: 13May15
  * finished:
  *
  * This file is for any of the functionality that I still need to work on that
@@ -13,7 +13,7 @@
  */
 
 roomData = {
-  //properites
+  //properites - try to determine why these are not accessible (NaN) in areas
   userDir : system.data_dir + "user/",
   roomSettingsFilename : "docrooms",
   maxInfoLines : 160,
@@ -59,7 +59,8 @@ roomData = {
   roomSettingsUX : {
 	/*
 	 * summary:
-	 *	Call to prompt user and change room info
+	 *	Calls displayRoomInfo(), determines permissions for changing the
+         *	room info, calls changeRoomInfo() if appropriate
 	 */
     promptUserForRoomInfo : function() {
 	this.displayRoomInfo();
@@ -83,7 +84,8 @@ roomData = {
     },
 	/*
 	 * summary:
-	 *	Resets room info
+	 *	Changes room info by calling poast.getTextBlob(); then calls
+         *	roomData.fileIO.saveRoomInfo() in order to commit the changes
 	 */
     changeRoomInfo : function() {
 	  var infoTxt = new Array();
@@ -191,6 +193,8 @@ roomData = {
 	 *	Method saves the text as room info
 	 */
     saveRoomInfo : function(roomInfo) {
+        //this should be done now in order to ensure that it's not resaving any
+        //possible old info in lieu of somebody else changing info, etc
 	var blob = this.snagRoomInfoBlob(this.roomRecFilename, bbs.cursub_code);
 	var rmInfoz = { };
 
@@ -201,21 +205,27 @@ roomData = {
 		console.putmsg(red + "Unable to parse rmInfoz\n");
 	  }
 	  //no need to throw an error for now
-	  rmInfoz[bbs.cursub_code] = { 
+	  rmInfoz[bbs.cursub_code] = roomData.roomRecords.defaultSettings;
+          /*{
 		"defaultSettings" : {
 			"infoCreationDate" : null,
 			"info" : [ ]
 		}
-	  };
+	  };*/
 	}
 	
 	rmInfoz[bbs.cursub_code].defaultSettings.infoCreationDate = Date.now();
 	rmInfoz[bbs.cursub_code].defaultSettings.info = roomInfo;
 
+        if (userSettings.debug.file_io) {
+            console.putmsg(yellow + "Trying to utilize info file: " +
+              this.userDir + this.roomSettingsFilename + "\n");
+        }
 	var infoFile = new File(this.userDir + this.roomSettingsFilename);
 
 	try {
-	  infoFile.open("w");
+	  infoFile.open("w");  //not sure if this is the best way to do this;
+                               //destructive seems a little overboard
 	} catch (e) {
 	  console.putmsg(yellow + "Error opening info file\n");
 	  throw new docIface.dDocException("Exception in saveRoomInfo()",
