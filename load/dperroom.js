@@ -295,10 +295,10 @@ roomData = {
 	//var roomInfoFile = new File(this.roomRecFilename);
         var roomInfoFile = new File(roomFile);
 
-        if (userSettings.debug.file_io) {
+        /* if (userSettings.debug.file_io) {
             console.putmsg("Trying to load room info file: " +
               this.roomRecFilename + " (in snagRoomInfoBlob)\n");
-        }
+        } */
 
 	if (roomInfoFile.exists) {
 	  try {
