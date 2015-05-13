@@ -93,7 +93,8 @@ roomData = {
 	  if ((infoTxt = poast.getTextBlob(this.maxInfoLines)) != null) {
 		//save the new room info
 		try {
-		  roomData.fileIO.saveRoomInfo(infoTxt);
+		  roomSettings[bbs.cursub_code] =
+                      roomData.fileIO.saveRoomInfo(infoTxt, bbs.cursub_code);
 		} catch (e) {
 		  console.putmsg(red + "changeRoomInfo() exception: " +
 		    e.name + "\nmessage: " + e.message + "\tnum: " + e.number +
@@ -198,6 +199,10 @@ roomData = {
 	var blob = this.snagRoomInfoBlob(this.roomRecFilename, bbs.cursub_code);
 	var rmInfoz = { };
 
+        if (userSettings.debug.file_io) {
+            console.putmsg(yellow + "blob contents: " + blob + "\n");
+        }
+
 	try {
 	  rmInfoz = JSON.parse(blob);
 	} catch (e) {
@@ -205,6 +210,7 @@ roomData = {
 		console.putmsg(red + "Unable to parse rmInfoz\n");
 	  }
 	  //no need to throw an error for now
+          rmInfoz[bbs.cursub_code] = { };
 	  rmInfoz[bbs.cursub_code] = roomData.roomRecords.defaultSettings;
           /*{
 		"defaultSettings" : {
@@ -312,6 +318,7 @@ roomData = {
 
 	if (roomInfoFile.exists) {
 	  try {
+            roomInfoFile.open("r");
 	    chunky = this.stripNRead(roomInfoFile);
 	  } catch (e) {
 	    console.putmsg(yellow + "Error in stripNRead(): " +
@@ -332,7 +339,17 @@ roomData = {
 	    return roomData.roomRecords.defaultSettings;
 	}
 
-	chunky = JSON.parse(chunky);
+        if (userSettings.debug.file_io) {
+            console.putmsg("Chunky: " + chunky + "\n");
+        }
+
+        try {
+            chunky = JSON.parse(chunky);
+        } catch (e) {
+            console.putmsg(blue + high_intensity + "Exception in stripNRead()" +
+                ": " + e.message + "\n");
+            return roomData.roomRecords.defaultSettings;
+        }
 
 	//any more testing here?
 	if (chunky[roomReq] != null) {

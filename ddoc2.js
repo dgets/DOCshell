@@ -43,7 +43,7 @@ const maxnodes = 10;
 
 var stillAlive = true;	//ask for advice on the 'right' way to do this
 
-userSettings = null; roomSettings = new Object; zappedRooms = null;
+userSettings = null; roomSettings = { }; zappedRooms = null;
 
 /*
  * obviously, with all of the other places that we've got debugging
@@ -365,6 +365,7 @@ docIface = {
 	    if (userSettings.debug.navigation) {
 		console.putmsg(yellow + "Rooms zapped: " +
 		  zappedRooms[user.number].zRooms + "\n");
+
 	    }
 	  }
 	}
@@ -422,7 +423,6 @@ docIface = {
   },
   util : {
 	//	--++==**properties**==++--
-
     preSubBoard : null, 
     preFileDir : null, 
     preMsgGroup : null,
@@ -479,10 +479,10 @@ docIface = {
               console.putmsg(cyan + "Looking for room info file: " +
                 roomData.fileIO.roomRecFilename + "\n");
           }
-	  roomSettings = roomData.fileIO.snagRoomInfoBlob(
-                                "/sbbs/data/user/docrooms",
-				//roomData.fileIO.roomRecFilename,
-                                bbs.cursub);
+	  roomSettings[bbs.cursub] = roomData.fileIO.snagRoomInfoBlob(
+                                        "/sbbs/data/user/docrooms",
+                                        //roomData.fileIO.roomRecFilename,
+                                        bbs.cursub);
 	} catch (e) {
 	  console.putmsg(red + high_intensity + "Loading room data in " +
 		"initDdoc:\n");
