@@ -479,10 +479,13 @@ docIface = {
               console.putmsg(cyan + "Looking for room info file: " +
                 roomData.fileIO.roomRecFilename + "\n");
           }
-	  roomSettings[bbs.cursub] = roomData.fileIO.snagRoomInfoBlob(
-                                        "/sbbs/data/user/docrooms",
-                                        //roomData.fileIO.roomRecFilename,
-                                        bbs.cursub);
+
+          for each(var area in msg_area.grp_list[topebaseno].code) {
+	    roomSettings[area] = roomData.fileIO.snagRoomInfoBlob(
+                                              "/sbbs/data/user/docrooms",
+                                              //roomData.fileIO.roomRecFilename,
+                                              area);
+          }
 	} catch (e) {
 	  console.putmsg(red + high_intensity + "Loading room data in " +
 		"initDdoc:\n");

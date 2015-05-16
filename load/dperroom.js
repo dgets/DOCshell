@@ -111,9 +111,10 @@ roomData = {
 	this.displayRoomInfoHdr();
 
 	try {
-	  roomSettings = snagRoomInfoBlob();
+	  roomSettings[bbs.cursub_code] = snagRoomInfoBlob();
 	} catch (e) {
-	  console.putmsg("Unable to snagRoomInfoBlob()\n");
+	  console.putmsg("Unable to snagRoomInfoBlob(): " + e.name +
+              "\nMsg: " + e.message + "\n");
 	}
 
 	if (roomSettings[bbs.cursub_code].settings.info.length == 0) {
