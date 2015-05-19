@@ -195,65 +195,7 @@ roomData = {
 	 *	Method saves the text as room info
 	 */
     saveRoomInfo : function(roomInfo) {
-        //this should be done now in order to ensure that it's not resaving any
-        //possible old info in lieu of somebody else changing info, etc
-	var blob = this.snagRoomInfoBlob(this.roomRecFilename, bbs.cursub_code);
-	var rmInfoz = { };
 
-        if (userSettings.debug.file_io) {
-            console.putmsg(yellow + "blob contents: " + blob + "\n");
-        }
-
-	try {
-	  rmInfoz = JSON.parse(blob);
-	} catch (e) {
-	  if (userSettings.debug.misc) {
-		console.putmsg(red + "Unable to parse rmInfoz\n");
-	  }
-	  //no need to throw an error for now
-          rmInfoz[bbs.cursub_code] = { };
-	  rmInfoz[bbs.cursub_code] = roomData.roomRecords.defaultSettings;
-          /*{
-		"defaultSettings" : {
-			"infoCreationDate" : null,
-			"info" : [ ]
-		}
-	  };*/
-	}
-	
-	rmInfoz[bbs.cursub_code].defaultSettings.infoCreationDate = Date.now();
-	rmInfoz[bbs.cursub_code].defaultSettings.info = roomInfo;
-
-        if (userSettings.debug.file_io) {
-            console.putmsg(yellow + "Trying to utilize info file: " +
-              this.userDir + this.roomSettingsFilename + "\n");
-        }
-	var infoFile = new File(this.userDir + this.roomSettingsFilename);
-
-	try {
-	  infoFile.open("w");  //not sure if this is the best way to do this;
-                               //destructive seems a little overboard
-	} catch (e) {
-	  console.putmsg(yellow + "Error opening info file\n");
-	  throw new docIface.dDocException("Exception in saveRoomInfo()",
-		e.message , 1);
-	}
-
-	try {
-	  if (userSettings.debug.misc) {
-	    console.putmsg(yellow + "Trying to save rmInfoz blob\n");
-	  }
-	  infoFile.write(rmInfoz);
-	} catch (e) {
-	  if (userSettings.debug.misc) {
-	    console.putmsg(red + "Error trying to save rmInfoz blob: " +
-		e.message + "\n");
-	  }
-	  throw new docIface.dDocException("Exception in saveRoomInfo()",
-		e.message, 2);
-	} finally {
-	  infoFile.close();
-	}
     },
 	/*
 	 * summary:
@@ -309,55 +251,6 @@ roomData = {
 	 *	JSON blob specified above
 	 */
     snagRoomInfoBlob : function(roomFile, roomReq) {
-	//var roomInfoFile = new File(this.roomRecFilename);
-        var roomInfoFile = new File(roomFile);
-
-        /* if (userSettings.debug.file_io) {
-            console.putmsg("Trying to load room info file: " +
-              this.roomRecFilename + " (in snagRoomInfoBlob)\n");
-        } */
-
-	if (roomInfoFile.exists) {
-	  try {
-            roomInfoFile.open("r");
-	    chunky = this.stripNRead(roomInfoFile);
-	  } catch (e) {
-	    console.putmsg(yellow + "Error in stripNRead(): " +
-		e.message + "\nFile: " + roomInfoFile.name
-		+ "\n");
-	    throw new docIface.dDocException("Exception in stripNRead()",
-		e.message, 1);
-	  }
-	} else {
-	  return roomData.roomRecords.defaultSettings;
-	}
-
-
-	if ((chunky == null) || (chunky.length == 0)) {
-	    //one would think that creating a template would be good here
-	    /* throw new docIface.dDocException("Exception in stripNRead()",
-		"blob null or length < 30", 2); */
-	    return roomData.roomRecords.defaultSettings;
-	}
-
-        if (userSettings.debug.file_io) {
-            console.putmsg("Chunky: " + chunky + "\n");
-        }
-
-        try {
-            chunky = JSON.parse(chunky);
-        } catch (e) {
-            console.putmsg(blue + high_intensity + "Exception in stripNRead()" +
-                ": " + e.message + "\n");
-            return roomData.roomRecords.defaultSettings;
-        }
-
-	//any more testing here?
-	if (chunky[roomReq] != null) {
-	  return chunky[roomReq];
-	} else {
-	  return roomData.roomRecords.defaultSettings;
-	}
 
      },
 	/*
