@@ -92,14 +92,21 @@ roomData = {
 
 	  if ((infoTxt = poast.getTextBlob(this.maxInfoLines)) != null) {
 		//save the new room info
-		try {
+		/* try {
 		  roomSettings[bbs.cursub_code] =
                       roomData.fileIO.saveRoomInfo(infoTxt, bbs.cursub_code);
 		} catch (e) {
 		  console.putmsg(red + "changeRoomInfo() exception: " +
 		    e.name + "\nmessage: " + e.message + "\tnum: " + e.number +
 		    "\n");
-		}
+		}*/
+                roomSettings[bbs.cursub_code].info = infoTxt;
+                roomSettings[bbs.cursub_code].moderator = user.alias;
+                //of course this will have to be replaced with better code to
+                //make sure the person is authorized, sysop modification of it,
+                //etc etc etc (re: above)
+                //roomSettings[bbs.cursub_code].infoCreationDate =
+                roomData.fileIO.saveRoomInfo();
           }
     },
 	/*
@@ -151,6 +158,11 @@ roomData = {
 	  //this will have to throw an exception after we learn to create
 	  //the new entries
 	} this should now be unnecessary, handled in file_io areas */
+
+        if (userSettings.debug.misc) {
+            console.putmsg(green + "Working with roomSettings:\n" +
+              JSON.stringify(roomSettings) + "\n");
+        }
 
 	console.putmsg(green + high_intensity + "\nForum Moderator is " +
 	  cyan + roomSettings[bbs.cursub_code].moderator + ".  " +
