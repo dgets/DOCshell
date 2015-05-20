@@ -477,7 +477,7 @@ docIface = {
 	try {
           if (userSettings.debug.file_io) {
               console.putmsg(cyan + "Looking for room info file: " +
-                roomData.fileIO.roomRecFilename + "\n");
+                roomData.fileIO.roomRecFilename + "\n");  //why no workee? 8o|
           }
 
           /*for each(var area in msg_area.grp_list[topebaseno].code) {

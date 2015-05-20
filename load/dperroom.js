@@ -117,12 +117,12 @@ roomData = {
               "\nMsg: " + e.message + "\n");
 	}
 
-	if (roomSettings[bbs.cursub_code].settings.info.length == 0) {
+	if (roomSettings[bbs.cursub_code].info.length == 0) {
 	  //or should we be looking for null here?
 	  console.putmsg(green + high_intensity +
 	    "The scroll is blank!\n\n");
 	} else {
-	  for each (var ln in roomSettings[bbs.cursub_code].settings.info) {
+	  for each (var ln in roomSettings[bbs.cursub_code].info) {
 	    console.putmsg(green + high_intensity + ln + "\n");
 	  }
 	}
@@ -138,7 +138,7 @@ roomData = {
     displayRoomInfoHdr : function() {
 	var mBase = new MsgBase(bbs.cursub_code);
 
-	if (roomSettings[bbs.cursub_code] == null) {
+	/*if (roomSettings[bbs.cursub_code] == null) {
 	  if (userSettings.debug.misc) {
 	    console.putmsg(green + high_intensity +"\nNo roominfo has been " +
 	      "set yet for " + cyan + bbs.cursub_code + "\n\n");
@@ -150,10 +150,10 @@ roomData = {
 
 	  //this will have to throw an exception after we learn to create
 	  //the new entries
-	} 
+	} this should now be unnecessary, handled in file_io areas */
 
 	console.putmsg(green + high_intensity + "\nForum Moderator is " +
-	  cyan + roomSettings[bbs.cursub_code].settings.moderator + ".  " +
+	  cyan + roomSettings[bbs.cursub_code].moderator + ".  " +
 	  "Total messages: ");
 
 	try {
@@ -167,8 +167,8 @@ roomData = {
 
 	console.putmsg(red + high_intensity + mBase.total_msgs + "\n" +
 	  green + "Forum info last updated: " + magenta + 
-	  roomSettings[bbs.cursub_code].settings.infoCreationDate + green +
-	  " by " + cyan + roomSettings[bbs.cursub_code].settings.moderator +
+	  roomSettings[bbs.cursub_code].infoCreationDate + green +
+	  " by " + cyan + roomSettings[bbs.cursub_code].moderator +
 	  "\n\n");
 
 	mBase.close();
