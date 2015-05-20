@@ -194,8 +194,10 @@ roomData = {
 	 * summary:
 	 *	Method saves the text as room info
 	 */
-    saveRoomInfo : function(roomInfo) {
-
+    saveRoomInfo : function() {
+        //make sure to have a special case to initialize a new room's info
+        //if it doesn't already exist in the roomSettings (freshly created)
+        
     },
 	/*
 	 * summary:
@@ -250,9 +252,56 @@ roomData = {
 	 * returns:
 	 *	JSON blob specified above
 	 */
-    snagRoomInfoBlob : function(roomFile, roomReq) {
+    snagRoomInfoBlob : function() {
+        var roomInfoLoc = "/sbbs/data/user/docrooms";
+        var roomInfoFile = new File(roomInfoLoc);
+        var blob = new String();
 
-     },
+        if (roomInfoFile.exists) {
+            try {
+                roomInfoFile.open("r");
+            } catch (e) {
+                if (userSettings.debug.file_io) {
+                    console.putmsg(red + "Error opening " + roomInfoLoc + "\n" +
+                      "Message: " + e.message + "\n");
+                }
+                throw new dDocException("snagRoomInfoBlob() Exception",
+                    e.message, 1);
+            }
+
+            try {
+                blob = roomInfoFile.read();
+            } catch (e) {
+                if (userSettings.debug.file_io) {
+                    console.putmsg(red + "Error reading from: " + roomInfoLoc +
+                      "\nMessage: " + e.message + "\n");
+                }
+                throw new dDocException("snagRoomInfoBlob() Exception",
+                    e.message, 2);
+            }
+
+            try {
+                roomSettings = JSON.parse(blob);
+            } catch (e) {
+                if (userSettings.debug.file_io) {
+                    console.putmsg(yellow + "Error parsing JSON from: " +
+                      roomInfoLoc + "\nMessage: " + e.message + "\n");
+                }
+                throw new dDocException("snagRoomInfoBlob() Exception",
+                    e.message, 3);
+            }
+        } else {
+            //looks like the info file doesn't exist yet
+            for each(room in msg_area.grp_list[topebaseno].sub_list) {
+                if (userSettings.debug.misc) {
+                    console.putmsg(green + "Setting room info for " +
+                      room.code + "\n");
+                }
+                roomSettings[room.code] =
+                    roomData.roomRecords.defaultSettings();
+            }
+        }
+    },
 	/*
 	 * summary:
 	 *	Method opens file of user's zapped rooms (still need to
