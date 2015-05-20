@@ -192,12 +192,41 @@ roomData = {
     //--++==**methods**==++--
 	/*
 	 * summary:
-	 *	Method saves the text as room info
+	 *	Method saves room info blob in general; if the current room
+         *	does not exist in the roomSettings object it creates a new one
+         *	with the default information
 	 */
     saveRoomInfo : function() {
+        var roomInfoLoc = "/sbbs/data/user/docrooms";   //how to fix this?
+        var roomInfoFile = new File(roomInfoLoc);
         //make sure to have a special case to initialize a new room's info
         //if it doesn't already exist in the roomSettings (freshly created)
-        
+        if (roomSettings[bbs.cursub_code] == null) {
+            roomSettings[bbs.cursub_code] =
+                roomData.roomRecords.defaultSettings();
+        }
+
+        try {
+            roomInfoFile.open("w");
+        } catch (e) {
+            if (userSettings.debug.file_io) {
+                console.putmsg(red + "Unable to open " + roomInfoLoc +
+                  " for writing!\n");
+            }
+            throw new dDocException("saveRoomInfo() Exception", e.message, 1);
+        }
+
+        try {
+            roomInfoFile.write(JSON.stringify(roomSettings));
+        } catch (e) {
+            if (userSettings.debug.file_io) {
+                console.putmsg(red + "Unable to stringify/write roomSettings " +
+                  "to " + roomInfoLoc + "!\n");
+            }
+            throw new dDocException("saveRoomInfo() Exception", e.message, 2);
+        } finally {
+            roomInfoFile.close();
+        }
     },
 	/*
 	 * summary:
@@ -246,14 +275,15 @@ roomData = {
     },
 	/*
 	 * summary:
-	 *	Method opens room info settings file, strips the bullshit
-	 *	out of it, and [hopefully] parses it as a JSON blob to
-	 *	be returned to extract room information from
-	 * returns:
-	 *	JSON blob specified above
+	 *	Method attempts to open roomInfoLoc (not sure still why the
+         *	constant definition of this is not working :-?), read its
+         *	contents into a string, and parse into roomSettings.  If the
+         *	room info file doesn't exist yet, it'll create an object with
+         *	all of the current dystopian rooms and the default settings,
+         *	then writing such.
 	 */
     snagRoomInfoBlob : function() {
-        var roomInfoLoc = "/sbbs/data/user/docrooms";
+        var roomInfoLoc = "/sbbs/data/user/docrooms";   //how to fix this?
         var roomInfoFile = new File(roomInfoLoc);
         var blob = new String();
 
@@ -278,6 +308,8 @@ roomData = {
                 }
                 throw new dDocException("snagRoomInfoBlob() Exception",
                     e.message, 2);
+            } finally {
+                roomInfoFile.close();
             }
 
             try {
@@ -299,6 +331,17 @@ roomData = {
                 }
                 roomSettings[room.code] =
                     roomData.roomRecords.defaultSettings();
+                //guess we might as well just write it now, as well
+                try {
+                    this.saveRoomInfo();
+                } catch (e) {
+                    if (userSettings.debug.file_io) {
+                        console.putmsg(red + "Unable to save " + roomInfoLoc +
+                          "\nMessage: " + e.message + "\n");
+                    }
+                    throw new dDocException("snagRoomInfoBlob() Exception" +
+                      " while calling saveRoomInfo()", e.message, 4);
+                }
             }
         }
     },

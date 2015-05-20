@@ -480,11 +480,19 @@ docIface = {
                 roomData.fileIO.roomRecFilename + "\n");
           }
 
-          for each(var area in msg_area.grp_list[topebaseno].code) {
+          /*for each(var area in msg_area.grp_list[topebaseno].code) {
 	    roomSettings[area] = roomData.fileIO.snagRoomInfoBlob(
                                               "/sbbs/data/user/docrooms",
                                               //roomData.fileIO.roomRecFilename,
                                               area);
+          }*/
+          try {
+              roomData.fileIO.snagRoomInfoBlob();
+          } catch (e) {
+              if (userSettings.debug.file_io) {
+                  console.putmsg(cyan + "Exception reading default room info\n"
+                    + "Message: " + e.message + "\tNum: " + e.number + "\n");
+              }
           }
 	} catch (e) {
 	  console.putmsg(red + high_intensity + "Loading room data in " +
