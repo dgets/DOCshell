@@ -117,12 +117,7 @@ roomData = {
     displayRoomInfo : function() {
 	this.displayRoomInfoHdr();
 
-	try {
-	  roomSettings[bbs.cursub_code] = snagRoomInfoBlob();
-	} catch (e) {
-	  console.putmsg("Unable to snagRoomInfoBlob(): " + e.name +
-              "\nMsg: " + e.message + "\n");
-	}
+	roomSettings[bbs.cursub_code] = snagRoomInfoBlob();
 
 	if (roomSettings[bbs.cursub_code].info.length == 0) {
 	  //or should we be looking for null here?
