@@ -3,7 +3,7 @@
  * contributing/refactoring also by: @Ntwitch (github.com)
  * started: 26Jan15
  * alpha phase: 28Feb15
- * beta phase:
+ * beta phase: 13May15
  * finished:
  *
  * This file is for any of the functionality that I still need to work on that
@@ -13,7 +13,7 @@
  */
 
 roomData = {
-  //properites
+  //properites - try to determine why these are not accessible (NaN) in areas
   userDir : system.data_dir + "user/",
   roomSettingsFilename : "docrooms",
   maxInfoLines : 160,
@@ -59,7 +59,8 @@ roomData = {
   roomSettingsUX : {
 	/*
 	 * summary:
-	 *	Call to prompt user and change room info
+	 *	Calls displayRoomInfo(), determines permissions for changing the
+         *	room info, calls changeRoomInfo() if appropriate
 	 */
     promptUserForRoomInfo : function() {
 	this.displayRoomInfo();
@@ -83,20 +84,29 @@ roomData = {
     },
 	/*
 	 * summary:
-	 *	Resets room info
+	 *	Changes room info by calling poast.getTextBlob(); then calls
+         *	roomData.fileIO.saveRoomInfo() in order to commit the changes
 	 */
     changeRoomInfo : function() {
 	  var infoTxt = new Array();
 
 	  if ((infoTxt = poast.getTextBlob(this.maxInfoLines)) != null) {
 		//save the new room info
-		try {
-		  roomData.fileIO.saveRoomInfo(infoTxt);
+		/* try {
+		  roomSettings[bbs.cursub_code] =
+                      roomData.fileIO.saveRoomInfo(infoTxt, bbs.cursub_code);
 		} catch (e) {
 		  console.putmsg(red + "changeRoomInfo() exception: " +
 		    e.name + "\nmessage: " + e.message + "\tnum: " + e.number +
 		    "\n");
-		}
+		}*/
+                roomSettings[bbs.cursub_code].info = infoTxt;
+                roomSettings[bbs.cursub_code].moderator = user.alias;
+                //of course this will have to be replaced with better code to
+                //make sure the person is authorized, sysop modification of it,
+                //etc etc etc (re: above)
+                //roomSettings[bbs.cursub_code].infoCreationDate =
+                roomData.fileIO.saveRoomInfo();
           }
     },
 	/*
@@ -107,18 +117,14 @@ roomData = {
     displayRoomInfo : function() {
 	this.displayRoomInfoHdr();
 
-	try {
-	  roomSettings = snagRoomInfoBlob();
-	} catch (e) {
-	  console.putmsg("Unable to snagRoomInfoBlob()\n");
-	}
+	roomSettings[bbs.cursub_code] = snagRoomInfoBlob();
 
-	if (roomSettings[bbs.cursub_code].settings.info.length == 0) {
+	if (roomSettings[bbs.cursub_code].info.length == 0) {
 	  //or should we be looking for null here?
 	  console.putmsg(green + high_intensity +
 	    "The scroll is blank!\n\n");
 	} else {
-	  for each (var ln in roomSettings[bbs.cursub_code].settings.info) {
+	  for each (var ln in roomSettings[bbs.cursub_code].info) {
 	    console.putmsg(green + high_intensity + ln + "\n");
 	  }
 	}
@@ -134,7 +140,7 @@ roomData = {
     displayRoomInfoHdr : function() {
 	var mBase = new MsgBase(bbs.cursub_code);
 
-	if (roomSettings[bbs.cursub_code] == null) {
+	/*if (roomSettings[bbs.cursub_code] == null) {
 	  if (userSettings.debug.misc) {
 	    console.putmsg(green + high_intensity +"\nNo roominfo has been " +
 	      "set yet for " + cyan + bbs.cursub_code + "\n\n");
@@ -146,10 +152,15 @@ roomData = {
 
 	  //this will have to throw an exception after we learn to create
 	  //the new entries
-	} 
+	} this should now be unnecessary, handled in file_io areas */
+
+        if (userSettings.debug.misc) {
+            console.putmsg(green + "Working with roomSettings:\n" +
+              JSON.stringify(roomSettings) + "\n");
+        }
 
 	console.putmsg(green + high_intensity + "\nForum Moderator is " +
-	  cyan + roomSettings[bbs.cursub_code].settings.moderator + ".  " +
+	  cyan + roomSettings[bbs.cursub_code].moderator + ".  " +
 	  "Total messages: ");
 
 	try {
@@ -163,8 +174,8 @@ roomData = {
 
 	console.putmsg(red + high_intensity + mBase.total_msgs + "\n" +
 	  green + "Forum info last updated: " + magenta + 
-	  roomSettings[bbs.cursub_code].settings.infoCreationDate + green +
-	  " by " + cyan + roomSettings[bbs.cursub_code].settings.moderator +
+	  roomSettings[bbs.cursub_code].infoCreationDate + green +
+	  " by " + cyan + roomSettings[bbs.cursub_code].moderator +
 	  "\n\n");
 
 	mBase.close();
@@ -188,55 +199,41 @@ roomData = {
     //--++==**methods**==++--
 	/*
 	 * summary:
-	 *	Method saves the text as room info
+	 *	Method saves room info blob in general; if the current room
+         *	does not exist in the roomSettings object it creates a new one
+         *	with the default information
 	 */
-    saveRoomInfo : function(roomInfo) {
-	var blob = this.snagRoomInfoBlob(this.roomRecFilename, bbs.cursub_code);
-	var rmInfoz = { };
+    saveRoomInfo : function() {
+        var roomInfoLoc = "/sbbs/data/user/docrooms";   //how to fix this?
+        var roomInfoFile = new File(roomInfoLoc);
+        //make sure to have a special case to initialize a new room's info
+        //if it doesn't already exist in the roomSettings (freshly created)
+        if (roomSettings[bbs.cursub_code] == null) {
+            roomSettings[bbs.cursub_code] =
+                roomData.roomRecords.defaultSettings();
+        }
 
-	try {
-	  rmInfoz = JSON.parse(blob);
-	} catch (e) {
-	  if (userSettings.debug.misc) {
-		console.putmsg(red + "Unable to parse rmInfoz\n");
-	  }
-	  //no need to throw an error for now
-	  rmInfoz[bbs.cursub_code] = { 
-		"defaultSettings" : {
-			"infoCreationDate" : null,
-			"info" : [ ]
-		}
-	  };
-	}
-	
-	rmInfoz[bbs.cursub_code].defaultSettings.infoCreationDate = Date.now();
-	rmInfoz[bbs.cursub_code].defaultSettings.info = roomInfo;
+        try {
+            roomInfoFile.open("w");
+        } catch (e) {
+            if (userSettings.debug.file_io) {
+                console.putmsg(red + "Unable to open " + roomInfoLoc +
+                  " for writing!\n");
+            }
+            throw new dDocException("saveRoomInfo() Exception", e.message, 1);
+        }
 
-	var infoFile = new File(this.userDir + this.roomSettingsFilename);
-
-	try {
-	  infoFile.open("w");
-	} catch (e) {
-	  console.putmsg(yellow + "Error opening info file\n");
-	  throw new docIface.dDocException("Exception in saveRoomInfo()",
-		e.message , 1);
-	}
-
-	try {
-	  if (userSettings.debug.misc) {
-	    console.putmsg(yellow + "Trying to save rmInfoz blob\n");
-	  }
-	  infoFile.write(rmInfoz);
-	} catch (e) {
-	  if (userSettings.debug.misc) {
-	    console.putmsg(red + "Error trying to save rmInfoz blob: " +
-		e.message + "\n");
-	  }
-	  throw new docIface.dDocException("Exception in saveRoomInfo()",
-		e.message, 2);
-	} finally {
-	  infoFile.close();
-	}
+        try {
+            roomInfoFile.write(JSON.stringify(roomSettings));
+        } catch (e) {
+            if (userSettings.debug.file_io) {
+                console.putmsg(red + "Unable to stringify/write roomSettings " +
+                  "to " + roomInfoLoc + "!\n");
+            }
+            throw new dDocException("saveRoomInfo() Exception", e.message, 2);
+        } finally {
+            roomInfoFile.close();
+        }
     },
 	/*
 	 * summary:
@@ -285,53 +282,76 @@ roomData = {
     },
 	/*
 	 * summary:
-	 *	Method opens room info settings file, strips the bullshit
-	 *	out of it, and [hopefully] parses it as a JSON blob to
-	 *	be returned to extract room information from
-	 * returns:
-	 *	JSON blob specified above
+	 *	Method attempts to open roomInfoLoc (not sure still why the
+         *	constant definition of this is not working :-?), read its
+         *	contents into a string, and parse into roomSettings.  If the
+         *	room info file doesn't exist yet, it'll create an object with
+         *	all of the current dystopian rooms and the default settings,
+         *	then writing such.
 	 */
-    snagRoomInfoBlob : function(roomFile, roomReq) {
-	//var roomInfoFile = new File(this.roomRecFilename);
-        var roomInfoFile = new File(roomFile);
+    snagRoomInfoBlob : function() {
+        var roomInfoLoc = "/sbbs/data/user/docrooms";   //how to fix this?
+        var roomInfoFile = new File(roomInfoLoc);
+        var blob = new String();
 
-        if (userSettings.debug.file_io) {
-            console.putmsg("Trying to load room info file: " +
-              this.roomRecFilename + " (in snagRoomInfoBlob)\n");
+        if (roomInfoFile.exists) {
+            try {
+                roomInfoFile.open("r");
+            } catch (e) {
+                if (userSettings.debug.file_io) {
+                    console.putmsg(red + "Error opening " + roomInfoLoc + "\n" +
+                      "Message: " + e.message + "\n");
+                }
+                throw new dDocException("snagRoomInfoBlob() Exception",
+                    e.message, 1);
+            }
+
+            try {
+                blob = roomInfoFile.read();
+            } catch (e) {
+                if (userSettings.debug.file_io) {
+                    console.putmsg(red + "Error reading from: " + roomInfoLoc +
+                      "\nMessage: " + e.message + "\n");
+                }
+                throw new dDocException("snagRoomInfoBlob() Exception",
+                    e.message, 2);
+            } finally {
+                roomInfoFile.close();
+            }
+
+            try {
+                roomSettings = JSON.parse(blob);
+            } catch (e) {
+                if (userSettings.debug.file_io) {
+                    console.putmsg(yellow + "Error parsing JSON from: " +
+                      roomInfoLoc + "\nMessage: " + e.message + "\n");
+                }
+                throw new dDocException("snagRoomInfoBlob() Exception",
+                    e.message, 3);
+            }
+        } else {
+            //looks like the info file doesn't exist yet
+            for each(room in msg_area.grp_list[topebaseno].sub_list) {
+                if (userSettings.debug.misc) {
+                    console.putmsg(green + "Setting room info for " +
+                      room.code + "\n");
+                }
+                roomSettings[room.code] =
+                    roomData.roomRecords.defaultSettings();
+                //guess we might as well just write it now, as well
+                try {
+                    this.saveRoomInfo();
+                } catch (e) {
+                    if (userSettings.debug.file_io) {
+                        console.putmsg(red + "Unable to save " + roomInfoLoc +
+                          "\nMessage: " + e.message + "\n");
+                    }
+                    throw new dDocException("snagRoomInfoBlob() Exception" +
+                      " while calling saveRoomInfo()", e.message, 4);
+                }
+            }
         }
-
-	if (roomInfoFile.exists) {
-	  try {
-	    chunky = this.stripNRead(roomInfoFile);
-	  } catch (e) {
-	    console.putmsg(yellow + "Error in stripNRead(): " +
-		e.message + "\nFile: " + roomInfoFile.name
-		+ "\n");
-	    throw new docIface.dDocException("Exception in stripNRead()",
-		e.message, 1);
-	  }
-	} else {
-	  return roomData.roomRecords.defaultSettings;
-	}
-
-
-	if ((chunky == null) || (chunky.length == 0)) {
-	    //one would think that creating a template would be good here
-	    /* throw new docIface.dDocException("Exception in stripNRead()",
-		"blob null or length < 30", 2); */
-	    return roomData.roomRecords.defaultSettings;
-	}
-
-	chunky = JSON.parse(chunky);
-
-	//any more testing here?
-	if (chunky[roomReq] != null) {
-	  return chunky[roomReq];
-	} else {
-	  return roomData.roomRecords.defaultSettings;
-	}
-
-     },
+    },
 	/*
 	 * summary:
 	 *	Method opens file of user's zapped rooms (still need to
