@@ -82,6 +82,38 @@ roomData = {
 		"now . . .\n");
 	}
     },
+        /*
+         * summary:
+         *      If the current user is the sysop/cosysop, allows editing of the
+         *      room's info to set a moderator
+         */
+    changeRoomModerator : function() {
+        var newMod = new String();
+
+        if (user.security.level >= 80) {
+            //go ahead and set the moderator for this room/sub
+            console.putmsg(yellow + high_intensity + "Changing moderator for " +
+              user.cursub + "\nNew Moderator: " + green);
+            newMod = console.getstr("New Moderator: ", 40); //max user alias len
+
+            while (system.matchuser(newMod) == 0) {
+                console.putmsg(yellow + newMod + " not found.\n");
+                newMod = console.getstr("New Moderator: ", 40);
+            }
+
+            roomSettings[bbs.cursub_code].moderator = newMod;
+        } else {
+            //add some error logging here at some point, as well; this could be
+            //a security concern at some point
+            console.putmsg(red + high_intensity + "Your security level is not" +
+              " high enough to change room moderator.\nMust we log this?\n");
+            throw new dDocException("changeRoomModerator() Exception",
+              "Not high enough security to change room moderator", 1);
+        }
+        
+        roomData.fileIO.saveRoomInfo();
+
+    },
 	/*
 	 * summary:
 	 *	Changes room info by calling poast.getTextBlob(); then calls
@@ -89,6 +121,24 @@ roomData = {
 	 */
     changeRoomInfo : function() {
 	  var infoTxt = new Array();
+
+          if (roomSettings[bbs.cursub_code].moderator != user.alias) {
+              try {
+                  this.changeRoomModerator();
+              } catch (e) {
+                  if (userSettings.debug.misc) {
+                      console.putmsg(yellow + "Unable to change room mod!\n" +
+                        "Msg: " + red + high_intensity + e.message + "\n");
+                  }
+
+                  throw new dDocException("changeRoomInfo() Exception",
+                    "Exception in changeRoomModerator()", 1);
+                  //that should keep anyone from getting beyond here that
+                  //shouldn't be
+              }
+          }
+
+          this.displayRoomInfoHdr();
 
 	  if ((infoTxt = poast.getTextBlob(this.maxInfoLines)) != null) {
 		//save the new room info
@@ -101,10 +151,12 @@ roomData = {
 		    "\n");
 		}*/
                 roomSettings[bbs.cursub_code].info = infoTxt;
-                roomSettings[bbs.cursub_code].moderator = user.alias;
+                //this will be set in a separate method handling moderators
+                //roomSettings[bbs.cursub_code].moderator = user.alias;
                 //of course this will have to be replaced with better code to
                 //make sure the person is authorized, sysop modification of it,
                 //etc etc etc (re: above)
+
                 //roomSettings[bbs.cursub_code].infoCreationDate =
                 roomData.fileIO.saveRoomInfo();
           }
@@ -117,7 +169,7 @@ roomData = {
     displayRoomInfo : function() {
 	this.displayRoomInfoHdr();
 
-	roomSettings[bbs.cursub_code] = snagRoomInfoBlob();
+	roomSettings[bbs.cursub_code] = roomData.fileIO.snagRoomInfoBlob();
 
 	if (roomSettings[bbs.cursub_code].info.length == 0) {
 	  //or should we be looking for null here?
