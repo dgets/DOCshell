@@ -138,6 +138,10 @@ roomData = {
               }
           }
 
+          var nao = new Date();
+          roomSettings[bbs.cursub_code].infoCreationDate =
+              nao.getDate() + nao.toUTCString();
+          
           this.displayRoomInfoHdr();
 
 	  if ((infoTxt = poast.getTextBlob(this.maxInfoLines)) != null) {
