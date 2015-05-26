@@ -73,7 +73,8 @@ docIface = {
        "<X>\ttoggle eXpress status\n<^X>\tcheck old X messages\n" +
        "<y>\tyell\n<z>\tzaproom\n<0-9>\tquickX\n<#>\tRead room by " +
        "number\n<->\tread last n messages\n<%>\ttoggle guideflag " +
-       "status\n<@>\taidelist\n<\">\tquote Xes to Sysop\n\n",
+       "status\n<@>\taidelist\n<\">\tquote Xes to Sysop\n" +
+       "<$>\tchange debugging settings\n\n",
   sprompt : high_intensity + yellow + "<A>" + green + "bort " +
        yellow + "<C>" + green + "ontinue " + yellow + "<P>" +
        green + "rint " + yellow + "<S>" + green + "ave " + yellow +
@@ -807,6 +808,36 @@ if (!debugOnly) {
 		    roomData.tieIns.zapRoom(bbs.cursub);
 		  }
 		  break;
+                case '$':       //change debugging flags for this user
+                  var dropOut = false;
+                  var un;
+
+                  if (user.security.level < 80) {
+                      userRecords.userDataUI.queryDebugSettings(user.number);
+                  } else {
+                      console.putmsg(yellow + high_intensity + "User name to " +
+                        "modify debug settings for: ");
+                      un = bbs.finduser(console.getstr());
+
+                      while (un < 1) {
+                          console.putmsg(red + high_intensity + "User not " +
+                            "found.  Enter another username or \"DONE\" to " +
+                            " escape.\nUsername: ");
+                          un = console.getstr();
+
+                          if (un == "DONE") {
+                              dropOut = true;
+                          } else {
+                              un = bbs.finduser(un);
+                          }
+                      }
+
+                      //we should have a valid # now or else be out of here :P
+                      if (!dropOut) {
+                          userRecords.userDataUI.queryDebugSettings(un);
+                      }
+                  }
+                  break;
 		default:
 		  console.putmsg(excuse);
 		  break;
