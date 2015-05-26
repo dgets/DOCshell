@@ -20,8 +20,9 @@ if (options && (options.rlogin_auto_xtrn) && (bbs.sys_status & SS_RLOGIN) && (co
     bbs.hangup();
 	exit();
 }
+
 //Disable spinning cursor at pause prompts
-//bbs.node_settings|=NM_NOPAUSESPIN	
+bbs.node_settings|=NM_NOPAUSESPIN	
 
 if(user.security.restrictions&UFLAG_G) {
 	while(bbs.online) {
@@ -84,14 +85,16 @@ if(user.security.exemptions&UFLAG_H)
 * Replaces the 2.1 Logon stuff
 ******************************/
 
-// Logon screens
+var ouah = console.noyes("Quick login? (straight to shell/no ANSI)");
+if (ouah) {
+  // Logon screens
 
-// Print logon screens based on security level
-if(file_exists(system.text_dir + "menu/logon" + user.security.level + ".*"))
+  // Print logon screens based on security level
+  if(file_exists(system.text_dir + "menu/logon" + user.security.level + ".*"))
 	bbs.menu("logon" + user.security.level);
 
-// Print successively numbered logon screens (logon, logon1, logon2, etc.)
-for(var i=0;;i++) {
+  // Print successively numbered logon screens (logon, logon1, logon2, etc.)
+  for(var i=0;;i++) {
 	var fname="logon";
 	if(i)
 		fname+=i;
@@ -101,13 +104,14 @@ for(var i=0;;i++) {
 		continue;
 	}
 	bbs.menu(fname);
-}
+  }
 
-// Print one of text/menu/random*.*, picked at random
-// e.g. random1.asc, random2.asc, random3.asc, etc.
-var random_list = directory(system.text_dir + "menu/random*.*");
-if(random_list.length)
+  // Print one of text/menu/random*.*, picked at random
+  // e.g. random1.asc, random2.asc, random3.asc, etc.
+  var random_list = directory(system.text_dir + "menu/random*.*");
+  if(random_list.length)
 	bbs.menu(file_getname(random_list[random(random_list.length)]).slice(0,-4));
+}
 
 console.clear();
 bbs.user_event(EVENT_LOGON);
@@ -190,24 +194,26 @@ if(user.settings&USER_HTML) {
 	console.getkey();
 }
 else {
-	// Last few callers
-	console.aborted=false;
-	console.clear();
-	logonlst=system.data_dir + "logon.lst"
-	if(file_size(logonlst)<1)
+        if (ouah) {
+	  // Last few callers
+	  console.aborted=false;
+	  console.clear();
+	  logonlst=system.data_dir + "logon.lst"
+	  if(file_size(logonlst)<1)
 		printf("\1n\1g\1hYou are the first caller of the day!\r\n");
-	else {
+	  else {
 		printf("\1n\1g\1hLast few callers:\1n\r\n");
 		console.printtail(logonlst,4,P_NOATCODES);      // args: filename, lines, mode
-	}
-	console.crlf();
+	  }
+	  console.crlf();
 
-	// Auto-message
-	auto_msg=system.data_dir + "msgs/auto.msg"
-	if(file_size(auto_msg)>0) {
+	  // Auto-message
+	  auto_msg=system.data_dir + "msgs/auto.msg"
+	  if(file_size(auto_msg)>0) {
 		console.printfile(auto_msg,P_NOATCODES);
 		console.crlf();
-	}
+	  }
+        }
 }
 
 // Automatically set shell to WIPSHELL
