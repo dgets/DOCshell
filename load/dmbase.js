@@ -98,7 +98,7 @@ msg_base = {
 		  break;
                 case 'b':	//change scan direction
 		  bbs.log_key("b");
-                  valid = true; hollaBack = 2;
+                  valid = true;hollaBack = 2;
 		  docIface.log_str_n_char(this.log_header, 'b');
                   console.putmsg(green + high_intensity + "Back (change " +
                         "direction)...\n");
@@ -130,7 +130,7 @@ msg_base = {
                   break;
                 case 's':	//stop scan
 		  bbs.log_key("s");
-                  valid = true; hollaBack = 1;
+                  valid = true;hollaBack = 1;
 		  docIface.log_str_n_char(this.log_header, 's');
                   console.putmsg(yellow + high_intensity + "Stop\n");
                   break;
@@ -158,13 +158,42 @@ msg_base = {
 		  if (uchoice == "n") {
 		    bbs.log_key("n");
 		  }
-		  valid = true; hollaBack = 0;
+		  valid = true;hollaBack = 0;
 		  docIface.log_str_n_char(this.log_header, 'n');
 		  console.putmsg(green + high_intensity + "Next\n");
 		  break;
 		case 'l':	//logout
 		  bbs.log_key("l");
-		  docIface.util.quitDdoc();
+		  //docIface.util.quitDdoc();
+                  //let's see if this'll just work from here
+
+                  if (userSettings.debug.flow_control) {
+                      console.putmsg(red + "\nRestoring bbs.* properties:\n" +
+                            " bbs.cursub: " + docIface.util.preSubBoard + "\n" +
+                            " bbs.curgrp: " + docIface.util.preMsgGroup + "\n" +
+                            " bbs.curdir: " + docIface.util.preFileDir + "\n");
+                      console.putmsg(red + "\nRestoring user.settings . . .\n");
+                  }
+
+                  //restore initial settings prior to exit
+                  bbs.cursub = docIface.util.preSubBoard;
+                  user.cursub = bbs.cursub_code;
+                  bbs.curgrp = docIface.util.preMsgGroup;
+                  bbs.curdir = docIface.util.preFileDir;
+                  user.settings = docIface.util.preUserSettings;
+
+                  //disable H exemption in case they go back to usual shell so that
+                  //we can handle events, etc
+                  user.security.exemptions &= ~UFLAG_H;
+                  //restore asynchronous message status (if necessary)
+                  bbs.sys_status ^= SS_MOFF;
+
+                  console.putmsg(blue + high_intensity + "\n\nHope to see you " +
+                       "again soon!\n\nPeace out!\n");
+
+                  bbs.logoff(); //this works, but does not reset settings;
+                                //I hate to dupe code, but it's the only work-
+                                //around that I know of at this point :P
 		  break;
 		case 'x':	//send X
 		  bbs.log_key("x");
@@ -562,7 +591,7 @@ msg_base = {
 	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
 	}
 	
-	if (forward) { inc = 1; } else { inc = -1; }
+	if (forward) {inc = 1;} else {inc = -1;}
 	
 	// if starting in reverse from the room prompt, unskip one message
 	if (!forward) tmpPtr += 1;  // so we start with the most recently read
