@@ -809,28 +809,33 @@ if (!debugOnly) {
 		  }
 		  break;
                 case '$':       //change debugging flags for this user
+                  var dropOut = false;
+                  var un;
+
                   if (user.security.level < 80) {
                       userRecords.userDataUI.queryDebugSettings(user.number);
                   } else {
                       console.putmsg(yellow + high_intensity + "User name to " +
                         "modify debug settings for: ");
-                      var un = bbs.finduser(console.getstr());
+                      un = bbs.finduser(console.getstr());
 
                       while (un < 1) {
                           console.putmsg(red + high_intensity + "User not " +
-                            "found.  Enter another username or <ENTER> to " +
+                            "found.  Enter another username or \"DONE\" to " +
                             " escape.\nUsername: ");
                           un = console.getstr();
 
-                          if (un == "") {
-                              break;
+                          if (un == "DONE") {
+                              dropOut = true;
                           } else {
                               un = bbs.finduser(un);
                           }
                       }
 
                       //we should have a valid # now or else be out of here :P
-                      userRecords.userDataUI.queryDebugSettings(un);
+                      if (!dropOut) {
+                          userRecords.userDataUI.queryDebugSettings(un);
+                      }
                   }
                   break;
 		default:
