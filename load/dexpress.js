@@ -86,6 +86,8 @@ wholist = {
    * NOTE: This needs to be less of a monolith
    */
   list_long : function(ul) {
+	var timeon;
+
 	//time to do this the right way
 	bbs.log_key("w");
 
