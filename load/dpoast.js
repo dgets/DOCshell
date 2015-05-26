@@ -138,9 +138,6 @@ poast = {
 		      "\nlength: " + mTxt.length + "\nBeing returned\n");
 		  }
 
-                  //this is an ugly hack fix, but whatever; it's quick and
-                  //works for now (issue #136 on github)
-                  mTxt.pop();
                   return mTxt;
                   break;
                 /* case 'X':
