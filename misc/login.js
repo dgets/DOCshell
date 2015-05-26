@@ -54,6 +54,7 @@ for(var c=0; c<10; c++) {
 	// Continue normal login (prompting for password)
 	// modified by Khelair for usage w/ddoc2
 	if(bbs.login(str, "\1n\1c\1hPW:\b\b\bPassword: \1w")) {
+                /*
                 //while we're in a debugging mode here
                 console.putmsg("Shell: " + user.command_shell.toUpperCase() +
                   " (to upper)\n");
@@ -65,7 +66,16 @@ for(var c=0; c<10; c++) {
 		} else {
 		  bbs.logon();
 		  exit();
-		}
+		} */
+                /*if (console.noyes("Quick login?")) {
+                    bbs.logon();
+                    exit();
+                } else {
+                    exit();
+                }*/
+
+		bbs.logon();
+		exit();
 	}
 	console.clearkeybuffer();	// Clear pending input (e.g. mistyped system password)
 	bbs.rlogin_name='';		// Clear user/login name (if supplied via protocol)
