@@ -481,12 +481,6 @@ docIface = {
                 roomData.fileIO.roomRecFilename + "\n");  //why no workee? 8o|
           }
 
-          /*for each(var area in msg_area.grp_list[topebaseno].code) {
-	    roomSettings[area] = roomData.fileIO.snagRoomInfoBlob(
-                                              "/sbbs/data/user/docrooms",
-                                              //roomData.fileIO.roomRecFilename,
-                                              area);
-          }*/
           try {
               roomData.fileIO.snagRoomInfoBlob();
           } catch (e) {
@@ -507,7 +501,7 @@ docIface = {
 	}
 
 	//save user setting defaults
-	docIface.util.preUserSettings = user.settings;	
+	this.preUserSettings = user.settings;
 	this.turnOffSynchronetDefaults();
 	if (userSettings.confined) {
 		bbs.log_str(user.alias + " is entering dDOC shell and " +
