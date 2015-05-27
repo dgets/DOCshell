@@ -171,9 +171,12 @@ roomData = {
 	 *	set, otherwise amusing nethack message)
 	 */
     displayRoomInfo : function() {
-	this.displayRoomInfoHdr();
+	/* this.displayRoomInfoHdr();
 
-	roomSettings[bbs.cursub_code] = roomData.fileIO.snagRoomInfoBlob();
+	roomSettings[bbs.cursub_code] = roomData.fileIO.snagRoomInfoBlob(); */
+
+        roomData.fileIO.snagRoomInfoBlob();
+        this.displayRoomInfoHdr();
 
 	if (roomSettings[bbs.cursub_code].info.length == 0) {
 	  //or should we be looking for null here?
