@@ -529,9 +529,15 @@ docIface = {
 	user.settings |= USER_PAUSE;
 
 	//save bbs defaults
-	docIface.util.preSubBoard = bbs.cursub;
-	docIface.util.preMsgGroup = bbs.curgrp;
-	docIface.util.preFileDir = bbs.curdir;
+        if (userSettings.debug.misc) {
+            console.putmsg(yellow + "Saving settings for later restoration:\n" +
+              "preSubBoard (user.cursub):\t" + green + user.cursub + yellow +
+              "\npreMsgGroup (user.curgrp):\t" + green + user.curgrp + yellow +
+              "\npreFileDir (user.curdir):\t" + green + user.curdir + "\n");
+        }
+	this.preSubBoard = user.cursub;
+	this.preMsgGroup = user.curgrp;
+	this.preFileDir = user.curdir;
 
 	//snag user zapped rooms list
 	try {
@@ -582,19 +588,19 @@ docIface = {
 	bbs.log_key("L");
 
 	if (userSettings.debug.flow_control) {
-	  console.putmsg(red + "\nRestoring bbs.* properties:\n" + 
-	    " bbs.cursub: " + docIface.util.preSubBoard + "\n" + 
-	    " bbs.curgrp: " + docIface.util.preMsgGroup + "\n" + 
-	    " bbs.curdir: " + docIface.util.preFileDir + "\n");
+	  console.putmsg(red + "\nRestoring user.* properties:\n" +
+	    " user.cursub: " + this.preSubBoard + "\n" +
+	    " user.curgrp: " + this.preMsgGroup + "\n" +
+	    " user.curdir: " + this.preFileDir + "\n");
 	  console.putmsg(red + "\nRestoring user.settings . . .\n");
 	}
 
 	//restore initial settings prior to exit
-	bbs.cursub = docIface.util.preSubBoard;
-	user.cursub = bbs.cursub_code;
-	bbs.curgrp = docIface.util.preMsgGroup;
-	bbs.curdir = docIface.util.preFileDir;
-	user.settings = docIface.util.preUserSettings;
+	user.cursub = this.preSubBoard;
+	//user.cursub = bbs.cursub_code;
+	user.curgrp = this.preMsgGroup;
+	user.curdir = this.preFileDir;
+	user.settings = this.preUserSettings;
 
 	//disable H exemption in case they go back to usual shell so that
 	//we can handle events, etc
