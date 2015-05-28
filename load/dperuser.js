@@ -279,8 +279,11 @@ userRecords = {
                     " profile information yet\n\n");
             } else {
                 console.putmsg(high_intensity + green + "Doing: " + cyan +
-                    profileeSettings.doing + "\n\n" + green +
-                    profileeSettings.info + "\n\n");
+                    profileeSettings.doing + "\n\n");
+                for each (var infoLine in profileeSettings.info) {
+                    console.putmsg(green + high_intensity + infoLine + "\n");
+                }
+                console.putmsg("\n");
             }
         },
 	/*
