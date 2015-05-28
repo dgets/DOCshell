@@ -838,6 +838,11 @@ if (!debugOnly) {
                       }
                   }
                   break;
+                case 'p':       //profile a user
+                  console.putmsg(green + high_intensity +
+                      "User to profile -> ");
+                  userRecords.userDataUI.profileUser(console.getstr());
+                  break;
 		default:
 		  console.putmsg(excuse);
 		  break;

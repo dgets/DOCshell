@@ -256,6 +256,33 @@ userRecords = {
 	//terminology now)
 
 	//	  ----++++****====userDataUI methods====****++++----
+        profileUser : function (uname) {
+            var profileeSettings = { };
+            var unum, uObj;
+
+            if ((unum = system.matchuser(uname)) == 0) {
+                console.putmsg(yellow + high_intensity + "User " + green +
+                  uname + " was not found!\n");
+                throw new dDocException("profileUser() Exception",
+                    "Unable to locate " + uname, 1);
+            }
+
+            profileeSettings = userRecords.userDataIO.loadSettings(unum);
+            uObj = new User(unum);
+
+            console.putmsg(cyan + high_intensity + uObj.alias + "\n" +
+                yellow + high_intensity + uObj.address + "\n" +
+                uObj.location + "\n");
+
+            if (profileeSettings == null) { //that is the error condition, no?
+                console.putmsg(yellow + high_intensity + "User has not set up" +
+                    " profile information yet\n\n");
+            } else {
+                console.putmsg(high_intensity + green + "Doing: " + cyan +
+                    profileeSettings.doing + "\n\n" + green +
+                    profileeSettings.info + "\n\n");
+            }
+        },
 	/*
 	 * summary:
 	 *	obtains a new list of lines of text to utilize as the
