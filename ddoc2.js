@@ -476,12 +476,13 @@ docIface = {
 
 	//load room settings
 	try {
-          if (userSettings.debug.file_io) {
+          /*if (userSettings.debug.file_io) {
               console.putmsg(cyan + "Looking for room info file: " +
                 roomData.fileIO.roomRecFilename + "\n");  //why no workee? 8o|
-          }
+          }     //this should be "/sbbs/data/user/docrooms", but more than that
+                //it should be working correctly from w/in proper references WTF
 
-          /*for each(var area in msg_area.grp_list[topebaseno].code) {
+          for each(var area in msg_area.grp_list[topebaseno].code) {
 	    roomSettings[area] = roomData.fileIO.snagRoomInfoBlob(
                                               "/sbbs/data/user/docrooms",
                                               //roomData.fileIO.roomRecFilename,
@@ -837,6 +838,11 @@ if (!debugOnly) {
                           userRecords.userDataUI.queryDebugSettings(un);
                       }
                   }
+                  break;
+                case 'p':       //profile a user
+                  console.putmsg(green + high_intensity +
+                      "User to profile -> ");
+                  userRecords.userDataUI.profileUser(console.getstr());
                   break;
 		default:
 		  console.putmsg(excuse);
