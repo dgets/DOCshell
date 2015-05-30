@@ -4,7 +4,7 @@
  * by: Damon Getsman
  * contributing/refactoring also by: @Ntwitch (github.com)
  * alpha phase: 25oct14
- * beta phase: 11mar15
+ * beta phase: 
  * started: 21sept14
  * finished:
  *
@@ -19,8 +19,9 @@
 	  yellow, base, ndx, userSettings, console, bbs, load, K_NOECHO */
 /*jslint devel: true, node: true, sloppy: true, vars: true, white: true */
 
-//message base menu
+//message base primary object
 msg_base = {
+        //properties
 	/*
 	 * summary:
 	 *	String to prepend before a key is hit and logged to
@@ -33,6 +34,11 @@ msg_base = {
          *      properties and methods
          */
   read_cmd : {
+        //property
+        /*
+         * summary:
+         *      String containing the entirety of the read command menu
+         */
         rcMenu : "\n" + green + high_intensity +
           "<?> help         <a>gain           <A>gain (no More prompt)\n" +
           "<b>ack           <D>elete msg      <e>nter msg\n" +
@@ -42,12 +48,21 @@ msg_base = {
 	  "<I> change room info\n",
         /*
          * summary:
-         *      Reads choice for valid selection
+         *      Reads choice for valid selection; note that this monolith should
+         *      really be broken up.  The switch makes that highly improbable,
+         *      but refactoring this along with gmorehouse might be a good idea
          * base: MsgBase object 
-         *      currently in use (and opened)
+         *      currently in use; originally this was to be opened when passed
+         *      to the method, however I'm not sure that state for this is
+         *      always preserved.  I've added code to check and cope in some of
+         *      the different areas that this branches out to; if there are any
+         *      others where it isn't handled this should be added.  I don't
+         *      want the message base being open to be a requirement
          * ndx: Integer
-         *      index of the current message
-         * returns:
+         *      index of the current message; potential spot to look for in
+         *      issues #140 and #141 on Github
+         * return:
+         *      (isn't there a better way to handle this? -- ask gmorehouse)
          *      1 to stop
          *      2 to change direction
          *      0 for message entered successfully or next msg also
@@ -182,14 +197,14 @@ msg_base = {
                   bbs.curdir = docIface.util.preFileDir;
                   user.settings = docIface.util.preUserSettings;
 
-                  //disable H exemption in case they go back to usual shell so that
-                  //we can handle events, etc
+                  //disable H exemption in case they go back to usual shell so
+                  //that we can handle events, etc
                   user.security.exemptions &= ~UFLAG_H;
                   //restore asynchronous message status (if necessary)
                   bbs.sys_status ^= SS_MOFF;
 
-                  console.putmsg(blue + high_intensity + "\n\nHope to see you " +
-                       "again soon!\n\nPeace out!\n");
+                  console.putmsg(blue + high_intensity + "\n\nHope to see you "
+                       + "again soon!\n\nPeace out!\n");
 
                   bbs.logoff(); //this works, but does not reset settings;
                                 //I hate to dupe code, but it's the only work-
@@ -223,7 +238,7 @@ msg_base = {
   },
   /*
    * summary:
-   *	Sub-object created for msgDelete() and any other methods/properties
+   *	Sub-object created for deleteMsg() and any other methods/properties
    *	that may need to exist that don't exactly fall under reading
    *	messages
    */
@@ -233,7 +248,10 @@ msg_base = {
 	 *	Deletes the message (if appropriate permissions) at the current
 	 *	message
 	 * mBase:
-	 *	The open message base object for the current room/sub
+	 *	The open message base object for the current room/sub; again we
+         *	should try to make it so that the message base object doesn't
+         *	need to be opened already.  At least this one throws an
+         *	exception if things aren't already opened
 	 * ndx:
 	 *	Index to try to delete
 	 */
@@ -278,6 +296,8 @@ msg_base = {
    *	utilized from rcChoice, also, which kind of puts my OO structure
    *	into question here...  Need to look at that at some point, or
    *	else place improper methods somewhere more appropriate.
+   *
+   *	Summary of that summary: go over this with gmorehouse
    */
   entry_level : {
         /*
@@ -359,7 +379,9 @@ msg_base = {
         /*
          * summary:
          *      Lists all known message sub-boards (broken down by
-         *      message base group, optionally)
+         *      message base group, optionally); note that all of the code that
+         *      isn't run within the 'confined' version has not been tested at
+         *      this point (and probably won't be for quite some time)
          */
     listKnown : function() {
         console.putmsg("\n" + green + high_intensity);
@@ -406,6 +428,10 @@ msg_base = {
   //these may not be determined dynamically (pretty sure), so this
   //will be a bug that needs to be fixed inline on a per-message read
   //basis
+  /*
+   * summary:
+   *    Read command menu; wasn't this already defined above?
+   */
   menu : green + high_intensity + "\n\n<?> help\t\t" +
          "<a>gain\t\t<A>gain (no More prompt)\n<b>ack\t\t<D>" +
          "elete msg\t<e>nter msg\n<E>nter (upload)\t<h>elp\t\t\t" +
@@ -416,7 +442,9 @@ msg_base = {
 	/*
 	 * summary:
 	 *	Displays the read menu with room name, message number,
-	 *	and remaining messages.
+	 *	and remaining messages.  Ntwitch added the wonderful feature
+         *	that will probably be useful elsewhere where the code will close
+         *	and re-open the message base to check for updates to pointers
 	 * base:
 	 *	The active and open MsgBase object
 	 * ndx:
@@ -446,9 +474,13 @@ msg_base = {
 	 * summary:
 	 *	Displays message with or without pauses
 	 * base: MsgBase object
-	 *	Open message base object currently being read
+	 *	Open message base object currently being read; again we need to
+         *	try to make sure that we can get away from this requirement of
+         *	the message base already being opened if that is at all
+         *	possible
 	 * ptr: Integer
-	 *	Current message index #
+	 *	Current message index #; also a potential source or good
+         *	variable to watch for debugging in Github issues #140 & #141
 	 * breaks: Boolean
 	 *	Default: true
 	 *	true for screen pauses
@@ -524,11 +556,15 @@ msg_base = {
   },
   /*
    * summary:
-   *	Opens a new message base (modularizing)
+   *	Opens a new message base (modularizing); doesn't use proper exception
+   *	throwing
    * mb:
    *	Code of the new message base to open
    * return:
    *	new message base object (already open), or 'null' for error
+   * NOTE:
+   *    this needs to be changed to throw an exception for error, let's get
+   *    away from the error code passing shit through returns
    */
   openNewMBase : function(mb) {
         try {  
@@ -546,7 +582,7 @@ msg_base = {
 		+ e.toString() + "\n");
           log("Error skipping through scanSub(): " +
             e.toString());
-          return null;
+          return null;  //this is where we want to throw an exception instead
         }
 
 	return mBase;
@@ -555,14 +591,19 @@ msg_base = {
 	 * summary:
 	 *	Sequentially scans for new messages within one
 	 *	particular sub-board; don't forget to add the support
-	 *	for whether confined or not after this is beta working
+	 *	for whether confined or not after this is beta working; needs
+         *	to be using exception handling instead of passing error codes
 	 * sBoard: String
 	 *	Synchronet Sub-board object
 	 * forward: Boolean
 	 *	true for forward read & converse
 	 * return:
 	 *	null/negative for errors; 1 to move on to the next sub, 
-	 *	still working on further shite
+	 *	still working on further shite -- fix this for exceptions!
+         * NOTE:
+         *      Once again in this method we need to run through things and
+         *      make sure that we're not using return for error codes; a proper
+         *      exception throwing model really needs to be adhered to
 	 */
   scanSub : function(sBoard, forward) {
 	var tmpPtr, inc, choice = 0;
