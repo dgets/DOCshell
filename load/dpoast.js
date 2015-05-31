@@ -81,11 +81,17 @@ poast = {
 	/*
 	 * summary:
 	 *	Modularizes the text snagging routine (w/optional maximum
-	 *	number of lines)
+	 *	number of lines); note that the 'X' option still needs to be
+         *	implemented here to enable Xpress messages to be sent (not sure
+         *	if they're set up for asynchronous receive or not at this point;
+         *	I guess I'd assume that they aren't)
 	 * maxLines:
 	 *	Maximum number of lines (or null)
-	 * returns:
-	 *	Text array
+	 * return:
+	 *	Text array or null (not sure what the null may be signifying;
+         *	probably need to check calling code to see what this is all
+         *	about (strike that it looks like it's for abort, and thus should
+         *	be throwing an exception)
 	 */
     getTextBlob : function(maxLines) {
       var mTxt = new Array();
@@ -168,12 +174,10 @@ poast = {
 	 *	recipient, though this should not be necessary once
 	 *	functionality is broken up properly instead of so much
 	 *	cuntpaste right now
-	 * returns:
-	 *	Array of message text lines
 	 */
-    getMsgBody : function(upload, base, recip) {
+    getMsgBody : function(/*upload,*/ base, recip) {
 	var mTxt = new Array();
-	var lNdx, uchoice, done = false;
+	//var lNdx, uchoice, done = false;
 
 	if (userSettings.debug.message_posting) {
 	  console.putmsg("Attempting post to: " + base.cfg.code + "\n");
@@ -216,9 +220,6 @@ poast = {
          * NOTE: This method is way too big and needs to be chopped the
          * fuck up in order to make this more readable and more reusable
          */
-        //var mTxt = new Array();
-        //var lNdx = 0, done = false;
-        //var uchoice;
 
 	//turn off instant messages coming in while posting
 	bbs.sys_status |= SS_MOFF;
@@ -236,74 +237,24 @@ poast = {
         //ddoc interface completely to see how it goes
 	this.getMsgBody(upload, base, recip);
 
-        /*do {
-          mTxt[lNdx] = console.getstr("", 79, K_WRAP);
-          if (((mTxt[lNdx++] == "\03") && (upload)) ||
-              ((mTxt[lNdx - 1] == "") || (mTxt[lNdx - 1] == "\r"))) {
-            //end of message
-            uchoice = this.dispSaveMsgPrompt();
-
-            switch (uchoice) {
-		/* note, abort is not checked for when this function
- 		 * exits, and I'm pretty sure there are other little
- 		 * bugs hiding out in here, as well */
-                /*case 'A':       //abort
-                  done = true;
-                  break;
-                case 'C':       //continue
-                  lNdx--;
-                  break;
-                case 'P':
-                  this.dispNewMsgHdr();
-                  for each (var derp in mTxt) {
-                    console.putmsg(green + high_intensity + derp);
-                  }
-                  //fall through to continue w/entry here, too
-                  break;
-                case 'S':
-		  //screw those old error codes
-		  try {
-			this.mWrite(mTxt, base, recip);
-			console.putmsg(green + high_intensity
-			      + "Message saved\n");
-		  } catch (e) {
-			bbs.log_str("Err writing to " + base.name);
-                        console.putmsg(red + "There was a problem " +
-                                       "writing to " + base.name +
-                                       "\nSorry; error is logged.\n");
-		  }
-		  done = true;
-		  break;
-                /* case 'X':
-                 * just skipping this right now since I'm impatient
-                 * about losing all of the recoding this morning and
-                 * feeling much more that time is of the essence :| */
-                /*default:
-                  console.putmsg(red + "I have no idea what just " +
-                                 "happened; event logged.\n");
-                  bbs.log_str("Unknown error in addMsg()");
-                  break;
-            }
-          }
-        } while (!done); */
-
 	//turn instant messages back on
 	bbs.sys_status |= SS_MOFF;
-    }, 
-	/*
-	 * summary:
-	 *	method exists for returning exception from mWrite()
-	 */
+    },
         /*
          * summary:
          *      Writes appropriate message header & body data to the
-         *      database
+         *      database; note that this is a monolith that needs to be severely
+         *      dismembered and strung back together in a medival fashion like
+         *      something out of H.P. Lovecraft
          * txtArray: Array of String
          *      An array of textual strings making up the body of the
          *      message to be added to the base
          * mBase: MsgBase Object
          *      Current MsgBase to be written to
          * return:
+         *      Utterly horrifying; throw some fucking exceptions-- actually
+         *      upon further examination it looks like most of this has been
+         *      implemented, though it's still throwing 0 for success
          *      0 for success
          *      -1 if unable to open the MsgBase
          *      -2 if unable to complete MsgBase.save_msg()
@@ -315,13 +266,13 @@ poast = {
 	    txtArray.length + "\n");
 	}
 
-          //create the message for writing
-          var mHdr = {
+        //create the message for writing
+        var mHdr = {
                 'from'          :       user.alias,
                 //'to'            :       "All",  
                 'subject'       :       "dDOC Posting"  //cheat for now
-          }
-	  if ((recipient != null) && 
+        }
+	if ((recipient != null) && 
 	      (recipient.toString().toUpperCase() != "ALL")) {
 		if (recipient !== 1) {
 		  var tmpUser = new User(recipient);
@@ -330,11 +281,11 @@ poast = {
 		  var sysop = new User(recipient);
 		  mHdr['to'] = sysop.alias;
 		}
-	  } else {
+	} else {
 		mHdr['to'] = "All";
-	  }
+	}
 
-	  if (userSettings.debug.message_posting) {
+	if (userSettings.debug.message_posting) {
 	    //debug dump requested by echicken (?) in order to help find
 	    //out what is causing mail sent to the 'mail' sub board is
 	    //ending up in 'all mail' but never a personal account, and
@@ -344,16 +295,16 @@ poast = {
 		"to\t:\t" + mHdr['to'] + " selected by code as " +
 		"sysop.alias or recipient name passed (null=ALL)\n" +
 		"subject\t:\t" + mHdr['subject'] + " static\n\n");
-	  }
+	}
 
-	  /*
-	   * This is really kind of nasty, but I'm not functioning well
-	   * enough right now to get down to the bottom of how it's
-	   * being handled differently for the mail sub as opposed to
-	   * the standards.  :P  Whatever, it'll go into a later
-	   * refactor.
-	   */
-	  if (mBase.subnum == -1) {
+	/*
+	 * This is really kind of nasty, but I'm not functioning well
+	 * enough right now to get down to the bottom of how it's
+	 * being handled differently for the mail sub as opposed to
+	 * the standards.  :P  Whatever, it'll go into a later
+	 * refactor.
+	 */
+	if (mBase.subnum == -1) {
 		var dMB = new MsgBase('mail');
 		mHdr["to_ext"] = recipient;
 		mHdr["from_ext"] = user.number;
@@ -363,71 +314,68 @@ poast = {
 		} else {
 		  mHdr["subject"] = "dDoc Mail>";
 		}
-	  } else {
+	} else {
           	var dMB = new MsgBase(mBase.cfg.code);
-	  }
-          //var debugging = false;        //locally, of course
+	}
 
-	  /*
-	   * Here, because of being sent to sub['mail'] does not seem to
-	   * be working, we're going to try implementing the bbs.email()
-	   * function which, I believes, has the option granularity to
-	   * be able to make certain that email is manually set or not
-	   * as far as going to the network.  To this point, logs seem
-	   * to indicate that previous messages sent to the 'mail' sub
-	   * have ended up looking for a way out on the network, and not
-	   * at local users.
-	   */
+	/*
+	 * Here, because of being sent to sub['mail'] does not seem to
+	 * be working, we're going to try implementing the bbs.email()
+	 * function which, I believes, has the option granularity to
+	 * be able to make certain that email is manually set or not
+	 * as far as going to the network.  To this point, logs seem
+	 * to indicate that previous messages sent to the 'mail' sub
+	 * have ended up looking for a way out on the network, and not
+	 * at local users.
+	 */
 
-	  //need to move this out into separate code
-          try {
+	//need to move this out into separate code
+        try {
             dMB.open();
-          } catch (e) {
+        } catch (e) {
             console.putmsg(red + "Error opening: " + high_intensity +
                 mBase.subnum + normal + "\n");
             log("dDOC err opening: " + mBase.subnum + "; " + e.message);
 	    throw new docIface.dDocException("mWriteException",
 			e.message, e.number);
-          }
+        }
 
-	  if (userSettings.debug.message_posting) {
+	if (userSettings.debug.message_posting) {
 	    console.putmsg(red + "Received mBase.subnum:\t" + dMB.subnum + 
 		"\t(in call to mWrite())\n");
-	    //console.putmsg(red + "Group:\t" + dMB.grp_name +
-	    //	"\nSub-board:\t" + dMB.name + "\n");
 	    console.putmsg(red + "\nNext debugging output is text " +
 		"concatenation for message body.\n\n");
-	  }
+	}
 
-          var catMTxt = new String();
-          for each (var ouah in txtArray) {
+        var catMTxt = new String();
+        for each (var ouah in txtArray) {
             if (userSettings.debug.message_posting) {
                 console.putmsg(red + "ouah: " + ouah + "\n" + normal);
             }
             catMTxt += (ouah + "\n");
-          }
+        }
 
-          try {
+        try {
             dMB.save_msg(mHdr, catMTxt);
-          } catch (e) {
+        } catch (e) {
             console.putmsg(red + "Error saving to: " + high_intensity +
                 mBase.subnum + normal + "\n");
             log("dDOC err saving msg to: " + mBase.subnum + "; " 
 		+ e.message);
 	    throw new docIface.dDocException("mWriteException", e.message,
 			e.number);
-          }
+        }
 
-          try {
+        try {
             dMB.close();
-          } catch (e) {
+        } catch (e) {
             console.putmsg(red + "Error closing: " + high_intensity +
                 mBase.subnum + normal + "\n");
             log("dDOC err closing: " + mBase.subnum + "; " + e.message);
 	    throw new docIface.dDocException("mWriteException", e.message,
 			e.number);
-          }
-          return 0;
+        }
+        return 0;   //get rid of this once calling code is modified
     },
 	/*
 	 * summary:
@@ -436,12 +384,19 @@ poast = {
 	 *	important/urgent, if possible.  Strict emulation as
 	 *	possible.  Takes no arguments, gives no return status,
 	 *	though this might be good for error checking later on.
+         *
+         * NOTE: Okay so it wasn't SUPPOSED to be giving an return statuses;
+         *       I've found that this isn't quite accurate, there's a -1 that is
+         *       returned for an error code so, despite just doing a
+         *       documentation pass, I'm going to go ahead and change that to a
+         *       throw exception
 	 */
     yell : function() {
 	console.putmsg(green + high_intensity + "\nPress 'y' to send" +
 	  " a yell to the Sysop(s).\n\nEnter your choice -> ");
 	if (console.getkey().toUpperCase() != 'Y') {
-	  return -1;
+	  throw new dDocException("yell() Exception",
+            "User didn't want to yell", 1);
 	}
 
 	var mb = new MsgBase('mail');
@@ -462,6 +417,5 @@ poast = {
 	  "anything foreboding above, your message will be read by " +
 	  "system user #1 upon next login.\n");
     }
-
 }
 
