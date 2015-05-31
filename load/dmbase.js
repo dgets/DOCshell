@@ -571,18 +571,24 @@ msg_base = {
 	  //take care of this in calling code
           //mBase.close();
           mBase = new MsgBase(mb);
-	  mBase.open();
+	  try {
+            mBase.open();
+          } catch (e) {
+              console.putmsg(red + "Ername: " + e.name + "mBase.error: " +
+                  e.message + "\n");
+              throw new dDocException("openNewMBase() Error", e.message, 1);
+          }
+
           if (userSettings.debug.message_scan) {
             console.putmsg(red + "Opened: " + mb +
         	           " allegedly . . .\n");
-	    console.putmsg(red + "mBase.error: " + mBase.error + "\n");
           }
         } catch (e) {
           console.putmsg(red + "Error opening new mBase:\n"
 		+ e.toString() + "\n");
           log("Error skipping through scanSub(): " +
             e.toString());
-          return null;  //this is where we want to throw an exception instead
+          throw new dDocException("openNewMBase() Error", e.message, 2);
         }
 
 	return mBase;
@@ -625,8 +631,12 @@ msg_base = {
 	}
 
 	tmpPtr = sBoard.scan_ptr;
+        //tmpPtr = sBoard.ptridx;
+        //tmpPtr = mBase.cfg.ptridx;
 	if (userSettings.debug.message_scan) {
 	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
+          console.putmsg("sBoard.ptridx = " + sBoard.ptridx + "\n");
+          console.putmsg("mBase.cfg.ptridx = " + mBase.cfg.ptridx + "\n");
 	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
 	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
 	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
