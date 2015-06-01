@@ -227,6 +227,21 @@ msg_base = {
 			e.number + " back.  :(\n");
 		  }
 		  break;
+                case '%':       //reset message pointer back to the start
+                  if (user.security.level >= 80) {
+                    var board = msg_area.sub[base.cfg.code];
+                    if (userSettings.debug.misc) {
+                      console.putmsg(yellow + "Resetting scan_ptr for: " +
+                        base.cfg.code + "\n");
+                    }
+
+                    board.scan_ptr = 1;
+                  } else {
+                    console.putmsg(red + "Unable to reset scan_ptr for: " +
+                      base.cfg.code + " for " + user.alias + " due to " +
+                      "security level restrictions.");
+                  }
+                  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
                   break;
