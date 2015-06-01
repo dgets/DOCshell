@@ -212,6 +212,24 @@ msg_base = {
 			e.number + " back.  :(\n");
 		  }
 		  break;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':   //we're going to read message by number here
+                  //there will, of course, have to be some error checking for
+                  //trying to hit out of bounds messages if dispMsg() doesn't
+                  //already have it
+                  console.putmsg(green + high_intensity + "Go to message #> ");
+                  console.ungetstr(uchoice);    //put it back on the input stack
+                  msg_base.dispMsg(new MsgBase(bbs.cursub_code),
+                                   console.getnum(maxMsgs), false);
+                  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
                   break;
