@@ -28,7 +28,7 @@ load("/sbbs/exec/load/nodedefs.js");
 //pseudo-globals
 const excuse = "\n\nThe rothe strikes!  You die!. . .\n\n",
 	debugOnly = false, topebaseno = 6,
-	alwaysLogout = false, std_logging = true;
+	alwaysLogout = false, std_logging = true, maxMsgs = 500;
 
 //a few easier hooks for the ctrl-a codes
 const ctrl_a = "\1";
@@ -816,6 +816,24 @@ if (!debugOnly) {
 		    roomData.tieIns.zapRoom(bbs.cursub);
 		  }
 		  break;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':   //we're going to read message by number here
+                  //there will, of course, have to be some error checking for
+                  //trying to hit out of bounds messages if dispMsg() doesn't
+                  //already have it
+                  console.putmsg(green + high_intensity + "Go to message #> ");
+                  console.ungetstr(uchoice);    //put it back on the input stack
+                  msg_base.dispMsg(new MsgBase(bbs.cursub_code),
+                                   console.getnum(maxMsgs), false);
+                  break;
                 case '$':       //change debugging flags for this user
                   var dropOut = false;
                   var un;

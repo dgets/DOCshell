@@ -476,7 +476,7 @@ msg_base = {
 	  } catch (e) {
 	    console.putmsg(red + "Unable to open Mail> sub:\t" + e.message +
 		"\n");
-	    throw new dDocException("dispMsg() Error", 
+	    throw new docIface.dDocException("dispMsg() Error",
 		"Unable to open mail sub: " + e.message, 2);
 	  }
 	}
@@ -502,7 +502,7 @@ msg_base = {
 		console.putmsg(red + "Invalid message? base.subnum: "
 		      + base.subnum + " ptr: " + ptr + "\n");
 	    }
-	    throw new dDocException("dispMsg() error", 
+	    throw new docIface.dDocException("dispMsg() error",
 		"Invalid message slot", 3);	// Invalid message, skip
 	}
 
