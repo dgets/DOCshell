@@ -227,7 +227,6 @@ msg_base = {
 			e.number + " back.  :(\n");
 		  }
 		  break;
-<<<<<<< HEAD
                 case '%':
                   //add a bit here so that a user w/level greater than 80 can
                   //reset pointers for other users, as well (if we keep the
@@ -238,22 +237,28 @@ msg_base = {
                        base.cfg.code + "\n");
 
                     board.scan_ptr = 1;
-=======
-                case '%':       //reset message pointer back to the start
-                  if (user.security.level >= 80) {
-                    var board = msg_area.sub[base.cfg.code];
-                    if (userSettings.debug.misc) {
-                      console.putmsg(yellow + "Resetting scan_ptr for: " +
-                        base.cfg.code + "\n");
-                    }
-
-                    board.scan_ptr = 1;
                   } else {
                     console.putmsg(red + "Unable to reset scan_ptr for: " +
                       base.cfg.code + " for " + user.alias + " due to " +
                       "security level restrictions.");
->>>>>>> 1816c5648f9bb1e4b94c2249aa32aba94220874e
                   }
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':   //we're going to read message by number here
+                  //there will, of course, have to be some error checking for
+                  //trying to hit out of bounds messages if dispMsg() doesn't
+                  //already have it
+                  console.putmsg(green + high_intensity + "Go to message #> ");
+                  console.ungetstr(uchoice);    //put it back on the input stack
+                  msg_base.dispMsg(new MsgBase(bbs.cursub_code),
+                                   console.getnum(maxMsgs), false);
                   break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
@@ -539,7 +544,7 @@ msg_base = {
 	  } catch (e) {
 	    console.putmsg(red + "Unable to open Mail> sub:\t" + e.message +
 		"\n");
-	    throw new dDocException("dispMsg() Error", 
+	    throw new docIface.dDocException("dispMsg() Error",
 		"Unable to open mail sub: " + e.message, 2);
 	  }
 	}
