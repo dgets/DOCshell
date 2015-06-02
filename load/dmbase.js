@@ -29,87 +29,6 @@ msg_base = {
   log_header : "dDOC Read menu command: ",
         /*
          * summary:
-         *      Sub-object for various utility methods whose needs are becoming
-         *      apparent at this later date for message functionality
-         */
-  util : {
-        /*
-         * summary:
-         *      Method remaps message start through finish for a room/sub-board
-         *      into an array that skips deleted message slots and gives us a
-         *      set of indices that are more easily utilized at base 1
-         * mBase:
-         *      Base that we are currently working with
-         * return:
-         *      Array of valid messages
-         *
-         * NOTE: We might have to configure this to pass back a valid new
-         *       'current' index since we're remapping the whole lot of 'em
-         */
-        remap_message_indices : function(mBase) {
-            var msgMap = new Array(), curHdr = new Object();
-            var curPtr = 0;
-
-            if (!mBase.is_open()) {
-                if (userSettings.debug.message_scan) {
-                    console.putmsg(cyan + "Opening " + mBase.cfg.name + " for" +
-                        " message mapping. . .\n");
-                }
-                try {
-                    mBase.open();
-                } catch (e) {
-                    throw new docIface.dDocException("remap_message_indices" +
-                      "() Exception", e.message, 1);
-                }
-            }
-
-            if (userSettings.debug.message_scan) {
-                console.putmsg(yellow + "Remapping:\n");
-            }
-            for (var ndx = mBase.first_msg; ndx <= mBase.last_msg; ndx++) {
-                if (userSettings.debug.message_scan) {
-                    console.clearline();
-                }
-
-                try {
-                    curHdr = mBase.get_msg_header(ndx);
-                } catch (e) {
-                    console.putmsg("Exception getting header: " + e.message +
-                        "\n");
-                    mBase.close();
-                    throw new docIface.dDocException("remap_message_indices" +
-                        "() Exception", e.message, 2);
-                }
-
-                if ((curHdr == null) || (curHdr.attr&MSG_DELETED)) {
-                    continue;   //skip this shit, we don't want this indexed
-                } else {
-                  if (userSettings.debug.message_scan) {
-                    console.putmsg(yellow + high_intensity + ndx + " to " +
-                      curPtr);
-                  }
-                  msgMap[curPtr++] = ndx;
-                }
-            }
-
-            if (msgMap.length == 0) {
-                console.putmsg(red + "No messages found for mapping\n");
-                throw new docIface.dDocException("remap_message_indices()" +
-                    " Exception", "No messages in " + mBase.cfg.name +
-                    " for mapping!", 3);
-            }
-
-            if (userSettings.debug.message_scan) {
-                console.putmsg(green + "Returning message mapping: " + msgMap +
-                    "\nFor base: " + mBase.cfg.name + "\n");
-            }
-
-            mBase.close();
-            return msgMap;
-        }
-  },
-        /*
-         * summary:
          *      Sub-object representing the message read command menu
          *      properties and methods
          */
@@ -309,6 +228,80 @@ msg_base = {
    *	messages
    */
   util : {
+              /*
+         * summary:
+         *      Method remaps message start through finish for a room/sub-board
+         *      into an array that skips deleted message slots and gives us a
+         *      set of indices that are more easily utilized at base 1
+         * mBase:
+         *      Base that we are currently working with
+         * return:
+         *      Array of valid messages
+         *
+         * NOTE: We might have to configure this to pass back a valid new
+         *       'current' index since we're remapping the whole lot of 'em
+         */
+    remap_message_indices : function(mBase) {
+            var msgMap = new Array(), curHdr = new Object();
+            var curPtr = 0;
+
+            if (!mBase.is_open()) {
+                if (userSettings.debug.message_scan) {
+                    console.putmsg(cyan + "Opening " + mBase.cfg.name + " for" +
+                        " message mapping. . .\n");
+                }
+                try {
+                    mBase.open();
+                } catch (e) {
+                    throw new docIface.dDocException("remap_message_indices" +
+                      "() Exception", e.message, 1);
+                }
+            }
+
+            if (userSettings.debug.message_scan) {
+                console.putmsg(yellow + "Remapping:\n");
+            }
+            for (var ndx = mBase.first_msg; ndx <= mBase.last_msg; ndx++) {
+                if (userSettings.debug.message_scan) {
+                    console.clearline();
+                }
+
+                try {
+                    curHdr = mBase.get_msg_header(ndx);
+                } catch (e) {
+                    console.putmsg("Exception getting header: " + e.message +
+                        "\n");
+                    mBase.close();
+                    throw new docIface.dDocException("remap_message_indices" +
+                        "() Exception", e.message, 2);
+                }
+
+                if ((curHdr == null) || (curHdr.attr&MSG_DELETED)) {
+                    continue;   //skip this shit, we don't want this indexed
+                } else {
+                  if (userSettings.debug.message_scan) {
+                    console.putmsg(yellow + high_intensity + ndx + " to " +
+                      curPtr);
+                  }
+                  msgMap[curPtr++] = ndx;
+                }
+            }
+
+            if (msgMap.length == 0) {
+                console.putmsg(red + "No messages found for mapping\n");
+                throw new docIface.dDocException("remap_message_indices()" +
+                    " Exception", "No messages in " + mBase.cfg.name +
+                    " for mapping!", 3);
+            }
+
+            if (userSettings.debug.message_scan) {
+                console.putmsg(green + "Returning message mapping: " + msgMap +
+                    "\nFor base: " + mBase.cfg.name + "\n");
+            }
+
+            mBase.close();
+            return msgMap;
+    },
 	/*
 	 * summary:
 	 *	Deletes the message (if appropriate permissions) at the current
