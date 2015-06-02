@@ -158,7 +158,7 @@ msg_base = {
 		  if (uchoice == "n") {
 		    bbs.log_key("n");
 		  }
-		  valid = true;hollaBack = 0;
+		  valid = true; hollaBack = 0;
 		  docIface.log_str_n_char(this.log_header, 'n');
 		  console.putmsg(green + high_intensity + "Next\n");
 		  break;
@@ -182,14 +182,14 @@ msg_base = {
                   bbs.curdir = docIface.util.preFileDir;
                   user.settings = docIface.util.preUserSettings;
 
-                  //disable H exemption in case they go back to usual shell so that
-                  //we can handle events, etc
+                  //disable H exemption in case they go back to usual shell so
+                  //that we can handle events, etc
                   user.security.exemptions &= ~UFLAG_H;
                   //restore asynchronous message status (if necessary)
                   bbs.sys_status ^= SS_MOFF;
 
-                  console.putmsg(blue + high_intensity + "\n\nHope to see you " +
-                       "again soon!\n\nPeace out!\n");
+                  console.putmsg(blue + high_intensity + "\n\nHope to see you "
+                       + "again soon!\n\nPeace out!\n");
 
                   bbs.logoff(); //this works, but does not reset settings;
                                 //I hate to dupe code, but it's the only work-
@@ -212,6 +212,18 @@ msg_base = {
 			e.number + " back.  :(\n");
 		  }
 		  break;
+                case '%':
+                  //add a bit here so that a user w/level greater than 80 can
+                  //reset pointers for other users, as well (if we keep the
+                  //kludge)
+                  if (user.security.level >= 80) {
+                    var board = msg_area.sub[bbs.cursub_code];
+                    console.putmsg(yellow + "Resetting scan_ptr for: " +
+                       base.cfg.code + "\n");
+
+                    board.scan_ptr = 1;
+                  }
+                  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
                   break;
@@ -300,6 +312,7 @@ msg_base = {
           case 'n':     //read new
 	    console.putmsg(green + high_intensity + "Read new\n");
 	    try {
+
 		msg_base.readNew();
 	    } catch (e) {
 		console.putmsg(yellow + "Exception reading new: " +
@@ -337,7 +350,8 @@ msg_base = {
 	    }
             break;
           //other functionality tie-ins
-          case 'w':     //normal wholist
+          case 'w':
+//normal wholist
             wholist.list_long(wholist.populate());
             break;
           case 'W':     //short wholist
@@ -400,6 +414,7 @@ msg_base = {
         }
         console.putmsg("\n");
     }
+
 
   },
   //msg_base properties
@@ -502,7 +517,7 @@ msg_base = {
 		console.putmsg(red + "Invalid message? base.subnum: "
 		      + base.subnum + " ptr: " + ptr + "\n");
 	    }
-	    throw new dDocException("dispMsg() error", 
+	    throw new docIface.dDocException("dispMsg() error",
 		"Invalid message slot", 3);	// Invalid message, skip
 	}
 
