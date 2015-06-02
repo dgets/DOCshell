@@ -76,6 +76,7 @@ msg_base = {
                 } catch (e) {
                     console.putmsg("Exception getting header: " + e.message +
                         "\n");
+                    mBase.close();
                     throw new docIface.dDocException("remap_message_indices" +
                         "() Exception", e.message, 2);
                 }
@@ -97,7 +98,13 @@ msg_base = {
                     " Exception", "No messages in " + mBase.cfg.name +
                     " for mapping!", 3);
             }
-            
+
+            if (userSettings.debug.message_scan) {
+                console.putmsg(green + "Returning message mapping: " + msgMap +
+                    "\nFor base: " + mBase.cfg.name + "\n");
+            }
+
+            mBase.close();
             return msgMap;
         }
   },
