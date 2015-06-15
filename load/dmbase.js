@@ -228,7 +228,7 @@ msg_base = {
    *	messages
    */
   util : {
-              /*
+        /*
          * summary:
          *      Method remaps message start through finish for a room/sub-board
          *      into an array that skips deleted message slots and gives us a
