@@ -227,8 +227,26 @@ msg_base = {
                   //already have it
                   console.putmsg(green + high_intensity + "Go to message #> ");
                   console.ungetstr(uchoice);    //put it back on the input stack
-                  msg_base.dispMsg(new MsgBase(bbs.cursub_code),
-                                   console.getnum(maxMsgs), false);
+                  try {
+                    msg_base.dispMsg(new MsgBase(bbs.cursub_code),
+                                   console.getnum(base.last_msg), false);
+                    //switched out maxMsgs (500) for base.last_msg above. duh
+                  } catch (e) {
+                      if (userSettings.debug.misc) {
+                          console.putmsg(cyan + "Did we even fuckin get here?");
+                      }
+                      
+                      if (e.number == 3) {
+                          console.putmsg(yellow + "Invalid message #!\n");
+                      } else {
+                          console.putmsg(red +
+                              "Something is not normal here\n");
+                          throw new docIface.dDocException(
+                            "Numeric read exception",
+                            "Unknown error trying to select message to read by"
+                            + " number", 1);
+                      }
+                  }
                   break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
@@ -498,6 +516,16 @@ msg_base = {
 		"Unable to open mail sub: " + e.message, 2);
 	  }
 	}
+
+        //let's try and find out if the message we're going to go looking for
+        //is bogus before we waste time with this, especially since the mHdr
+        //===null tested block doesn't seem to keep horrible things from
+        //happening with a ptr passed that's way out of range
+        if ((ptr < 1) || (ptr > base.last_msg)) {
+            //shit's out of range, man
+            throw new docIface.dDocException("dispMsg() error",
+                "Invalid message slot", 3);
+        }
 
         //try/catch this
 	try {
