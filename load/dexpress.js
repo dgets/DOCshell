@@ -2,7 +2,8 @@
  * dexpress.js
  * by: Damon Getsman
  * started: 12oct14 (lol I'm 37 today; lawd the helpless aging)
- * finished;
+ * beta: well prior to 30may15
+ * finished:
  *
  * Handles text entry and the like for the ddoc suite's express message
  * functionality
@@ -25,7 +26,7 @@ wholist = {
    * summary:
    *	Cycles through system's nodes, checking to see if they're in use
    *	and then compiling an array of the usernames
-   * returns:
+   * return:
    *	Array() of User objects
    */
   populate : function() {
@@ -133,17 +134,17 @@ wholist = {
 	/*bbs.log_key("w");
 	bbs.whos_online(); */
   },
-  /*
-   * summary:
-   *	Displays a shorter (multicolumn, though spacing isn't perfectly
-   *	figured out on that yet) format listing of who is online
-   * ul:
-   *	Array() of User objects for those currently online
-   */
+    /*
+     * summary:
+     *	  Displays a shorter (multicolumn, though spacing isn't perfectly
+     *	  figured out on that yet) format listing of who is online
+     * ul:
+     *	  Array() of User objects for those currently online
+     */
   list_short : function(ul) {
 	//this one we'll have to make multi-column
 	var uNames = new Array();
-	var maxArrayLen = 0, totalUsers = 0, cols, ouah2, colBoundary;
+	var maxArrayLen = 0, totalUsers = 0, ouah2, colBoundary;
 
 	bbs.log_key("W");
 	console.putmsg(green + high_intensity + 
@@ -161,7 +162,7 @@ wholist = {
 	//name, determines where the nearest tab beyond is, and divides the
 	//available screen columns into that many segments accordingly
 	colBoundary = ((((maxArrayLen + 2) % 8) + 1) * 8);
-	cols = Math.round(console.screen_columns / colBoundary);
+	//cols = Math.round(console.screen_columns / colBoundary);
 
 	//generate wholist
 	for (var ouah = 0; ouah < totalUsers; ouah++) {
@@ -174,16 +175,12 @@ wholist = {
 	  } else {
 		console.putmsg("\t\t");
 	  }
-
-	  //pretty sure the above replaces this right now
-	  /* if ((ouah > 0) && ((ouah % cols) == 0)) {
-		console.putmsg("\n");
-	  } */
 	}
 
 	console.putmsg("\n");
   }
 },
+//sub-object
 express = {
   	/*
 	 * summary:
@@ -191,9 +188,13 @@ express = {
 	 *	each line for end-of-input criteria (ie ABORT, or a
 	 *	blank line prematurely), sending it off to be sent via a
 	 *	Synchronet telegram by the calling routine
-	 * returns:
+	 * return:
 	 *	null if aborted; an array of Strings, with up to 5
 	 *	elements.  Assume nothing else.
+         * NOTE:
+         *      Yet another great candidate for switching out that null and
+         *      replacing things with an exception, the way code is supposed to
+         *      work, etc etc etc
 	 */
   readBuf : function() {
 	var abort = false, nao = new Date, mTxt = new Array, xHdr;
@@ -251,16 +252,24 @@ express = {
    *	recipient's name, it verifies whether or not the user is logged
    *	in/valid in general.  More functionality will be added as the
    *	skeleton is first implemented.
-   * returns:
+   * return:
    *	Negative value for user not found, zero for success
+   * NOTE:
+   *    Let's get some exceptions in here; c'mon with this lazy shite
    */
   chkRcp : function(ul) {
 	//check to make sure the recipient is valid
 	var recip = null, success = false;
 
 	console.putmsg(green + "Message eXpress\nRecipient: ");
-	//note that a default user from previous expresses will
-	//have to be added here to keep people from bitching
+	/*
+         * note that a default user from previous expresses will
+	 * have to be added here to keep people from bitching; this can be
+         * implemented most easily [probably] when it is time to start keeping
+         * a list of the different Xes that have been sent in order to scroll
+         * back or forwards through them, as well as to quote harassing ones to
+         * the sysop, who probably won't give a fuck in any case
+         */
 
 	recip = console.getstr();
 	for each (u in ul) {
@@ -292,8 +301,9 @@ express = {
    *	routine, from 'x' at the main menu, as well as from any other
    *	area where it will be implemented (ie message save menus,
    *	message read menus, etc)
-   * returns:
-   *	Negative value for fuggup
+   * return:
+   *	Negative value for fuggup; let's switch that to an exception, for the
+   *	love of all things holy
    */
   sendX : function() {
 	var recip, mTxt;
