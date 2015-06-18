@@ -228,6 +228,9 @@ msg_base = {
                   console.putmsg(green + high_intensity + "Go to message #> ");
                   console.ungetstr(uchoice);    //put it back on the input stack
                   try {
+                    if (userSettings.debug.misc) {
+                        console.putmsg("Entered dispMsg()'s try/catch\n");
+                    }
                     msg_base.dispMsg(new MsgBase(bbs.cursub_code),
                                    console.getnum(base.last_msg), false);
                     //switched out maxMsgs (500) for base.last_msg above. duh
