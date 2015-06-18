@@ -381,12 +381,15 @@ docIface = {
 	*/
     skip: function () {
 	// mark all messages as read in current room
-	var mBase = msg_base.openNewMBase(bbs.cursub_code);
+	//var mBase = msg_base.openNewMBase(bbs.cursub_code);
 
+        /* this is the code that is leaving skip adjusting the message pointers
+         * that we really don't want to eff with; they need to stay the same
+         * for the next return to this sub
 	if (mBase != null) {
 	    msg_area.sub[bbs.cursub_code].scan_ptr = mBase.total_msgs;
 	    mBase.close();
-	}
+	} */
 	// use findNew to change to next room with unread messages
 	this.findNew();
     },
