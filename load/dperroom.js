@@ -56,6 +56,7 @@ roomData = {
 		return roomList;
 	}
   },
+  //sub-object
   roomSettingsUX : {
 	/*
 	 * summary:
@@ -91,15 +92,6 @@ roomData = {
 	  var infoTxt = new Array();
 
 	  if ((infoTxt = poast.getTextBlob(this.maxInfoLines)) != null) {
-		//save the new room info
-		/* try {
-		  roomSettings[bbs.cursub_code] =
-                      roomData.fileIO.saveRoomInfo(infoTxt, bbs.cursub_code);
-		} catch (e) {
-		  console.putmsg(red + "changeRoomInfo() exception: " +
-		    e.name + "\nmessage: " + e.message + "\tnum: " + e.number +
-		    "\n");
-		}*/
                 roomSettings[bbs.cursub_code].info = infoTxt;
                 roomSettings[bbs.cursub_code].moderator = user.alias;
                 //of course this will have to be replaced with better code to
@@ -115,9 +107,9 @@ roomData = {
 	 *	set, otherwise amusing nethack message)
 	 */
     displayRoomInfo : function() {
-	this.displayRoomInfoHdr();
+        roomData.fileIO.snagRoomInfoBlob();
+        this.displayRoomInfoHdr();
 
-	roomSettings[bbs.cursub_code] = snagRoomInfoBlob();
 
 	if (roomSettings[bbs.cursub_code].info.length == 0) {
 	  //or should we be looking for null here?
@@ -139,20 +131,6 @@ roomData = {
 	 */
     displayRoomInfoHdr : function() {
 	var mBase = new MsgBase(bbs.cursub_code);
-
-	/*if (roomSettings[bbs.cursub_code] == null) {
-	  if (userSettings.debug.misc) {
-	    console.putmsg(green + high_intensity +"\nNo roominfo has been " +
-	      "set yet for " + cyan + bbs.cursub_code + "\n\n");
-	  }
-
-	  roomSettings[bbs.cursub_code] = { };
-	  roomSettings[bbs.cursub_code].settings = 
-	    new roomData.roomRecords.defaultSettings();
-
-	  //this will have to throw an exception after we learn to create
-	  //the new entries
-	} this should now be unnecessary, handled in file_io areas */
 
         if (userSettings.debug.misc) {
             console.putmsg(green + "Working with roomSettings:\n" +
@@ -236,13 +214,14 @@ roomData = {
         }
     },
 	/*
+         * depricate this shit, I don't think it needs to be used anywhere
 	 * summary:
 	 *	Method is takes open JSON w/comments file and tests that
 	 *	it is open; strips comments and blank lines, then reads
 	 *	the remaining (presumably JSON) to return to caller
 	 * configurationFile:
 	 *	The [already open] File object to be worked upon
-	 * returns:
+	 * return:
 	 *	Unparsed [presumably JSON] blob
 	 */
     stripNRead : function(configurationFile) {
@@ -355,10 +334,10 @@ roomData = {
 	/*
 	 * summary:
 	 *	Method opens file of user's zapped rooms (still need to
-	 *	come up with the JSON for that), strips irrelevant,
-	 *	and [ideally] returns the parsed JSON that should just
-	 *	include the user's list of zapped rooms (prolly by #)
-	 * returns:
+	 *	come up with the JSON for that), and returns the parsed JSON
+         *	that should just include the user's list of zapped rooms
+         *	(prolly by #)
+	 * return:
 	 *	Just the array of rooms zapped for this user; also sets the
 	 *	global zappedRooms object with all of the data for each user
 	 *	though this is not strictly necessary or even advisable at
@@ -493,15 +472,9 @@ roomData = {
 	  }
 	}
 
-	/*if (!success) {
-	  zappedRooms[user.number].alias = user.alias;
-	  zappedRooms[user.number].zRooms = [ ];
-	}*/
-
 	try {
 	  //userRecords.userDataIO.openFileWrap(outfile, "r+");
 	  outfile.open("w");
-	  //outfile = userRecords.userDataIO.stripComments(outfile);
 	  //outfile.truncate(outfile.position);
 	  outfile.write(JSON.stringify(zappedRooms));
 	  //outfile.close();
@@ -539,6 +512,14 @@ roomData = {
          return false;
         }
     },
+        /*
+         * summary:
+         *     Method zaps room, adding it to the zapped list if it's not
+         *     already there.  If it is, nothing special.  Otherwise it'll just
+         *     add it to the list and call
+         *     roomData.fileIO.writeUserZappedRooms() in order to ensure that
+         *     all is saved
+         */
     zapRoom : function(roomNo) {
 	if (zappedRooms[user.number] == null) {
 	    zappedRooms[user.number] = { };
@@ -564,9 +545,16 @@ roomData = {
 		"\n");
 	}
     },
+        /*
+         * summary:
+         *     Method unzaps room, removing it from the zapped list if it's
+         *     already there.  Once removed from the list, yet another call to
+         *     roomData.fileIO.writeUserZappedRooms() takes care of making sure
+         *     that all is saved and well in the world
+         */
     unzapRoom : function(roomNo) {
 	var tmp = 0;
-	var curZapped = new Array; //, newCurZapped = new Array;
+	var curZapped = new Array;
 
 	for each(var ouah in zappedRooms[user.number].zRooms) {
 	  if (ouah != roomNo) {

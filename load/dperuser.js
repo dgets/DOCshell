@@ -64,7 +64,7 @@ userRecords = {
 	 *	finds the point where the comment header stops and data begins
 	 * infile:
 	 *	the currently open data file to read
-	 * returns:
+	 * return:
 	 *	the file object with the pointer located at the point where
 	 *	data begins
 	 * throws:
@@ -115,9 +115,9 @@ userRecords = {
 	/*
 	 * summary:
 	 *	method loads the dDoc-specific settings file
-	 * returns:
+	 * return:
 	 *	the per-user settings sub-object
-	 *	logs an error and returns null on failure
+	 *	logs an error and throws exception on failure
 	 */
 	loadSettingsBlob: function () {
 	    var settingsFile = new File(userRecords.userDir
@@ -139,7 +139,6 @@ userRecords = {
 		throw new dDocException("Unable to open " + 
 			userRecords.userDir + userRecords.settingsFilename,
 			"Can't open user records!", 1);
-		//return null;
 	    }
 
 	    settingsFile = this.stripComments(settingsFile);
@@ -151,7 +150,6 @@ userRecords = {
 		      + e.toString() + "\n");
 		throw new dDocException("Err: " + e.toString(), "Exception" +
 			" reading dDoc settings", 2);
-		//return null;
 	    } finally {
 		settingsFile.close();
 	    }
@@ -159,7 +157,6 @@ userRecords = {
 	    if ((blob == null) || (blob.length < 2)) {
 		throw new dDocException("Exception: blob too small",
 			"blob null or length < 2", 3);
-		//return null;
 	    }
 	    
 	    blob = JSON.parse(blob);
@@ -172,7 +169,7 @@ userRecords = {
 	 *	the user number
 	 * userid:
 	 *	synchronet user number to load
-	 * returns:
+	 * return:
 	 *	the current user's settings object
 	 *	if no settings for the current user are found, it returns a
 	 *	settings object with all debugging options defaulting to false
@@ -203,6 +200,12 @@ userRecords = {
 	/*
 	 * summary:
 	 *	Saves the per-user settings to the DDOC settings file.
+         * userid:
+         *      User id #
+         * settings:
+         *      Not sure if this is the set of settings just for the user or if
+         *      for some reason the global settings variable is being passed
+         *      through here; looking at the calling code will be useful
 	 */
 	saveSettings: function (userid, settings) {
 	    var json = this.loadSettingsBlob();
@@ -228,13 +231,17 @@ userRecords = {
 	 * summary:
 	 *	method is a wrapper for opening a file of any particular
 	 *	mode; serves as a wrapper for the try/catch shit to not
-	 *	be so redundant in code
-	 * fname:
-	 *	filename/path to open
+	 *	be so redundant in code; this should be utilized in some more
+         *	places, I kind of forgot about using this when I was working on
+         *	dperroom.js and potentially a few other spots where the wheel
+         *	has been invented again
+	 * fObj:
+	 *	filename/path of the File object
 	 * mode:
 	 *	Synchronet API's mode specification for File.open()
 	 * return:
-	 *	Returns null for error, open file object for success
+	 *	Returns open file object for success; throws exception on
+         *	error
 	 */
 	openFileWrap: function (fObj, mode) {
 	    try {
@@ -245,22 +252,61 @@ userRecords = {
 		fObj.close();
 		throw new dDocException("Exception in openFileWrap", 
 			e.toString(), 1);
-		//return null;
 	    }
 
 	    return fObj;
 	}
     },
+    //sub-object
     userDataUI: {
 	//pushing/pulling output from the user (sorry, I can't stop using that
 	//terminology now)
 
 	//	  ----++++****====userDataUI methods====****++++----
+            /*
+             * summary:
+             *      Method handles looking up a user by the user name and
+             *      fetches the data from userRecords.userDataIO.loadSettings()
+             *      in order to determine various bits of information like the
+             *      doing field and info field
+             * uname:
+             *      Name of the user to profile
+             */
+        profileUser : function (uname) {
+            var profileeSettings = { };
+            var unum, uObj;
+
+            if ((unum = system.matchuser(uname)) == 0) {
+                console.putmsg(yellow + high_intensity + "User " + green +
+                  uname + " was not found!\n");
+                throw new dDocException("profileUser() Exception",
+                    "Unable to locate " + uname, 1);
+            }
+
+            profileeSettings = userRecords.userDataIO.loadSettings(unum);
+            uObj = new User(unum);
+
+            console.putmsg(cyan + high_intensity + uObj.alias + "\n" +
+                yellow + high_intensity + uObj.address + "\n" +
+                uObj.location + "\n");
+
+            if (profileeSettings == null) { //that is the error condition, no?
+                console.putmsg(yellow + high_intensity + "User has not set up" +
+                    " profile information yet\n\n");
+            } else {
+                console.putmsg(high_intensity + green + "Doing: " + cyan +
+                    profileeSettings.doing + "\n\n");
+                for each (var infoLine in profileeSettings.info) {
+                    console.putmsg(green + high_intensity + infoLine + "\n");
+                }
+                console.putmsg("\n");
+            }
+        },
 	/*
 	 * summary:
 	 *	obtains a new list of lines of text to utilize as the
 	 *	info field from the user
-	 * returns:
+	 * return:
 	 *	this (up to 5 line) array of user info text
 	 */
 	getInfo: function () {
@@ -285,7 +331,7 @@ userRecords = {
 	/*
 	 * summary:
 	 *	Asks the user for a new doing message
-	 * returns:
+	 * return:
 	 *	String value of the new doing message
 	 */
 	getDoing: function() {
@@ -306,6 +352,8 @@ userRecords = {
 	 * userid:
 	 *	synchronet user number of the user whose debug flags
 	 *	are being set
+         * return:
+         *      new settings object
 	 * TODO:
 	 *	connect this function with a sysop settings menu somewhere
 	 *	so that sysops can set their own and others' debugging options
@@ -336,6 +384,13 @@ userRecords = {
 	    userRecords.userDataIO.saveSettings(userid, tmpSettings);
 	    return tmpSettings;
 	},
+            /*
+             * summary:
+             *      Method displays the different possible debugging options
+             *      for the user as well as their true/false selected values
+             * userid:
+             *      User id # of the user being examined
+             */
 	displayDebugFlags: function (userid) {
 	    var flags = Object.keys(
 	        userRecords.userDataIO.loadSettings(userid).debug);
@@ -346,6 +401,12 @@ userRecords = {
 		      high_intensity + userSettings.debug[opt] + "\n");
 	    }
 	},
+            /*
+             * summary:
+             *      Method displays the user information blurb (sans header)
+             * userid:
+             *      User id # for the user being queried
+             */
 	displayInfo: function (userid) {
 	    var info = userRecords.userDataIO.loadSettings(userid).info;
 	    var i;
@@ -358,6 +419,7 @@ userRecords = {
     }
 
 },
+//sub-object
 userConfig = {
     //'c'onfig menu stuph
 
@@ -369,7 +431,7 @@ userConfig = {
     //	----++++****====userConfig methods====****++++----
     /*
      * summary:
-     *	menu choice response for user configuration options
+     *      menu choice response for user configuration options
      */
     reConfigure: function () {
 	var stillAlahv = true, uResponse = null;
@@ -408,9 +470,6 @@ userConfig = {
 		    console.putmsg(excuse);
 		    break;
 	    }
-
 	}
-
     }
-
 }
