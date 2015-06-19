@@ -648,10 +648,14 @@ msg_base = {
         //is bogus before we waste time with this, especially since the mHdr
         //===null tested block doesn't seem to keep horrible things from
         //happening with a ptr passed that's way out of range
-        if ((ptr < 1) || (ptr > base.last_msg)) {
+        if (ptr < 1) {
             //shit's out of range, man
             throw new docIface.dDocException("dispMsg() error",
                 "Invalid message slot", 3);
+        } else if (ptr > base.last_msg) {
+            console.putmsg(yellow + "Your message # was over the top; " +
+              "pointing you at the last message\n");
+            ptr = base.last_msg;
         }
 
         //try/catch this
@@ -661,7 +665,7 @@ msg_base = {
 	} catch (e) {
 	  console.putmsg(red + "Error fetching mHdr & mBody\nName: " + e.name +
 	    "\tNumber: " + e.number + "\nMessage: " + e.message + "\n");
-	  throw new dDocException("dispMsg() Error",
+	  throw new docIface.dDocException("dispMsg() Error",
 		"Unable to fetch message header/body", 1);
 	}
 
