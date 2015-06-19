@@ -244,6 +244,7 @@ uMail = {
             default:
                 //wut
                 console.putmsg(yellow + high_intensity + "Wut?\n\n");
+                console.putmsg(yellow + high_intensity + "Mail> ");
             break;
           }
 
