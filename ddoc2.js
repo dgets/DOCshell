@@ -690,10 +690,6 @@ if (!debugOnly) {
 
 	console.putmsg("\n" + dprompt);
 	uchoice = docIface.getChoice();
-	//poor aliasing
-	if (uchoice == ' ') {
-	  uchoice = 'n';
-	}
 
 	switch (uchoice) {
 		//top menu
@@ -701,6 +697,8 @@ if (!debugOnly) {
 		  docIface.doMainMenu();
 		  break;
 		//message base entry commands
+                case ' ':
+                  uchoice = 'n';
 		case 'b':
 		case 'e':
 		case 'E':
