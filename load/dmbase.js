@@ -257,8 +257,29 @@ msg_base = {
                   //already have it
                   console.putmsg(green + high_intensity + "Go to message #> ");
                   console.ungetstr(uchoice);    //put it back on the input stack
-                  msg_base.dispMsg(new MsgBase(bbs.cursub_code),
-                                   console.getnum(maxMsgs), false);
+                  try {
+                    if (userSettings.debug.message_scan) {
+                        console.putmsg("Entered dispMsg()'s try/catch\n");
+                    }
+                    msg_base.dispMsg(new MsgBase(bbs.cursub_code),
+                                   console.getnum(base.last_msg), false);
+                    //switched out maxMsgs (500) for base.last_msg above. duh
+                  } catch (e) {
+                      if (userSettings.debug.message_scan) {
+                          console.putmsg(cyan + "Did we even fuckin get here?");
+                      }
+                      
+                      if (e.number == 3) {
+                          console.putmsg(yellow + "Invalid message #!\n");
+                      } else {
+                          console.putmsg(red +
+                              "Something is not normal here\n");
+                          throw new docIface.dDocException(
+                            "Numeric read exception",
+                            "Unknown error trying to select message to read by"
+                            + " number", 1);
+                      }
+                  }
                   break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
@@ -623,6 +644,20 @@ msg_base = {
 	  }
 	}
 
+        //let's try and find out if the message we're going to go looking for
+        //is bogus before we waste time with this, especially since the mHdr
+        //===null tested block doesn't seem to keep horrible things from
+        //happening with a ptr passed that's way out of range
+        if (ptr < 1) {
+            //shit's out of range, man
+            throw new docIface.dDocException("dispMsg() error",
+                "Invalid message slot", 3);
+        } else if (ptr > base.last_msg) {
+            console.putmsg(yellow + "Your message # was over the top; " +
+              "pointing you at the last message\n");
+            ptr = base.last_msg;
+        }
+
         //try/catch this
 	try {
           mHdr = base.get_msg_header(ptr);
@@ -630,7 +665,7 @@ msg_base = {
 	} catch (e) {
 	  console.putmsg(red + "Error fetching mHdr & mBody\nName: " + e.name +
 	    "\tNumber: " + e.number + "\nMessage: " + e.message + "\n");
-	  throw new dDocException("dispMsg() Error",
+	  throw new docIface.dDocException("dispMsg() Error",
 		"Unable to fetch message header/body", 1);
 	}
 
