@@ -4,7 +4,7 @@
  * by: Damon Getsman
  * contributing/refactoring also by: @Ntwitch (github.com)
  * alpha phase: 25oct14
- * beta phase: 11mar15
+ * beta phase: 
  * started: 21sept14
  * finished:
  *
@@ -19,8 +19,9 @@
 	  yellow, base, ndx, userSettings, console, bbs, load, K_NOECHO */
 /*jslint devel: true, node: true, sloppy: true, vars: true, white: true */
 
-//message base menu
+//message base primary object
 msg_base = {
+        //properties
 	/*
 	 * summary:
 	 *	String to prepend before a key is hit and logged to
@@ -33,6 +34,11 @@ msg_base = {
          *      properties and methods
          */
   read_cmd : {
+        //property
+        /*
+         * summary:
+         *      String containing the entirety of the read command menu
+         */
         rcMenu : "\n" + green + high_intensity +
           "<?> help         <a>gain           <A>gain (no More prompt)\n" +
           "<b>ack           <D>elete msg      <e>nter msg\n" +
@@ -42,12 +48,21 @@ msg_base = {
 	  "<I> change room info\n",
         /*
          * summary:
-         *      Reads choice for valid selection
+         *      Reads choice for valid selection; note that this monolith should
+         *      really be broken up.  The switch makes that highly improbable,
+         *      but refactoring this along with gmorehouse might be a good idea
          * base: MsgBase object 
-         *      currently in use (and opened)
+         *      currently in use; originally this was to be opened when passed
+         *      to the method, however I'm not sure that state for this is
+         *      always preserved.  I've added code to check and cope in some of
+         *      the different areas that this branches out to; if there are any
+         *      others where it isn't handled this should be added.  I don't
+         *      want the message base being open to be a requirement
          * ndx: Integer
-         *      index of the current message
-         * returns:
+         *      index of the current message; potential spot to look for in
+         *      issues #140 and #141 on Github
+         * return:
+         *      (isn't there a better way to handle this? -- ask gmorehouse)
          *      1 to stop
          *      2 to change direction
          *      0 for message entered successfully or next msg also
@@ -158,7 +173,7 @@ msg_base = {
 		  if (uchoice == "n") {
 		    bbs.log_key("n");
 		  }
-		  valid = true;hollaBack = 0;
+		  valid = true; hollaBack = 0;
 		  docIface.log_str_n_char(this.log_header, 'n');
 		  console.putmsg(green + high_intensity + "Next\n");
 		  break;
@@ -182,14 +197,14 @@ msg_base = {
                   bbs.curdir = docIface.util.preFileDir;
                   user.settings = docIface.util.preUserSettings;
 
-                  //disable H exemption in case they go back to usual shell so that
-                  //we can handle events, etc
+                  //disable H exemption in case they go back to usual shell so
+                  //that we can handle events, etc
                   user.security.exemptions &= ~UFLAG_H;
                   //restore asynchronous message status (if necessary)
                   bbs.sys_status ^= SS_MOFF;
 
-                  console.putmsg(blue + high_intensity + "\n\nHope to see you " +
-                       "again soon!\n\nPeace out!\n");
+                  console.putmsg(blue + high_intensity + "\n\nHope to see you "
+                       + "again soon!\n\nPeace out!\n");
 
                   bbs.logoff(); //this works, but does not reset settings;
                                 //I hate to dupe code, but it's the only work-
@@ -212,6 +227,60 @@ msg_base = {
 			e.number + " back.  :(\n");
 		  }
 		  break;
+                case '%':
+                  //add a bit here so that a user w/level greater than 80 can
+                  //reset pointers for other users, as well (if we keep the
+                  //kludge)
+                  if (user.security.level >= 80) {
+                    var board = msg_area.sub[bbs.cursub_code];
+                    console.putmsg(yellow + "Resetting scan_ptr for: " +
+                       base.cfg.code + "\n");
+
+                    board.scan_ptr = 1;
+                  } else {
+                    console.putmsg(red + "Unable to reset scan_ptr for: " +
+                      base.cfg.code + " for " + user.alias + " due to " +
+                      "security level restrictions.");
+                  }
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':   //we're going to read message by number here
+                  //there will, of course, have to be some error checking for
+                  //trying to hit out of bounds messages if dispMsg() doesn't
+                  //already have it
+                  console.putmsg(green + high_intensity + "Go to message #> ");
+                  console.ungetstr(uchoice);    //put it back on the input stack
+                  try {
+                    if (userSettings.debug.message_scan) {
+                        console.putmsg("Entered dispMsg()'s try/catch\n");
+                    }
+                    msg_base.dispMsg(new MsgBase(bbs.cursub_code),
+                                   console.getnum(base.last_msg), false);
+                    //switched out maxMsgs (500) for base.last_msg above. duh
+                  } catch (e) {
+                      if (userSettings.debug.message_scan) {
+                          console.putmsg(cyan + "Did we even fuckin get here?");
+                      }
+                      
+                      if (e.number == 3) {
+                          console.putmsg(yellow + "Invalid message #!\n");
+                      } else {
+                          console.putmsg(red +
+                              "Something is not normal here\n");
+                          throw new docIface.dDocException(
+                            "Numeric read exception",
+                            "Unknown error trying to select message to read by"
+                            + " number", 1);
+                      }
+                  }
+                  break;
                 default:
                   console.putmsg(normal + yellow + "Invalid choice\n");
                   break;
@@ -223,17 +292,94 @@ msg_base = {
   },
   /*
    * summary:
-   *	Sub-object created for msgDelete() and any other methods/properties
+   *	Sub-object created for deleteMsg() and any other methods/properties
    *	that may need to exist that don't exactly fall under reading
    *	messages
    */
   util : {
+        /*
+         * summary:
+         *      Method remaps message start through finish for a room/sub-board
+         *      into an array that skips deleted message slots and gives us a
+         *      set of indices that are more easily utilized at base 1
+         * mBase:
+         *      Base that we are currently working with
+         * return:
+         *      Array of valid messages
+         *
+         * NOTE: We might have to configure this to pass back a valid new
+         *       'current' index since we're remapping the whole lot of 'em
+         */
+    remap_message_indices : function(mBase) {
+            var msgMap = new Array(), curHdr = new Object();
+            var curPtr = 0;
+
+            if (!mBase.is_open()) {
+                if (userSettings.debug.message_scan) {
+                    console.putmsg(cyan + "Opening " + mBase.cfg.name + " for" +
+                        " message mapping. . .\n");
+                }
+                try {
+                    mBase.open();
+                } catch (e) {
+                    throw new docIface.dDocException("remap_message_indices" +
+                      "() Exception", e.message, 1);
+                }
+            }
+
+            if (userSettings.debug.message_scan) {
+                console.putmsg(yellow + "Remapping:\n");
+            }
+            for (var ndx = mBase.first_msg; ndx <= mBase.last_msg; ndx++) {
+                if (userSettings.debug.message_scan) {
+                    console.clearline();
+                }
+
+                try {
+                    curHdr = mBase.get_msg_header(ndx);
+                } catch (e) {
+                    console.putmsg("Exception getting header: " + e.message +
+                        "\n");
+                    mBase.close();
+                    throw new docIface.dDocException("remap_message_indices" +
+                        "() Exception", e.message, 2);
+                }
+
+                if ((curHdr == null) || (curHdr.attr&MSG_DELETED)) {
+                    continue;   //skip this shit, we don't want this indexed
+                } else {
+                  if (userSettings.debug.message_scan) {
+                    console.putmsg(yellow + high_intensity + ndx + " to " +
+                      curPtr);
+                  }
+                  msgMap[curPtr++] = ndx;
+                }
+            }
+
+            if (msgMap.length == 0) {
+                console.putmsg(red + "No messages found for mapping\n");
+                throw new docIface.dDocException("remap_message_indices()" +
+                    " Exception", "No messages in " + mBase.cfg.name +
+                    " for mapping!", 3);
+            }
+
+            if (userSettings.debug.message_scan) {
+                console.putmsg(green + "Returning message mapping: " + msgMap +
+                    "\nFor base: " + mBase.cfg.name + "\n");
+            }
+
+            mBase.close();
+            return msgMap;
+    },
 	/*
 	 * summary:
 	 *	Deletes the message (if appropriate permissions) at the current
 	 *	message
 	 * mBase:
-	 *	The open message base object for the current room/sub
+	 *	The open message base object for the current room/sub; again we
+         *	should try to make it so that the message base object doesn't
+         *	need to be opened already.  At least this one throws an
+         *	exception if things aren't already opened
 	 * ndx:
 	 *	Index to try to delete
 	 */
@@ -278,6 +424,8 @@ msg_base = {
    *	utilized from rcChoice, also, which kind of puts my OO structure
    *	into question here...  Need to look at that at some point, or
    *	else place improper methods somewhere more appropriate.
+   *
+   *	Summary of that summary: go over this with gmorehouse
    */
   entry_level : {
         /*
@@ -300,6 +448,7 @@ msg_base = {
           case 'n':     //read new
 	    console.putmsg(green + high_intensity + "Read new\n");
 	    try {
+
 		msg_base.readNew();
 	    } catch (e) {
 		console.putmsg(yellow + "Exception reading new: " +
@@ -337,7 +486,8 @@ msg_base = {
 	    }
             break;
           //other functionality tie-ins
-          case 'w':     //normal wholist
+          case 'w':
+//normal wholist
             wholist.list_long(wholist.populate());
             break;
           case 'W':     //short wholist
@@ -359,7 +509,9 @@ msg_base = {
         /*
          * summary:
          *      Lists all known message sub-boards (broken down by
-         *      message base group, optionally)
+         *      message base group, optionally); note that all of the code that
+         *      isn't run within the 'confined' version has not been tested at
+         *      this point (and probably won't be for quite some time)
          */
     listKnown : function() {
         console.putmsg("\n" + green + high_intensity);
@@ -401,11 +553,16 @@ msg_base = {
         console.putmsg("\n");
     }
 
+
   },
   //msg_base properties
   //these may not be determined dynamically (pretty sure), so this
   //will be a bug that needs to be fixed inline on a per-message read
   //basis
+  /*
+   * summary:
+   *    Read command menu; wasn't this already defined above?
+   */
   menu : green + high_intensity + "\n\n<?> help\t\t" +
          "<a>gain\t\t<A>gain (no More prompt)\n<b>ack\t\t<D>" +
          "elete msg\t<e>nter msg\n<E>nter (upload)\t<h>elp\t\t\t" +
@@ -416,7 +573,9 @@ msg_base = {
 	/*
 	 * summary:
 	 *	Displays the read menu with room name, message number,
-	 *	and remaining messages.
+	 *	and remaining messages.  Ntwitch added the wonderful feature
+         *	that will probably be useful elsewhere where the code will close
+         *	and re-open the message base to check for updates to pointers
 	 * base:
 	 *	The active and open MsgBase object
 	 * ndx:
@@ -446,9 +605,13 @@ msg_base = {
 	 * summary:
 	 *	Displays message with or without pauses
 	 * base: MsgBase object
-	 *	Open message base object currently being read
+	 *	Open message base object currently being read; again we need to
+         *	try to make sure that we can get away from this requirement of
+         *	the message base already being opened if that is at all
+         *	possible
 	 * ptr: Integer
-	 *	Current message index #
+	 *	Current message index #; also a potential source or good
+         *	variable to watch for debugging in Github issues #140 & #141
 	 * breaks: Boolean
 	 *	Default: true
 	 *	true for screen pauses
@@ -476,10 +639,24 @@ msg_base = {
 	  } catch (e) {
 	    console.putmsg(red + "Unable to open Mail> sub:\t" + e.message +
 		"\n");
-	    throw new dDocException("dispMsg() Error", 
+	    throw new docIface.dDocException("dispMsg() Error",
 		"Unable to open mail sub: " + e.message, 2);
 	  }
 	}
+
+        //let's try and find out if the message we're going to go looking for
+        //is bogus before we waste time with this, especially since the mHdr
+        //===null tested block doesn't seem to keep horrible things from
+        //happening with a ptr passed that's way out of range
+        if (ptr < 1) {
+            //shit's out of range, man
+            throw new docIface.dDocException("dispMsg() error",
+                "Invalid message slot", 3);
+        } else if (ptr > base.last_msg) {
+            console.putmsg(yellow + "Your message # was over the top; " +
+              "pointing you at the last message\n");
+            ptr = base.last_msg;
+        }
 
         //try/catch this
 	try {
@@ -488,7 +665,7 @@ msg_base = {
 	} catch (e) {
 	  console.putmsg(red + "Error fetching mHdr & mBody\nName: " + e.name +
 	    "\tNumber: " + e.number + "\nMessage: " + e.message + "\n");
-	  throw new dDocException("dispMsg() Error",
+	  throw new docIface.dDocException("dispMsg() Error",
 		"Unable to fetch message header/body", 1);
 	}
 
@@ -502,7 +679,7 @@ msg_base = {
 		console.putmsg(red + "Invalid message? base.subnum: "
 		      + base.subnum + " ptr: " + ptr + "\n");
 	    }
-	    throw new dDocException("dispMsg() error", 
+	    throw new docIface.dDocException("dispMsg() error",
 		"Invalid message slot", 3);	// Invalid message, skip
 	}
 
@@ -524,29 +701,39 @@ msg_base = {
   },
   /*
    * summary:
-   *	Opens a new message base (modularizing)
+   *	Opens a new message base (modularizing); doesn't use proper exception
+   *	throwing
    * mb:
    *	Code of the new message base to open
    * return:
    *	new message base object (already open), or 'null' for error
+   * NOTE:
+   *    this needs to be changed to throw an exception for error, let's get
+   *    away from the error code passing shit through returns
    */
   openNewMBase : function(mb) {
         try {  
 	  //take care of this in calling code
           //mBase.close();
           mBase = new MsgBase(mb);
-	  mBase.open();
+	  try {
+            mBase.open();
+          } catch (e) {
+              console.putmsg(red + "Ername: " + e.name + "mBase.error: " +
+                  e.message + "\n");
+              throw new dDocException("openNewMBase() Error", e.message, 1);
+          }
+
           if (userSettings.debug.message_scan) {
             console.putmsg(red + "Opened: " + mb +
         	           " allegedly . . .\n");
-	    console.putmsg(red + "mBase.error: " + mBase.error + "\n");
           }
         } catch (e) {
           console.putmsg(red + "Error opening new mBase:\n"
 		+ e.toString() + "\n");
           log("Error skipping through scanSub(): " +
             e.toString());
-          return null;
+          throw new dDocException("openNewMBase() Error", e.message, 2);
         }
 
 	return mBase;
@@ -555,14 +742,19 @@ msg_base = {
 	 * summary:
 	 *	Sequentially scans for new messages within one
 	 *	particular sub-board; don't forget to add the support
-	 *	for whether confined or not after this is beta working
+	 *	for whether confined or not after this is beta working; needs
+         *	to be using exception handling instead of passing error codes
 	 * sBoard: String
 	 *	Synchronet Sub-board object
 	 * forward: Boolean
 	 *	true for forward read & converse
 	 * return:
 	 *	null/negative for errors; 1 to move on to the next sub, 
-	 *	still working on further shite
+	 *	still working on further shite -- fix this for exceptions!
+         * NOTE:
+         *      Once again in this method we need to run through things and
+         *      make sure that we're not using return for error codes; a proper
+         *      exception throwing model really needs to be adhered to
 	 */
   scanSub : function(sBoard, forward) {
 	var tmpPtr, inc, choice = 0;
@@ -584,8 +776,12 @@ msg_base = {
 	}
 
 	tmpPtr = sBoard.scan_ptr;
+        //tmpPtr = sBoard.ptridx;
+        //tmpPtr = mBase.cfg.ptridx;
 	if (userSettings.debug.message_scan) {
 	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
+          console.putmsg("sBoard.ptridx = " + sBoard.ptridx + "\n");
+          console.putmsg("mBase.cfg.ptridx = " + mBase.cfg.ptridx + "\n");
 	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
 	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
 	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
@@ -600,8 +796,8 @@ msg_base = {
 	// if starting in reverse from the room prompt, unskip one message
 	if (!forward) {
             tmpPtr += 1;  // so we start with the most recently read
+                          // message.  In all other cases we want to skip one.
         }
-	// message.  In all other cases we want to skip one.
 	
 	if (userSettings.debug.message_scan) {
 	  console.putmsg("Inc: " + inc + "\tbased on forward\n");

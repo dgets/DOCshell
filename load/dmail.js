@@ -2,6 +2,7 @@
  * dmail.js
  * by: Damon Getsman
  * started: 10 Apr 15 (at least in a separate file)
+ * beta:
  * finished:
  */
 
@@ -14,13 +15,13 @@ uMail = {
         /*
          * summary:
          *      Method finds the current pseudo-scan_ptr for the mail 
-         *      pseudo-sub
+         *      pseudo-sub; throws appropriate exception if errors arise
          * return:
-         *      Returns an array of applicable message indices, or -1
+         *      Returns an array of applicable message indices
          */
     getMailScanPtr : function(mmBase, prevNdx) {
         var applicableMailList = new Array();
-        var mNdx = prevNdx;
+        //var mNdx = prevNdx;
         var mHdr;
 
         if (userSettings.debug.message_scan) {
@@ -47,21 +48,6 @@ uMail = {
                 "Unable to read message header(s): " + e.message, 2);
           }
 
-          /*if (userSettings.debug.message_scan) {
-            //in-depth debugging for message attributes
-	    console.putmsg(" to_ext: " + mHdr.to_ext + " to: " + mHdr.to +
-		"; ");
-
-            if ((mHdr.to == user.name) || (mHdr.to == user.alias)) {
-                console.putmsg("Message to " + user.number + " found.");
-            }
-            if ((mHdr.attr & MSG_READ) == MSG_READ) {
-                console.putmsg("MSG_READ ");
-            } else { 
-		console.putmsg(" "); 
-	    }
-          } */
-
           if (mHdr.to_ext == user.number) {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg("Pushing " + i + " to list\n");
@@ -85,7 +71,12 @@ uMail = {
          *      and display it to the end user
          * return:
          *      Returns nothing, unless signalling to primary code flow that
-         *      a logout has been requested (-1 value)
+         *      a logout has been requested (-1 value); note that this is
+         *      definitely not the optimal way to be handling this and there
+         *      really should be a better flow implemented.  An exception would
+         *      not be out of line for this kind of issue
+         * NOTE:
+         *      Returning values should just be abolished for this
          */
     readMail : function() {
         var mmBase = new MsgBase("mail");
@@ -253,6 +244,7 @@ uMail = {
             default:
                 //wut
                 console.putmsg(yellow + high_intensity + "Wut?\n\n");
+                console.putmsg(yellow + high_intensity + "Mail> ");
             break;
           }
 
@@ -289,10 +281,14 @@ uMail = {
 	 *	uploaded text
 	 * return:
 	 *	-1 for recipient not found/successfully prompted for, -2 for
-	 *	trying to send a null message
+	 *	trying to send a null message; this bullshit needs to change
+         * NOTE:
+         *      Once again the return codes are bogus and it would be a really
+         *      great idea to actually use some of the exceptions that we like
+         *      to do together anymore
 	 */
     sendMail : function(recip, upload) {
-	var uData, uNum;
+	var uNum;
 	var mailTxt = new Array();
 
 	if (userSettings.debug.message_posting) {

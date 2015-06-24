@@ -6,7 +6,7 @@
  * contributing/refactoring also by: @Ntwitch (github.com)
  * started: 18aug14
  * alpha phase: 25oct14
- * beta phase: 10mar14
+ * beta phase: 
  * finished:
  *
  * a slightly more organized attempt to emulate the DOC shell from
@@ -28,7 +28,7 @@ load("/sbbs/exec/load/nodedefs.js");
 //pseudo-globals
 const excuse = "\n\nThe rothe strikes!  You die!. . .\n\n",
 	debugOnly = false, topebaseno = 6,
-	alwaysLogout = false, std_logging = true;
+	alwaysLogout = false, std_logging = true, maxMsgs = 500;
 
 //a few easier hooks for the ctrl-a codes
 const ctrl_a = "\1";
@@ -46,14 +46,15 @@ var stillAlive = true;	//ask for advice on the 'right' way to do this
 userSettings = null; roomSettings = { }; zappedRooms = null;
 
 /*
- * obviously, with all of the other places that we've got debugging
- * referenced, we need to go around and make them dependent upon this, 
- * even before we start introducing granularity into the whole mixture
+ * summary:
+ *      Top level object for globals and primary program control flow/menu
  */
-
 docIface = {
   //top level menu
-  //menu properties
+  /*
+   * summary:
+   *    Top-level menu contained within a string
+   */
   menu :  green + high_intensity +
        //$ctrl_a + "g" + "\n" + "<A>\tSysop commands\n" +
        "\n\n<B>\tChange eXpress beeps\n<b>\tRead forum backward\n" +
@@ -75,6 +76,10 @@ docIface = {
        "number\n<->\tread last n messages\n<%>\ttoggle guideflag " +
        "status\n<@>\taidelist\n<\">\tquote Xes to Sysop\n" +
        "<$>\tchange debugging settings\n\n",
+  /*
+   * summary:
+   *    Save text prompt
+   */
   sprompt : high_intensity + yellow + "<A>" + green + "bort " +
        yellow + "<C>" + green + "ontinue " + yellow + "<P>" +
        green + "rint " + yellow + "<S>" + green + "ave " + yellow +
@@ -91,8 +96,6 @@ docIface = {
    *	the exception message
    * setnum:
    *	exception number
-   * toString():
-   *	Used for returning a concise message on the exception
    */
   dDocException : function(setname, setmsg, setnum) {
         this.name = setname;
@@ -118,25 +121,15 @@ docIface = {
         }
 	bbs.node_action = nodeAction;
 	system.node_list[bbs.node_num - 1].action = bbs.node_action;
-
-        /* for (var ouah = 0; ouah < maxnodes; ouah++) {
-          if (userSettings.debug.misc) {
-            console.putmsg(red + high_intensity + ouah + " ");
-          }
-          if (system.node_list[ouah].useron == user.number) {
-            if (userSettings.debug.misc) {
-                console.putmsg(yellow + "Hit!  Trying to set status\n");
-            }
-            system.node_list[ouah].action = nodeAction;
-            break;
-          }
-        } */
   },
   /*
    * summary:
-   *	Just a wrapper for console.getkey() at this point.  I honestly can't
-   * 	remember why I did this now; leaving it in case I remember
-   * returns:
+   *	Just a wrapper for console.getkey() at this point.  This is utilized for
+   *	any prompting situation where we want to be able to make sure that we're
+   *	going to receive any X messages (or telegrams/messages or other inter-
+   *	node communication) while the prompt is waiting for something from the
+   *	user
+   * return:
    *	Unmodified return value from console.getkey()
    */
   getChoice : function() {
@@ -157,7 +150,10 @@ docIface = {
    *	String value
    * key:
    *	Character value
-   * returns: nonzero on error
+   *
+   * NOTE: This might be broken in some areas; as I was doing the documentation
+   *       pass I decided to change this one to throw an exception on error and
+   *       ditch the return codes since it was so rudimentary
    */
   log_str_n_char : function(str, key) {
 	try {
@@ -166,14 +162,17 @@ docIface = {
 	} catch (e) {
 	  system.log("TTBBS Error " + e.description +
 		" when trying to save str+key to log");
-	  return -1;
+	  throw new dDocException("log_str_n_char() Error", e.message, 1);
 	}
 
-	return 0;
+	//return 0;
   },
   /*
    * summary:
    *	Simply displays the docIface top level property 'menu'
+   * NOTE:
+   *    See the commented out area where things need to be fixed in order to
+   *    implement pausing (I think that's what it was working with, anyway)
    */
   doMainMenu : function() {
 	bbs.log_key("?");
@@ -199,7 +198,6 @@ docIface = {
 
 	//console.putmsg(this.menu);
   },
-
   //sub-objects
   nav : {
 	/*
@@ -209,7 +207,7 @@ docIface = {
 	 * room:
 	 *	The msg_area.grp_list[].sub_list[] element of the room to jump
 	 *	to
-	 * returns:
+	 * return:
 	 *	String of the human-readable sub name.
 	 */
     setSub : function(room) {
@@ -231,7 +229,7 @@ docIface = {
 	 *	Scans through known rooms (not zapped) starting from
 	 *	the current room and looks for new messages.  If new messages
 	 *	are found, call setSub to point the user at the room.
-	 * returns:
+	 * return:
 	 *	sub-board object if new messages were found
 	 *	null if no new messages were found
 	 */
@@ -377,6 +375,9 @@ docIface = {
 	* summary:
 	*	Mark all messages as read in the current room and
 	*	call findNew() to change to the next room with unread messages
+        * NOTE:
+        *       skip() should _NOT_ mark all messages in the current room as
+        *       read; it should just skip to the next room in the list
 	*/
     skip: function () {
 	// mark all messages as read in current room
@@ -398,10 +399,9 @@ docIface = {
 	 *	sub-boards
 	 * srchStr:
 	 *	Substring to search for
-	 * returns:
-	 *	The object for the sub-board if a match, null if rList
-	 *	doesn't come back decently, -1 if no match is found
-	 *	within a valid list
+	 * return:
+	 *	The object for the sub-board if a match, exceptions are thrown
+         *	on appropriate error conditions
 	 */
     chk4Room : function (srchStr) {
 	var rList = docIface.util.getRoomList(true);
@@ -425,6 +425,7 @@ docIface = {
 	throw new dDocException("chk4Room() exception", "No match", 2);
     }
   },
+  //sub-object
   util : {
 	//	--++==**properties**==++--
     preSubBoard : null, 
@@ -438,10 +439,13 @@ docIface = {
 	 *	not being confined is expanded.  Also, this may be
 	 *	useful in the future for listKnown() and other routines
 	 *	in dmbase.js that are recreating the wheel a bit
-	 * returns:
+	 * return:
 	 *	As I redundantly and out-of-proper-orderly mentioned
 	 *	above, it returns an array of sub-board objects
-	 *	If running non-confined, returns null
+	 *	If running non-confined, returns null.  When this feature is
+         *	finally ready to be implemented, it might be necessary to return
+         *	some sort of JSON or list of arrays in order to handle the
+         *	deeper data structure than we're currently utilizing
 	 */
     getRoomList : function(/*in the future, group here too*/) {
 	//var debugging = true;
@@ -455,7 +459,7 @@ docIface = {
 		}
 		return msg_area.grp_list[topebaseno].sub_list;
 	} else {
-		return null;
+		return null;    //ereh
 	}
     },
 	/*
@@ -477,21 +481,9 @@ docIface = {
 	  console.putmsg(red + e.toString() + "\n");
 	}
 
-	//load room settings
+	//load room settings -- WHAT THE FUCK IS GOING ON WITH THE NESTED TRY/
+        //CATCH BULLSHIT HERE?  Vestigial horror no doubt; fix this
 	try {
-          /*if (userSettings.debug.file_io) {
-              console.putmsg(cyan + "Looking for room info file: " +
-                roomData.fileIO.roomRecFilename + "\n");  //why no workee? 8o|
-          }     //this should be "/sbbs/data/user/docrooms", but more than that
-                //it should be working correctly from w/in proper references WTF
-
-          for each(var area in msg_area.grp_list[topebaseno].code) {
-	    roomSettings[area] = roomData.fileIO.snagRoomInfoBlob(
-                                              "/sbbs/data/user/docrooms",
-                                              //roomData.fileIO.roomRecFilename,
-                                              area);
-          }*/
-
           try {
               roomData.fileIO.snagRoomInfoBlob();
           } catch (e) {
@@ -586,7 +578,11 @@ docIface = {
 	 *	ddoc, in order to restore functionality to where it was
 	 *	left off for somebody that may be jumping between
 	 *	shells, or the like.  As mentioned above; this may be
-	 *	out of scope and needing a better solution.
+	 *	out of scope and needing a better solution.  For some reason
+         *	this also refuses to work properly when not called from the
+         *	lowest-level primary menu; not sure what's up with that, Digital
+         *	Man just referred me to logout.c or something and I couldn't
+         *	make heads or tails of it just yet
 	 */
     quitDdoc : function() {
 	bbs.log_str(user.alias + " is leaving dDOC shell");
@@ -617,7 +613,6 @@ docIface = {
                 "again soon!\n\nPeace out!\n");
 
 	bbs.logout();
-	return;
     },
 	/*
 	 * summary:
@@ -625,6 +620,10 @@ docIface = {
 	 *	block of information regarding the current sub/room and
 	 *	displays that information with proper DOC-ish heading
 	 *	information.
+         * NOTE:
+         *      I believe this is completely vestigial at this point; need to
+         *      run through and verify before removing it.  This should all be
+         *      handled from within dperroom's code right now, though.
 	 */
     dispRoomInfo : function() {
 	bbs.log_key("I");
@@ -691,10 +690,6 @@ if (!debugOnly) {
 
 	console.putmsg("\n" + dprompt);
 	uchoice = docIface.getChoice();
-	//poor aliasing
-	if (uchoice == ' ') {
-	  uchoice = 'n';
-	}
 
 	switch (uchoice) {
 		//top menu
@@ -702,6 +697,8 @@ if (!debugOnly) {
 		  docIface.doMainMenu();
 		  break;
 		//message base entry commands
+                case ' ':
+                  uchoice = 'n';
 		case 'b':
 		case 'e':
 		case 'E':
@@ -819,6 +816,24 @@ if (!debugOnly) {
 		    roomData.tieIns.zapRoom(bbs.cursub);
 		  }
 		  break;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':   //we're going to read message by number here
+                  //there will, of course, have to be some error checking for
+                  //trying to hit out of bounds messages if dispMsg() doesn't
+                  //already have it
+                  console.putmsg(green + high_intensity + "Go to message #> ");
+                  console.ungetstr(uchoice);    //put it back on the input stack
+                  msg_base.dispMsg(new MsgBase(bbs.cursub_code),
+                                   console.getnum(maxMsgs), false);
+                  break;
                 case '$':       //change debugging flags for this user
                   var dropOut = false;
                   var un;
