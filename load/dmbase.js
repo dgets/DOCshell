@@ -591,10 +591,16 @@ msg_base = {
 	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
 	}
 	
-	if (forward) {inc = 1;} else {inc = -1;}
+	if (forward) {
+            inc = 1;
+        } else {
+            inc = -1;
+        }
 	
 	// if starting in reverse from the room prompt, unskip one message
-	if (!forward) tmpPtr += 1;  // so we start with the most recently read
+	if (!forward) {
+            tmpPtr += 1;  // so we start with the most recently read
+        }
 	// message.  In all other cases we want to skip one.
 	
 	if (userSettings.debug.message_scan) {
