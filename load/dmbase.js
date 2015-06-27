@@ -568,7 +568,7 @@ msg_base = {
           case 'e':     //enter a normal message
 	    console.putmsg(green + high_intensity + "Enter message\n");
 
-	    base = msg_base.openNewMBase(user.cursub);
+	    base = msg_base.util.openNewMBase(user.cursub);
 	    if (base === null) {
 		console.putmsg(yellow + "Could not open MsgBase: "
 		      + user.cursub + "\n");
