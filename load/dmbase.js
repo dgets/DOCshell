@@ -113,7 +113,7 @@ msg_base = {
 		  break;
                 case 'b':	//change scan direction
 		  bbs.log_key("b");
-                  valid = true;hollaBack = 2;
+                  valid = true; hollaBack = 2;
 		  docIface.log_str_n_char(this.log_header, 'b');
                   console.putmsg(green + high_intensity + "Back (change " +
                         "direction)...\n");
@@ -320,6 +320,81 @@ msg_base = {
    *	messages
    */
   util : {
+      /*
+       * summary:
+       *	Opens a new message base (modularizing); doesn't use proper 
+       *	exception throwing
+       * mb:
+       *	Code of the new message base to open
+       * return:
+       *	new message base object (already open), or 'null' for error
+       * NOTE:
+       *    this needs to be changed to throw an exception for error, let's get
+       *    away from the error code passing shit through returns
+       */
+    openNewMBase : function(mb) {
+        try {  
+	  //take care of this in calling code
+          //mBase.close();
+          mBase = new MsgBase(mb);
+	  try {
+            mBase.open();
+          } catch (e) {
+              console.putmsg(red + "Ername: " + e.name + "mBase.error: " +
+                  e.message + "\n");
+              throw new dDocException("openNewMBase() Error", e.message, 1);
+          }
+
+          if (userSettings.debug.message_scan) {
+            console.putmsg(red + "Opened: " + mb +
+        	           " allegedly . . .\n");
+          }
+        } catch (e) {
+          console.putmsg(red + "Error opening new mBase:\n"
+		+ e.toString() + "\n");
+          log("Error skipping through scanSub(): " +
+            e.toString());
+          throw new dDocException("openNewMBase() Error", e.message, 2);
+        }
+
+	return mBase;
+    },
+        /*
+         * summary:
+         *      Method determines whether or not there are any messages
+         *      remaining to be read in a sub that are not deleted, etc
+         * mBase:
+         *      Base to be tested for unread messages
+         * return:
+         *      Boolean regarding whether or not valid unread messages still
+         *      exist for this room
+         */
+    hasUnread : function(mBase) {
+        var mb = this.openNewMBase(mBase);
+        var mHdr;
+
+        if (mb == null) {
+            throw new dDocException("hasUnread() Error",
+                "Error getting valid open base back from openNewMBase()", 1);
+        }
+
+        var tmpPtr = msg_area.sub[mb.code].scan_ptr;
+
+        if (tmpPtr == mb.last_msg) {
+            return false;
+        }
+
+        while (tmpPtr <= mb.last_msg) {
+            if (((mHdr = mb.get_msg_header(tmpPtr)) == null) ||
+                (mHdr.attr & MSG_DELETED)) {
+                tmpPtr++;
+            } else {
+                return true;
+            }
+        }
+
+        return false;
+    },
         /*
          * summary:
          *      Method remaps message start through finish for a room/sub-board
@@ -471,7 +546,7 @@ msg_base = {
           case 'n':     //read new
 	    console.putmsg(green + high_intensity + "Read new\n");
 	    try {
-		msg_base.readNew();
+		msg_base.read_cmd.readNew();
 	    } catch (e) {
 		console.putmsg(yellow + "Exception reading new: " +
 		      e.toString() + "\n");
@@ -650,6 +725,7 @@ msg_base = {
 	    "\tbreaks: " + breaks + "\n");
 	}
 
+        //this should be swapped out for proper message base open validation
 	if (!base.is_open) {
 	  //let's give this a shot
 	  if (userSettings.debug.message_scan) {
@@ -720,45 +796,6 @@ msg_base = {
 	}
 
 	return 0;
-  },
-  /*
-   * summary:
-   *	Opens a new message base (modularizing); doesn't use proper exception
-   *	throwing
-   * mb:
-   *	Code of the new message base to open
-   * return:
-   *	new message base object (already open), or 'null' for error
-   * NOTE:
-   *    this needs to be changed to throw an exception for error, let's get
-   *    away from the error code passing shit through returns
-   */
-  openNewMBase : function(mb) {
-        try {  
-	  //take care of this in calling code
-          //mBase.close();
-          mBase = new MsgBase(mb);
-	  try {
-            mBase.open();
-          } catch (e) {
-              console.putmsg(red + "Ername: " + e.name + "mBase.error: " +
-                  e.message + "\n");
-              throw new dDocException("openNewMBase() Error", e.message, 1);
-          }
-
-          if (userSettings.debug.message_scan) {
-            console.putmsg(red + "Opened: " + mb +
-        	           " allegedly . . .\n");
-          }
-        } catch (e) {
-          console.putmsg(red + "Error opening new mBase:\n"
-		+ e.toString() + "\n");
-          log("Error skipping through scanSub(): " +
-            e.toString());
-          throw new dDocException("openNewMBase() Error", e.message, 2);
-        }
-
-	return mBase;
   },
 	/*
 	 * summary:
