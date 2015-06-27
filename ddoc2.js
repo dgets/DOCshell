@@ -259,7 +259,7 @@ docIface = {
 		  console.putmsg("Room not zapped\n");
 		}
 
-		mBase = msg_base.openNewMBase(subList[ndx].code);
+		mBase = msg_base.util.openNewMBase(subList[ndx].code);
 		if (mBase == null) {
 		  break;
 		}

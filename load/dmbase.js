@@ -295,7 +295,7 @@ msg_base = {
 	 *	move to the next room with unread messages
 	 */
         readNew : function() {
-	  var mBase = this.openNewMBase(bbs.cursub_code);
+	  var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
 
 	  /*if (userSettings.debug.navigation) {
 	    console.putmsg(yellow + msg_area.sub[bbs.cursub_code].index + ": " +
@@ -305,7 +305,7 @@ msg_base = {
 
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
 	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
-	      this.scanSub(msg_area.sub[bbs.cursub_code], true);
+	      msg_base.scanSub(msg_area.sub[bbs.cursub_code], true);
 	    }
 	  //}
 	  docIface.nav.findNew();
@@ -827,7 +827,7 @@ msg_base = {
 	    sBoard.code + "\tindices size: " + indices.length + "\n");
 	}
 
-	mBase = this.openNewMBase(sBoard.code);
+	mBase = msg_base.util.openNewMBase(sBoard.code);
 
 	if (mBase === null) {
 	    if (userSettings.debug.message_scan) {
