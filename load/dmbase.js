@@ -305,7 +305,9 @@ msg_base = {
 
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
 	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
-	      msg_base.scanSub(msg_area.sub[bbs.cursub_code], true);
+	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
+                               msg_base.util.remap_message_indices(mBase),
+                               true);
 	    }
 	  //}
 	  docIface.nav.findNew();
@@ -584,7 +586,7 @@ msg_base = {
             break;
           //other functionality tie-ins
           case 'w':
-//normal wholist
+            //normal wholist
             wholist.list_long(wholist.populate());
             break;
           case 'W':     //short wholist

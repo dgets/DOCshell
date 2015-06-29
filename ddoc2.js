@@ -309,7 +309,11 @@ docIface = {
 	    docIface.util.quitDdoc();
 	  }
 	  ouah = "Mail";	//vestigial?
-	} else {
+	} else if (uChoice == "") {
+          //abort
+          console.putmsg(yellow + "Aborted jump to new room . . .\n");
+          return;
+        } else {
 	  try {
 	    ouah = this.chk4Room(uChoice);
 	  } catch (e) {
@@ -329,7 +333,7 @@ docIface = {
 	  }
 	}
 
-	if (ouah == "Mail") {
+	if (ouah == "MAIL") {
 	  bbs.log_str("Jumped to Mail");
 	} else {
 	  bbs.log_str("Jumped to " + this.setSub(ouah));
