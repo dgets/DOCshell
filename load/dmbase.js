@@ -295,6 +295,10 @@ msg_base = {
 	 *	move to the next room with unread messages
 	 */
         readNew : function() {
+          if (userSettings.debug.message_scan) {
+              console.putmsg(green + "openNewMBase(" + high_intensity +
+                  bbs.cursub_code + normal + green + ");\n");
+          }
 	  var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
 
 	  /*if (userSettings.debug.navigation) {
@@ -306,7 +310,7 @@ msg_base = {
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
 	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
 	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
-                               msg_base.util.remap_message_indices(mBase),
+                               msg_base.util.remap_message_indices(mBase.code),
                                true);
 	    }
 	  //}
@@ -411,65 +415,55 @@ msg_base = {
          *       'current' index since we're remapping the whole lot of 'em
          */
     remap_message_indices : function(mBase) {
-            var msgMap = new Array(), curHdr = new Object();
-            var curPtr = 0;
+        var msgMap = new Array(), curHdr = new Object();
+        var curPtr = 0;
 
-            if (!mBase.is_open()) {
-                if (userSettings.debug.message_scan) {
-                    console.putmsg(cyan + "Opening " + mBase.cfg.name + " for" +
-                        " message mapping. . .\n");
-                }
-                try {
-                    mBase.open();
-                } catch (e) {
-                    throw new docIface.dDocException("remap_message_indices" +
-                      "() Exception", e.message, 1);
-                }
-            }
+        mBase = this.openNewMBase(mBase.code);
 
+        if (userSettings.debug.message_scan) {
+            console.putmsg(yellow + "Remapping:\n");
+        }
+
+        for (var ndx = mBase.first_msg; ndx <= mBase.last_msg; ndx++) {
             if (userSettings.debug.message_scan) {
-                console.putmsg(yellow + "Remapping:\n");
-            }
-            for (var ndx = mBase.first_msg; ndx <= mBase.last_msg; ndx++) {
-                if (userSettings.debug.message_scan) {
-                    console.clearline();
-                }
-
-                try {
-                    curHdr = mBase.get_msg_header(ndx);
-                } catch (e) {
-                    console.putmsg("Exception getting header: " + e.message +
-                        "\n");
-                    mBase.close();
-                    throw new docIface.dDocException("remap_message_indices" +
-                        "() Exception", e.message, 2);
-                }
-
-                if ((curHdr == null) || (curHdr.attr&MSG_DELETED)) {
-                    continue;   //skip this shit, we don't want this indexed
-                } else {
-                  if (userSettings.debug.message_scan) {
-                    console.putmsg(yellow + high_intensity + ndx + " to " +
-                      curPtr);
-                  }
-                  msgMap[curPtr++] = ndx;
-                }
+                console.clearline();
             }
 
-            if (msgMap.length == 0) {
-                console.putmsg(red + "No messages found for mapping\n");
-                throw new docIface.dDocException("remap_message_indices()" +
-                    " Exception", "No messages in " + mBase.cfg.name +
-                    " for mapping!", 3);
+            try {
+                curHdr = mBase.get_msg_header(ndx);
+            } catch (e) {
+                console.putmsg("Exception getting header: " + e.message +
+                    "\n");
+                mBase.close();
+                throw new docIface.dDocException("remap_message_indices" +
+                    "() Exception", e.message, 2);
             }
 
-            if (userSettings.debug.message_scan) {
-                console.putmsg(green + "Returning message mapping: " + msgMap +
-                    "\nFor base: " + mBase.cfg.name + "\n");
+            if ((curHdr == null) || (curHdr.attr&MSG_DELETED)) {
+                continue;   //skip this shit, we don't want this indexed
+            } else {
+              if (userSettings.debug.message_scan) {
+                console.putmsg(yellow + high_intensity + ndx + " to " +
+                  curPtr);
+              }
+              msgMap[curPtr++] = ndx;
             }
+        }
 
-            mBase.close();
-            return msgMap;
+        if (msgMap.length == 0) {
+            console.putmsg(red + "No messages found for mapping\n");
+            throw new docIface.dDocException("remap_message_indices()" +
+                " Exception", "No messages in " + mBase.cfg.name +
+                " for mapping!", 3);
+        }
+
+        if (userSettings.debug.message_scan) {
+            console.putmsg(green + "Returning message mapping: " + msgMap +
+                "\nFor base: " + mBase.cfg.name + "\n");
+        }
+
+        mBase.close();
+        return msgMap;
     },
 	/*
 	 * summary:

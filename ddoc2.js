@@ -238,10 +238,13 @@ docIface = {
 	var ndx = subList[bbs.cursub].index;
 	var mBase;
 
-	if (userSettings.debug.navigation) {
+	if (userSettings.debug.message_scan) {
 	  console.putmsg(yellow + "Entering findNew()\nWorking with subList" +
-	    " of length: " + subList.length + "\nContents: " + 
-	    subList.toString() + "\n");
+	    " of length " + subList.length + "; contents:\n");
+          for each(var tmpSub in subList) {
+              console.putmsg("* " + cyan + tmpSub.name + "\n");
+          }
+          console.putmsg("\n");
 	}
 
 	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
