@@ -890,7 +890,12 @@ msg_base = {
 		    //break;
 		case 0:		// Next message
 		    if (userSettings.debug.message_scan) {
-			console.putmsg("DEBUG: Next Msg\n");
+			//console.putmsg("DEBUG: Next Msg\n");
+                        console.putmsg(high_intensity + "tmpPtr: " + normal +
+                            tmpPtr + "\t" + high_intensity + "indices.length: "
+                            + normal + indices.length + "\t" + high_intensity +
+                            "indices[tmpPtr]: " + normal + indices[tmpPtr] +
+                            "\n");
 		    }
 		    if ((tmpPtr <= 0) && (inc == -1)) {
 			mBase.close();
@@ -904,7 +909,7 @@ msg_base = {
 			while (this.dispMsg(mBase, indices[tmpPtr], true)
                                 == null) {
 			  tmpPtr += inc;
-			  if ((tmpPtr == 0) || (tmpPtr > indices.length)) {
+			  if ((tmpPtr == 0) || (tmpPtr >= indices.length)) {
 			    break;
 			  }
 			}
