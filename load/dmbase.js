@@ -391,7 +391,7 @@ msg_base = {
 
         while (tmpPtr <= mb.last_msg) {
             if (((mHdr = mb.get_msg_header(tmpPtr)) == null) ||
-                (mHdr.attr & MSG_DELETED)) {
+                (mHdr.attr & MSG_DELETE)) {
                 tmpPtr++;
             } else {
                 return true;
@@ -438,7 +438,7 @@ msg_base = {
                     "() Exception", e.message, 2);
             }
 
-            if ((curHdr == null) || (curHdr.attr&MSG_DELETED)) {
+            if ((curHdr == null) || (curHdr.attr&MSG_DELETE)) {
                 continue;   //skip this shit, we don't want this indexed
             } else {
               if (userSettings.debug.message_scan) {
