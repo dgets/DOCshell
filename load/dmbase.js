@@ -297,25 +297,24 @@ msg_base = {
         readNew : function() {
           if (userSettings.debug.message_scan) {
               console.putmsg(green + "openNewMBase(" + high_intensity +
-                  bbs.cursub_code + normal + green + ");\n");
+                  bbs.cursub_code + normal + green + ");\nWorking with " +
+                  "user.cursub: " + user.cursub + "\n");
           }
 	  var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
 
-	  /*if (userSettings.debug.navigation) {
-	    console.putmsg(yellow + msg_area.sub[bbs.cursub_code].index + ": " +
-	      roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index) +
-	      "\n");
-	  }*/
-
+          if (userSettings.debug.message_scan) {
+              console.putmsg("Made it past openNewMBase();\n");
+          }
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
-	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
+	    if (msg_area.sub[bbs.cursub_code].scan_ptr <= mBase.total_msgs) {
 	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
-                               msg_base.util.remap_message_indices(mBase.code),
+                               msg_base.util.remap_message_indices(
+                                                mBase),
                                true);
 	    }
 	  //}
-	  docIface.nav.findNew();
 	  mBase.close();
+          docIface.nav.findNew();
 	  return;
         }
   },
@@ -339,7 +338,7 @@ msg_base = {
        *    away from the error code passing shit through returns
        */
     openNewMBase : function(mb) {
-        try {  
+        //try {
 	  //take care of this in calling code
           //mBase.close();
           mBase = new MsgBase(mb);
@@ -355,13 +354,13 @@ msg_base = {
             console.putmsg(red + "Opened: " + mb +
         	           " allegedly . . .\n");
           }
-        } catch (e) {
+        /* } catch (e) {
           console.putmsg(red + "Error opening new mBase:\n"
 		+ e.toString() + "\n");
           log("Error skipping through scanSub(): " +
             e.toString());
           throw new dDocException("openNewMBase() Error", e.message, 2);
-        }
+        } */
 
 	return mBase;
     },
@@ -418,7 +417,7 @@ msg_base = {
         var msgMap = new Array(), curHdr = new Object();
         var curPtr = 0;
 
-        mBase = this.openNewMBase(mBase.code);
+        mBase = this.openNewMBase(mBase.cfg.code);
 
         if (userSettings.debug.message_scan) {
             console.putmsg(yellow + "Remapping:\n");
@@ -817,11 +816,11 @@ msg_base = {
   scanSub : function(sBoard, indices, forward) {
 	var tmpPtr, inc, choice = 0;
 
-	if (userSettings.debug.message_scan) {
+	//if (userSettings.debug.navigation) {
 	  console.putmsg("Entered scanSub(); forward = " + forward +
 	    "  user.cursub: " + user.cursub + "\nsBoard.code: " +
 	    sBoard.code + "\tindices size: " + indices.length + "\n");
-	}
+	//}
 
 	mBase = msg_base.util.openNewMBase(sBoard.code);
 
@@ -838,7 +837,7 @@ msg_base = {
             tmpPtr = 0;     //start from the beginning of these indices
         }
 
-	if (userSettings.debug.message_scan) {
+	//if (userSettings.debug.message_scan) {
 	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
           console.putmsg("sBoard.ptridx = " + sBoard.ptridx + "\n");
           console.putmsg("tmpPtr = " + tmpPtr + "\n");
@@ -847,7 +846,7 @@ msg_base = {
 	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
 	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
 	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
-	}
+	//}
 	
 	if (forward) {
             inc = 1;
