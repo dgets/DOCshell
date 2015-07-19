@@ -306,7 +306,7 @@ msg_base = {
               console.putmsg("Made it past openNewMBase();\n");
           }
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
-	    if (msg_area.sub[bbs.cursub_code].scan_ptr <= mBase.total_msgs) {
+	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
 	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
                                msg_base.util.remap_message_indices(
                                                 mBase),
@@ -722,7 +722,7 @@ msg_base = {
 
         //this should be swapped out for proper message base open validation
 	if (!base.is_open) {
-	  //let's give this a shot
+	  //let's give this a shotjoin
 	  if (userSettings.debug.message_scan) {
 	    console.putmsg(yellow + "base was closed; reopening\n");
 	  }

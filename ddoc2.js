@@ -255,9 +255,7 @@ docIface = {
 		  + "\n");
 	    }
 
-	    if (!roomData.tieIns.isZapped(ndx)
-					/*msg_area.sub[bbs.cursub_code].index)*/
-		) {
+	    if (!roomData.tieIns.isZapped(ndx)) {
 		if (userSettings.debug.navigation) {
 		  console.putmsg("Room not zapped\n");
 		}
@@ -267,7 +265,7 @@ docIface = {
 		  break;
 		}
 
-		if (subList[ndx].scan_ptr != mBase.total_msgs) {
+		if (subList[ndx].scan_ptr < mBase.total_msgs) {
 		    docIface.nav.setSub(subList[ndx]);
 		    mBase.close();
 		    return subList[ndx];
