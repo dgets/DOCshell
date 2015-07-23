@@ -256,12 +256,15 @@ docIface = {
 	    }
 
 	    if (!roomData.tieIns.isZapped(ndx)) {
-		if (userSettings.debug.navigation) {
-		  console.putmsg("Room not zapped\n");
-		}
-
 		mBase = msg_base.util.openNewMBase(subList[ndx].code);
-		if (mBase == null) {
+
+		if (userSettings.debug.navigation) {
+		  console.putmsg("Room not zapped\t\tscan_ptr: " +
+                      subList[ndx].scan_ptr + "\t\ttotal: " +
+                      mBase.total_msgs + "\n");
+		}
+                
+                if (mBase == null) {
 		  break;
 		}
 
@@ -269,7 +272,14 @@ docIface = {
 		    docIface.nav.setSub(subList[ndx]);
 		    mBase.close();
 		    return subList[ndx];
-		}
+		} else if (subList[ndx].scan_ptr > mBase.total_msg) {
+                    //we've got some corrupt shit to fix here; not sure how it
+                    //happened but we might as well have a way to fix it
+                    subList[ndx].scan_ptr = mBase.first_msg;
+                    if (userSettings.debug.navigation) {
+                        console.putmsg(yellow + " just fixed scan ptrs\n");
+                    }
+                }
 		mBase.close();
 	    }
 	}
@@ -712,6 +722,7 @@ if (!debugOnly) {
 		case 'o':
 		case 'k':
 		case '-':
+                case '%':
 		  msg_base.entry_level.handler(uchoice);
 		  break;
 		//other msg base shit

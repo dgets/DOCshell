@@ -311,8 +311,15 @@ msg_base = {
                                msg_base.util.remap_message_indices(
                                                 mBase),
                                true);
-	    }
-	  //}
+	    } /* else if (msg_area.sub[bbs.cursub_code].scan_ptr >
+                            mBase.total_msgs) {
+              //let's reset this to something sane just to get it working again
+              //for now; we'll worry about doing it correctly later
+
+              msg_area.sub[bbs.cursub_code].scan_ptr = mBase.first_msg;
+
+            }
+	  //} */
 	  mBase.close();
           docIface.nav.findNew();
 	  return;
@@ -590,7 +597,11 @@ msg_base = {
             break;
 	  case 'l':	//logout
 	    docIface.util.quitDdoc();
-	    break; 
+	    break;
+          case '%':     //reset message pointers
+            var board = msg_area.sub[bbs.cursub_code];
+            board.scan_ptr = 0;
+            break;
           default:
             if (userSettings.debug.navigation) {
               console.putmsg("\nNot handled yet . . .\n\n");
