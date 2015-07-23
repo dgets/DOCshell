@@ -915,7 +915,8 @@ msg_base = {
 			return 1;   // skip to next room
 		    }
 		    tmpPtr += inc;
-		    if ((tmpPtr >= 0) && (tmpPtr <= indices.length)) {
+                    try {
+		      if ((tmpPtr >= 0) && (tmpPtr <= indices.length)) {
 			while (this.dispMsg(mBase, indices[tmpPtr], true)
                                 == null) {
 			  tmpPtr += inc;
@@ -927,7 +928,11 @@ msg_base = {
 			if (inc == 1) {
                             sBoard.scan_ptr = indices[tmpPtr];
                         }
-		    }
+		      }
+                    } catch (e) {
+                        console.putmsg(yellow + "Uncaught exception from " +
+                            "dispMsg(): " + e.message + "\n");
+                    }
 		    break;
 		default:
 		    console.putmsg(red + "\nUnexpected value from rcChoice: "
