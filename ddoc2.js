@@ -238,10 +238,13 @@ docIface = {
 	var ndx = subList[bbs.cursub].index;
 	var mBase;
 
-	if (userSettings.debug.navigation) {
+	if (userSettings.debug.message_scan) {
 	  console.putmsg(yellow + "Entering findNew()\nWorking with subList" +
-	    " of length: " + subList.length + "\nContents: " + 
-	    subList.toString() + "\n");
+	    " of length " + subList.length + "; contents:\n");
+          for each(var tmpSub in subList) {
+              console.putmsg("* " + cyan + tmpSub.name + "\n");
+          }
+          console.putmsg("\n");
 	}
 
 	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
@@ -252,23 +255,31 @@ docIface = {
 		  + "\n");
 	    }
 
-	    if (!roomData.tieIns.isZapped(ndx)
-					/*msg_area.sub[bbs.cursub_code].index)*/
-		) {
-		if (userSettings.debug.navigation) {
-		  console.putmsg("Room not zapped\n");
-		}
+	    if (!roomData.tieIns.isZapped(ndx)) {
+		mBase = msg_base.util.openNewMBase(subList[ndx].code);
 
-		mBase = msg_base.openNewMBase(subList[ndx].code);
-		if (mBase == null) {
+		if (userSettings.debug.navigation) {
+		  console.putmsg("Room not zapped\t\tscan_ptr: " +
+                      subList[ndx].scan_ptr + "\t\ttotal: " +
+                      mBase.total_msgs + "\n");
+		}
+                
+                if (mBase == null) {
 		  break;
 		}
 
-		if (subList[ndx].scan_ptr != mBase.total_msgs) {
+		if (subList[ndx].scan_ptr < mBase.total_msgs) {
 		    docIface.nav.setSub(subList[ndx]);
 		    mBase.close();
 		    return subList[ndx];
-		}
+		} else if (subList[ndx].scan_ptr > mBase.total_msg) {
+                    //we've got some corrupt shit to fix here; not sure how it
+                    //happened but we might as well have a way to fix it
+                    subList[ndx].scan_ptr = mBase.first_msg;
+                    if (userSettings.debug.navigation) {
+                        console.putmsg(yellow + " just fixed scan ptrs\n");
+                    }
+                }
 		mBase.close();
 	    }
 	}
@@ -309,7 +320,11 @@ docIface = {
 	    docIface.util.quitDdoc();
 	  }
 	  ouah = "Mail";	//vestigial?
-	} else {
+	} else if (uChoice == "") {
+          //abort
+          console.putmsg(yellow + "Aborted jump to new room . . .\n");
+          return;
+        } else {
 	  try {
 	    ouah = this.chk4Room(uChoice);
 	  } catch (e) {
@@ -329,7 +344,7 @@ docIface = {
 	  }
 	}
 
-	if (ouah == "Mail") {
+	if (ouah == "MAIL") {
 	  bbs.log_str("Jumped to Mail");
 	} else {
 	  bbs.log_str("Jumped to " + this.setSub(ouah));
@@ -707,6 +722,7 @@ if (!debugOnly) {
 		case 'o':
 		case 'k':
 		case '-':
+                case '%':
 		  msg_base.entry_level.handler(uchoice);
 		  break;
 		//other msg base shit

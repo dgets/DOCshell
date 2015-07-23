@@ -235,7 +235,7 @@ poast = {
 
         //going to use a generic subject for now; ignoring it from the
         //ddoc interface completely to see how it goes
-	this.getMsgBody(upload, base, recip);
+	this.getMsgBody(/*upload,*/ base, recip);
 
 	//turn instant messages back on
 	bbs.sys_status |= SS_MOFF;
