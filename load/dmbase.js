@@ -113,7 +113,7 @@ msg_base = {
 		  break;
                 case 'b':	//change scan direction
 		  bbs.log_key("b");
-                  valid = true;hollaBack = 2;
+                  valid = true; hollaBack = 2;
 		  docIface.log_str_n_char(this.log_header, 'b');
                   console.putmsg(green + high_intensity + "Back (change " +
                         "direction)...\n");
@@ -288,6 +288,41 @@ msg_base = {
           }
 
         return hollaBack;
+        },
+        /*
+	 * summary:
+	 *	Read any new messages in the current room, then call findNew to
+	 *	move to the next room with unread messages
+	 */
+        readNew : function() {
+          if (userSettings.debug.message_scan) {
+              console.putmsg(green + "openNewMBase(" + high_intensity +
+                  bbs.cursub_code + normal + green + ");\nWorking with " +
+                  "user.cursub: " + user.cursub + "\n");
+          }
+	  var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
+
+          if (userSettings.debug.message_scan) {
+              console.putmsg("Made it past openNewMBase();\n");
+          }
+	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
+	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
+	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
+                               msg_base.util.remap_message_indices(
+                                                mBase),
+                               true);
+	    } /* else if (msg_area.sub[bbs.cursub_code].scan_ptr >
+                            mBase.total_msgs) {
+              //let's reset this to something sane just to get it working again
+              //for now; we'll worry about doing it correctly later
+
+              msg_area.sub[bbs.cursub_code].scan_ptr = mBase.first_msg;
+
+            }
+	  //} */
+	  mBase.close();
+          docIface.nav.findNew();
+	  return;
         }
   },
   /*
@@ -297,6 +332,81 @@ msg_base = {
    *	messages
    */
   util : {
+      /*
+       * summary:
+       *	Opens a new message base (modularizing); doesn't use proper 
+       *	exception throwing
+       * mb:
+       *	Code of the new message base to open
+       * return:
+       *	new message base object (already open), or 'null' for error
+       * NOTE:
+       *    this needs to be changed to throw an exception for error, let's get
+       *    away from the error code passing shit through returns
+       */
+    openNewMBase : function(mb) {
+        //try {
+	  //take care of this in calling code
+          //mBase.close();
+          mBase = new MsgBase(mb);
+	  try {
+            mBase.open();
+          } catch (e) {
+              console.putmsg(red + "Ername: " + e.name + "mBase.error: " +
+                  e.message + "\n");
+              throw new dDocException("openNewMBase() Error", e.message, 1);
+          }
+
+          if (userSettings.debug.message_scan) {
+            console.putmsg(red + "Opened: " + mb +
+        	           " allegedly . . .\n");
+          }
+        /* } catch (e) {
+          console.putmsg(red + "Error opening new mBase:\n"
+		+ e.toString() + "\n");
+          log("Error skipping through scanSub(): " +
+            e.toString());
+          throw new dDocException("openNewMBase() Error", e.message, 2);
+        } */
+
+	return mBase;
+    },
+        /*
+         * summary:
+         *      Method determines whether or not there are any messages
+         *      remaining to be read in a sub that are not deleted, etc
+         * mBase:
+         *      Base to be tested for unread messages
+         * return:
+         *      Boolean regarding whether or not valid unread messages still
+         *      exist for this room
+         */
+    hasUnread : function(mBase) {
+        var mb = this.openNewMBase(mBase);
+        var mHdr;
+
+        if (mb == null) {
+            throw new dDocException("hasUnread() Error",
+                "Error getting valid open base back from openNewMBase()", 1);
+        }
+
+        var tmpPtr = msg_area.sub[mb.code].scan_ptr;
+
+        if (tmpPtr == mb.last_msg) {
+            return false;
+        }
+
+        while (tmpPtr <= mb.last_msg) {
+            if (((mHdr = mb.get_msg_header(tmpPtr)) == null) ||
+                (mHdr.attr & MSG_DELETE)) {
+                tmpPtr++;
+            } else {
+                return true;
+            }
+        }
+
+        return false;
+    },
         /*
          * summary:
          *      Method remaps message start through finish for a room/sub-board
@@ -311,65 +421,55 @@ msg_base = {
          *       'current' index since we're remapping the whole lot of 'em
          */
     remap_message_indices : function(mBase) {
-            var msgMap = new Array(), curHdr = new Object();
-            var curPtr = 0;
+        var msgMap = new Array(), curHdr = new Object();
+        var curPtr = 0;
 
-            if (!mBase.is_open()) {
-                if (userSettings.debug.message_scan) {
-                    console.putmsg(cyan + "Opening " + mBase.cfg.name + " for" +
-                        " message mapping. . .\n");
-                }
-                try {
-                    mBase.open();
-                } catch (e) {
-                    throw new docIface.dDocException("remap_message_indices" +
-                      "() Exception", e.message, 1);
-                }
-            }
+        mBase = this.openNewMBase(mBase.cfg.code);
 
+        if (userSettings.debug.message_scan) {
+            console.putmsg(yellow + "Remapping:\n");
+        }
+
+        for (var ndx = mBase.first_msg; ndx <= mBase.last_msg; ndx++) {
             if (userSettings.debug.message_scan) {
-                console.putmsg(yellow + "Remapping:\n");
-            }
-            for (var ndx = mBase.first_msg; ndx <= mBase.last_msg; ndx++) {
-                if (userSettings.debug.message_scan) {
-                    console.clearline();
-                }
-
-                try {
-                    curHdr = mBase.get_msg_header(ndx);
-                } catch (e) {
-                    console.putmsg("Exception getting header: " + e.message +
-                        "\n");
-                    mBase.close();
-                    throw new docIface.dDocException("remap_message_indices" +
-                        "() Exception", e.message, 2);
-                }
-
-                if ((curHdr == null) || (curHdr.attr&MSG_DELETED)) {
-                    continue;   //skip this shit, we don't want this indexed
-                } else {
-                  if (userSettings.debug.message_scan) {
-                    console.putmsg(yellow + high_intensity + ndx + " to " +
-                      curPtr);
-                  }
-                  msgMap[curPtr++] = ndx;
-                }
+                console.clearline();
             }
 
-            if (msgMap.length == 0) {
-                console.putmsg(red + "No messages found for mapping\n");
-                throw new docIface.dDocException("remap_message_indices()" +
-                    " Exception", "No messages in " + mBase.cfg.name +
-                    " for mapping!", 3);
+            try {
+                curHdr = mBase.get_msg_header(ndx);
+            } catch (e) {
+                console.putmsg("Exception getting header: " + e.message +
+                    "\n");
+                mBase.close();
+                throw new docIface.dDocException("remap_message_indices" +
+                    "() Exception", e.message, 2);
             }
 
-            if (userSettings.debug.message_scan) {
-                console.putmsg(green + "Returning message mapping: " + msgMap +
-                    "\nFor base: " + mBase.cfg.name + "\n");
+            if ((curHdr == null) || (curHdr.attr&MSG_DELETE)) {
+                continue;   //skip this shit, we don't want this indexed
+            } else {
+              if (userSettings.debug.message_scan) {
+                console.putmsg(yellow + high_intensity + ndx + " to " +
+                  curPtr);
+              }
+              msgMap[curPtr++] = ndx;
             }
+        }
 
-            mBase.close();
-            return msgMap;
+        if (msgMap.length == 0) {
+            console.putmsg(red + "No messages found for mapping\n");
+            throw new docIface.dDocException("remap_message_indices()" +
+                " Exception", "No messages in " + mBase.cfg.name +
+                " for mapping!", 3);
+        }
+
+        if (userSettings.debug.message_scan) {
+            console.putmsg(green + "Returning message mapping: " + msgMap +
+                "\nFor base: " + mBase.cfg.name + "\n");
+        }
+
+        mBase.close();
+        return msgMap;
     },
 	/*
 	 * summary:
@@ -448,8 +548,7 @@ msg_base = {
           case 'n':     //read new
 	    console.putmsg(green + high_intensity + "Read new\n");
 	    try {
-
-		msg_base.readNew();
+		msg_base.read_cmd.readNew();
 	    } catch (e) {
 		console.putmsg(yellow + "Exception reading new: " +
 		      e.toString() + "\n");
@@ -471,7 +570,7 @@ msg_base = {
           case 'e':     //enter a normal message
 	    console.putmsg(green + high_intensity + "Enter message\n");
 
-	    base = msg_base.openNewMBase(user.cursub);
+	    base = msg_base.util.openNewMBase(user.cursub);
 	    if (base === null) {
 		console.putmsg(yellow + "Could not open MsgBase: "
 		      + user.cursub + "\n");
@@ -487,7 +586,7 @@ msg_base = {
             break;
           //other functionality tie-ins
           case 'w':
-//normal wholist
+            //normal wholist
             wholist.list_long(wholist.populate());
             break;
           case 'W':     //short wholist
@@ -498,7 +597,11 @@ msg_base = {
             break;
 	  case 'l':	//logout
 	    docIface.util.quitDdoc();
-	    break; 
+	    break;
+          case '%':     //reset message pointers
+            var board = msg_area.sub[bbs.cursub_code];
+            board.scan_ptr = 0;
+            break;
           default:
             if (userSettings.debug.navigation) {
               console.putmsg("\nNot handled yet . . .\n\n");
@@ -628,8 +731,9 @@ msg_base = {
 	    "\tbreaks: " + breaks + "\n");
 	}
 
+        //this should be swapped out for proper message base open validation
 	if (!base.is_open) {
-	  //let's give this a shot
+	  //let's give this a shotjoin
 	  if (userSettings.debug.message_scan) {
 	    console.putmsg(yellow + "base was closed; reopening\n");
 	  }
@@ -699,45 +803,6 @@ msg_base = {
 
 	return 0;
   },
-  /*
-   * summary:
-   *	Opens a new message base (modularizing); doesn't use proper exception
-   *	throwing
-   * mb:
-   *	Code of the new message base to open
-   * return:
-   *	new message base object (already open), or 'null' for error
-   * NOTE:
-   *    this needs to be changed to throw an exception for error, let's get
-   *    away from the error code passing shit through returns
-   */
-  openNewMBase : function(mb) {
-        try {  
-	  //take care of this in calling code
-          //mBase.close();
-          mBase = new MsgBase(mb);
-	  try {
-            mBase.open();
-          } catch (e) {
-              console.putmsg(red + "Ername: " + e.name + "mBase.error: " +
-                  e.message + "\n");
-              throw new dDocException("openNewMBase() Error", e.message, 1);
-          }
-
-          if (userSettings.debug.message_scan) {
-            console.putmsg(red + "Opened: " + mb +
-        	           " allegedly . . .\n");
-          }
-        } catch (e) {
-          console.putmsg(red + "Error opening new mBase:\n"
-		+ e.toString() + "\n");
-          log("Error skipping through scanSub(): " +
-            e.toString());
-          throw new dDocException("openNewMBase() Error", e.message, 2);
-        }
-
-	return mBase;
-  },
 	/*
 	 * summary:
 	 *	Sequentially scans for new messages within one
@@ -746,6 +811,9 @@ msg_base = {
          *	to be using exception handling instead of passing error codes
 	 * sBoard: String
 	 *	Synchronet Sub-board object
+         * indices: Array
+         *      Freshly remapped array indices conveniently skipping any deleted
+         *      messages or other crap that we don't need to worry about
 	 * forward: Boolean
 	 *	true for forward read & converse
 	 * return:
@@ -756,16 +824,16 @@ msg_base = {
          *      make sure that we're not using return for error codes; a proper
          *      exception throwing model really needs to be adhered to
 	 */
-  scanSub : function(sBoard, forward) {
+  scanSub : function(sBoard, indices, forward) {
 	var tmpPtr, inc, choice = 0;
 
-	if (userSettings.debug.message_scan) {
+	//if (userSettings.debug.navigation) {
 	  console.putmsg("Entered scanSub(); forward = " + forward +
 	    "  user.cursub: " + user.cursub + "\nsBoard.code: " +
-	    sBoard.code + "\n");
-	}
+	    sBoard.code + "\tindices size: " + indices.length + "\n");
+	//}
 
-	mBase = this.openNewMBase(sBoard.code);
+	mBase = msg_base.util.openNewMBase(sBoard.code);
 
 	if (mBase === null) {
 	    if (userSettings.debug.message_scan) {
@@ -775,26 +843,33 @@ msg_base = {
 		  "Error in openNewMBase()", 1);
 	}
 
-	tmpPtr = sBoard.scan_ptr;
-        //tmpPtr = sBoard.ptridx;
-        //tmpPtr = mBase.cfg.ptridx;
-	if (userSettings.debug.message_scan) {
+	//tmpPtr = sBoard.scan_ptr;     //old way to handle this
+        if ((tmpPtr = indices.indexOf(sBoard.scan_ptr)) == -1) {
+            tmpPtr = 0;     //start from the beginning of these indices
+        }
+
+	//if (userSettings.debug.message_scan) {
 	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
           console.putmsg("sBoard.ptridx = " + sBoard.ptridx + "\n");
+          console.putmsg("tmpPtr = " + tmpPtr + "\n");
+          console.putmsg("indices[tmpPtr] = " + indices[tmpPtr] + "\n");
           console.putmsg("mBase.cfg.ptridx = " + mBase.cfg.ptridx + "\n");
 	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
 	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
 	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
-	}
+	//}
 	
-	if (forward) {inc = 1;} else {inc = -1;}
+	if (forward) {
+            inc = 1;
+        } else {
+            inc = -1;
+        }
 	
 	// if starting in reverse from the room prompt, unskip one message
 	if (!forward) {
             tmpPtr += 1;  // so we start with the most recently read
                           // message.  In all other cases we want to skip one.
         }
-	
 	
 	if (userSettings.debug.message_scan) {
 	  console.putmsg("Inc: " + inc + "\tbased on forward\n");
@@ -825,26 +900,39 @@ msg_base = {
 		    //break;
 		case 0:		// Next message
 		    if (userSettings.debug.message_scan) {
-			console.putmsg("DEBUG: Next Msg\n");
+			//console.putmsg("DEBUG: Next Msg\n");
+                        console.putmsg(high_intensity + "tmpPtr: " + normal +
+                            tmpPtr + "\t" + high_intensity + "indices.length: "
+                            + normal + indices.length + "\t" + high_intensity +
+                            "indices[tmpPtr]: " + normal + indices[tmpPtr] +
+                            "\n");
 		    }
 		    if ((tmpPtr <= 0) && (inc == -1)) {
 			mBase.close();
 			return 0; // do we reverse scan from room to room also?
-		    } else if ((tmpPtr >= mBase.total_msgs) && (inc == 1)) {
+		    } else if ((tmpPtr >= indices.length) && (inc == 1)) {
 			mBase.close();
 			return 1;   // skip to next room
 		    }
 		    tmpPtr += inc;
-		    if ((tmpPtr >= 0) && (tmpPtr <= mBase.total_msgs)) {
-			while (this.dispMsg(mBase, tmpPtr, true) == null) {
+                    try {
+		      if ((tmpPtr >= 0) && (tmpPtr <= indices.length)) {
+			while (this.dispMsg(mBase, indices[tmpPtr], true)
+                                == null) {
 			  tmpPtr += inc;
-			  if ((tmpPtr == 0) || (tmpPtr > mBase.total_msgs)) {
+			  if ((tmpPtr == 0) || (tmpPtr >= indices.length)) {
 			    break;
 			  }
 			}
 			//this.dispMsg(mBase, tmpPtr, true);
-			if (inc == 1) sBoard.scan_ptr = tmpPtr;
-		    }
+			if (inc == 1) {
+                            sBoard.scan_ptr = indices[tmpPtr];
+                        }
+		      }
+                    } catch (e) {
+                        console.putmsg(yellow + "Uncaught exception from " +
+                            "dispMsg(): " + e.message + "\n");
+                    }
 		    break;
 		default:
 		    console.putmsg(red + "\nUnexpected value from rcChoice: "
@@ -856,36 +944,12 @@ msg_base = {
 		console.putmsg(red + "End of scanSub() main loop\n"
 		      + "tmpPtr: " + tmpPtr + "\tinc: " + inc + "\n");
 	    }
-	    choice = this.read_cmd.rcChoice(mBase, tmpPtr);
+	    choice = this.read_cmd.rcChoice(mBase, indices[tmpPtr]);
 	}
 
 	mBase.close();
 	if (userSettings.debug.message_scan) {
 	  console.putmsg(red + "Closed mBase: " + sBoard.code + "\n");
 	}
-    },
-	/*
-	 * summary:
-	 *	Read any new messages in the current room, then call findNew to
-	 *	move to the next room with unread messages
-	 */
-    readNew : function() {
-	var mBase = this.openNewMBase(bbs.cursub_code);
-
-	/*if (userSettings.debug.navigation) {
-	  console.putmsg(yellow + msg_area.sub[bbs.cursub_code].index + ": " +
-	    roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index) +
-	    "\n");
-	}*/
-
-	//if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
-	  if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
-	    this.scanSub(msg_area.sub[bbs.cursub_code], true);
-	  }
-	//}
-	docIface.nav.findNew();
-	mBase.close();
-	return;
     }
-
 }
