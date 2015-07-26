@@ -236,7 +236,8 @@ docIface = {
     findNew : function() {
 	var subList = msg_area.grp_list[bbs.curgrp].sub_list;
 	var ndx = subList[bbs.cursub].index;
-	var mBase;
+	var mBase, mMsgList;
+        var newMail = false, mNdx = 0;
 
 	if (userSettings.debug.message_scan) {
 	  console.putmsg(yellow + "Entering findNew()\nWorking with subList" +
@@ -247,6 +248,38 @@ docIface = {
           console.putmsg("\n");
 	}
 
+        //okay so we need to check out Mail first here (duplicated code that
+        //will need to be refactored, but whatever)
+        mBase = new MsgBase("mail");
+        try {
+            mMsgList = uMail.getMailScanPtr(mBase, mNdx);
+            //hdrList = mBase.get_all_msg_headers();
+
+            for each(var cNdx in mMsgList) {
+                if ((cNdx.attr & MSG_READ) || (cNdx.attr & MSG_KILLREAD) ||
+                    (cNdx.attr & MSG_DELETE)) {
+                        mNdx++;
+                    } else {
+                        newMail = true;
+                        break;
+                    }
+            }
+        } catch (e) {
+            console.putmsg(yellow + high_intensity + "Problem scanning " +
+                "Mail>: " + e.message + "\n");
+            throw new dDocException("findNew() oopthie",
+                "Problem scanning Mail>: " + e.message, 1);
+        }
+
+        //now actually read the mail and shit
+        if (newMail) {
+            if (uMail.readMail() == -1) {
+                //yeah it's terrible, but they've requested a logout :P
+                docIface.util.quitDdoc();
+            }
+        }
+
+        //now start in on looking within the non-mail subs
 	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
 	    if (userSettings.debug.navigation) {
 		console.putmsg(yellow + /*msg_area.sub[bbs.cursub_code].index*/

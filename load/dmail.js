@@ -16,6 +16,11 @@ uMail = {
          * summary:
          *      Method finds the current pseudo-scan_ptr for the mail 
          *      pseudo-sub; throws appropriate exception if errors arise
+         * mmBase:
+         *      MsgBase("mail") object
+         * prevNdx:
+         *      integer index into the array of mail listing; for now it's
+         *      just a 0 passed (where to start the scan?)
          * return:
          *      Returns an array of applicable message indices
          */
@@ -35,6 +40,7 @@ uMail = {
         //message pointer at some point in the future here; just trying to
         //get this working for now
         for (var i = prevNdx; i < mmBase.total_msgs; ++i) {
+          //not sure if the preincrement operator in the loop above is right
           if (userSettings.debug.message_scan) {
             console.putmsg(red + i + " ");
           }
@@ -48,7 +54,8 @@ uMail = {
                 "Unable to read message header(s): " + e.message, 2);
           }
 
-          if (mHdr.to_ext == user.number) {
+          //added messages FROM this user to the list now, as well
+          if ((mHdr.to_ext == user.number) || (mHdr.from_ext == user.number)) {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg("Pushing " + i + " to list\n");
 	    }
@@ -93,10 +100,32 @@ uMail = {
 
         //so that mess should have gotten us the current message index scan
         //pointer (or pseudo-version thereof); now we can start
+        //NOTE: This is not actually happening yet; we need to search through
+        //the pointers, checking the header, for the most recent read one
         mailList = this.getMailScanPtr(mmBase, mNdx);
+
+        try {
+            //headers = mmBase.get_all_msg_headers();
+            for each(var cNdx in mailList) {
+                hdr = mmBase.get_msg_header(cNdx);  //probably want to try/catch
+                if ((hdr.attr & MSG_READ) || (hdr.attr & MSG_KILLREAD) ||
+                    (hdr.attr & MSG_DELETE)) {
+                        mNdx++;
+                    } else {
+                        break;
+                    }
+            }
+        } catch (e) {
+            console.putmsg(cyan + high_intensity + "Unable to pull mmBase " +
+                "headers for scanning purposes\n");
+            throw new dDocException("readMail() exception",
+                "Unable to pull headers to determine current mail message", 5);
+            //leave mNdx at 0; comment out the preceding exception if that's ok
+        }
 
 	if (userSettings.debug.message_scan) {
 	  console.putmsg("Got back mailList: " + mailList.toString() + "\n");
+
 	}
 
 	console.putmsg(yellow + high_intensity + "Mail> ");
