@@ -237,7 +237,7 @@ docIface = {
 	var subList = msg_area.grp_list[bbs.curgrp].sub_list;
 	var ndx = subList[bbs.cursub].index;
 	var mBase, mMsgList;
-        var newMail = false, mNdx = 0;
+        var newMail = false;
 
 	if (userSettings.debug.message_scan) {
 	  console.putmsg(yellow + "Entering findNew()\nWorking with subList" +
@@ -252,17 +252,26 @@ docIface = {
         //will need to be refactored, but whatever)
         mBase = new MsgBase("mail");
         try {
-            mMsgList = uMail.getMailScanPtr(mBase, mNdx);
+            mMsgList = uMail.getMailScanPtr(mBase, 0);  //fix this later
             //hdrList = mBase.get_all_msg_headers();
 
             for each(var cNdx in mMsgList) {
-                if ((cNdx.attr & MSG_READ) || (cNdx.attr & MSG_KILLREAD) ||
+                if (cNdx.to_ext == user.number) {
+                  if (userSettings.debug.message_scan) {
+                      console.putmsg(blue + high_intensity + "Found message " +
+                        "to/from " + user.number + "\n");
+                  }
+                  if ((cNdx.attr & MSG_READ) || (cNdx.attr & MSG_KILLREAD) ||
                     (cNdx.attr & MSG_DELETE)) {
-                        mNdx++;
-                    } else {
+                        //mNdx++;
+                  } else {
+                        if (userSettings.debug.message_scan) {
+                            console.putmsg(green + "New messages found\n");
+                        }
                         newMail = true;
                         break;
-                    }
+                  }
+                }
             }
         } catch (e) {
             console.putmsg(yellow + high_intensity + "Problem scanning " +
