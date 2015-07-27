@@ -256,13 +256,15 @@ docIface = {
             //hdrList = mBase.get_all_msg_headers();
 
             for each(var cNdx in mMsgList) {
-                if (cNdx.to_ext == user.number) {
+                var cPtr = mBase.get_msg_header(cNdx);
+                if (cPtr.to_ext == user.number) {
+                  console.putmsg("Scanning:\t" + cPtr.number + " . . . ");
                   if (userSettings.debug.message_scan) {
                       console.putmsg(blue + high_intensity + "Found message " +
                         "to/from " + user.number + "\n");
                   }
-                  if ((cNdx.attr & MSG_READ) || (cNdx.attr & MSG_KILLREAD) ||
-                    (cNdx.attr & MSG_DELETE)) {
+                  if ((cPtr.attr & MSG_READ) || (cPtr.attr & MSG_KILLREAD) ||
+                    (cPtr.attr & MSG_DELETE)) {
                         //mNdx++;
                   } else {
                         if (userSettings.debug.message_scan) {
