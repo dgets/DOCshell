@@ -48,7 +48,8 @@ uMail = {
                 "Unable to read message header(s): " + e.message, 2);
           }
 
-          if (mHdr.to_ext == user.number) {
+          if ((mHdr.to_ext == user.number) ||
+              (mHdr.from_ext == user.number)) {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg("Pushing " + i + " to list\n");
 	    }
@@ -160,7 +161,8 @@ uMail = {
                 }
 
                 fHdr = "\n" + magenta + high_intensity + mHdr.date + green + 
-                  " from " + cyan + mHdr.from + "\n" + green;
+                  " from " + cyan + mHdr.from + green + " to " + cyan +
+                  mHdr.to + "\n" + green;
 
                 //if (breaks) {
             	  console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into
