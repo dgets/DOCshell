@@ -298,6 +298,8 @@ docIface = {
     jump : function() {
 	var uChoice, ouah;
 
+        console.putmsg(red + "Entered right code\n");
+
 	if (userSettings.debug.navigation) {
 	  console.putmsg(green + "Entered jump()\n");
 	}
@@ -330,7 +332,7 @@ docIface = {
 	  } catch (e) {
 	    if (e.number == 1) {
 	      console.putmsg(red + "No list returned\n");
-	    } else if (e.number == 2) {
+	    } else {
 	      console.putmsg(red + high_intensity + "Room not found");
 	    }
 
