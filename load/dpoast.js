@@ -176,9 +176,9 @@ poast = {
 	var mTxt = new Array();
 	//var lNdx, uchoice, done = false;
 
-	if (userSettings.debug.message_posting) {
+	/*if (userSettings.debug.message_posting) {
 	  console.putmsg("Attempting post to: " + base.cfg.code + "\n");
-	}
+	}*/
 
         //going to use a generic subject for now; ignoring it from the
         //ddoc interface completely to see how it goes
@@ -389,12 +389,18 @@ poast = {
          *       throw exception
 	 */
     yell : function() {
-	console.putmsg(green + high_intensity + "\nPress 'y' to send" +
+	/* console.putmsg(green + high_intensity + "\nPress 'y' to send" +
 	  " a yell to the Sysop(s).\n\nEnter your choice -> ");
 	if (console.getkey().toUpperCase() != 'Y') {
 	  throw new dDocException("yell() Exception",
             "User didn't want to yell", 1);
-	}
+	} */
+
+        if (console.noyes("Send Yell to SysOp")) {
+            console.putmsg(yellow + high_intensity + "Aborting Yell to " +
+                "SysOp\n");
+            return;
+        }
 
 	var mb = new MsgBase('mail');
 	if (userSettings.debug.message_posting) {
