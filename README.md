@@ -18,6 +18,13 @@ As such, many Synchronet features will not be implemented until I have a
 polished beta, and begin tucking them away where only people comfortable
 with the interface will be able to stumble across them.
 
+## Current State
+
+DOCshell/dDoc has hit 'release' state 0.1b, ready for beta testing, as of
+29 Jul 15.  Although there are still some minor display issues, I believe 
+that all usability features are in place.  Of course, part of beta releasing
+this software is testing that hypothesis out.  ;)
+
 ## Checking it Out for Yourself
 
 If you would like to see what this kind of system is all about, you can
