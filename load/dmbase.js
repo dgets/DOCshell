@@ -643,7 +643,7 @@ msg_base = {
         msgMap = msg_base.util.remap_message_indices(mBase);
         if (msgMap.indexOf(msgNum) == -1) {
             //scroll ahead to the next valid message or end of the room
-            for (; msgNum >= mBase.last_msg; msgNum++) {
+            for (; msgNum <= mBase.last_msg; msgNum++) {
                 if (msgMap.indexOf(msgNum) != -1) {
                     //we've got a valid message
                     success = true;
