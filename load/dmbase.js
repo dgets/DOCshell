@@ -611,6 +611,56 @@ msg_base = {
     },
         /*
          * summary:
+         *      Checks to make sure that a message is in bounds, when jumping
+         *      by message number, before handing off to dispMsg(); this to
+         *      avoid catastrophic failure a la issue #193 (github)
+         * bufNum:
+         *      Number already in the input buffer signaling that we are jumping
+         *      to message by number
+         */
+    gotoMessageByNum : function(bufNum) {
+        var mBase = new MsgBase(bbs.cursub_code);
+        var success = false;
+        var msgNum, msgMap;
+
+        console.putmsg(green + high_intensity + "Go to message #> ");
+        console.ungetstr(bufNum);    //put it back on the input stack
+        msgNum = console.getnum(maxMsgs);    //is this defined here?
+
+        mBase = msg_base.util.openNewMBase(mBase.cfg.code);
+        if (msgNum >= mBase.last_msg) {
+            throw new docIface.dDocException("gotoMessageByNum() Exception",
+                "msgNum > last message base message", 1);
+        }
+
+        //the original command after this point was:
+        //msg_base.dispMsg(new MsgBase(bbs.cursub_code),
+        //                         console.getnum(maxMsgs), false);
+
+        //we need to code this separately at some point, to make a
+        //findNewMsgIdx() method or something of the sort; no doubt it'll be
+        //useful elsewhere
+        msgMap = msg_base.util.remap_message_indices(mBase);
+        if (msgMap.indexOf(msgNum) == -1) {
+            //scroll ahead to the next valid message or end of the room
+            for (; msgNum >= mBase.last_msg; msgNum++) {
+                if (msgMap.indexOf(msgNum) != -1) {
+                    //we've got a valid message
+                    success = true;
+                    break;
+                }
+            }
+        }
+
+        if (success) {
+            msg_base.dispMsg(mBase, msgNum, false);
+        } else {
+            throw new docIface.dDocException("gotoMessageByNum() Exception",
+                "no messages @ or past specified index found", 2);
+        }
+    },
+        /*
+         * summary:
          *      Lists all known message sub-boards (broken down by
          *      message base group, optionally); note that all of the code that
          *      isn't run within the 'confined' version has not been tested at

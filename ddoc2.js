@@ -846,11 +846,19 @@ if (!debugOnly) {
                 case '9':   //we're going to read message by number here
                   //there will, of course, have to be some error checking for
                   //trying to hit out of bounds messages if dispMsg() doesn't
-                  //already have it
-                  console.putmsg(green + high_intensity + "Go to message #> ");
+                  //already have it; which I forgot for a long time, of course,
+                  //and now is resulting in the bug that I'm trying to fix
+                  try {
+                    msg_base.entry_level.gotoMessageByNum(uchoice);
+                  } catch (e) {
+                      console.putmsg(red + "Caught:\n" + high_intensity +
+                        e.name + "\n" + e.message + "\n\n");
+                  }
+
+                  /* console.putmsg(green + high_intensity + "Go to message #> ");
                   console.ungetstr(uchoice);    //put it back on the input stack
                   msg_base.dispMsg(new MsgBase(bbs.cursub_code),
-                                   console.getnum(maxMsgs), false);
+                                   console.getnum(maxMsgs), false); */
                   break;
                 case '$':       //change debugging flags for this user
                   var dropOut = false;
