@@ -293,8 +293,12 @@ msg_base = {
 	 * summary:
 	 *	Read any new messages in the current room, then call findNew to
 	 *	move to the next room with unread messages
+         * startNum:
+         *      Optional parameter to start at a certain number for when reading
+         *      is initiated via jump to a specific message #
 	 */
-        readNew : function() {
+        readNew : function(startNum) {
+
           if (userSettings.debug.message_scan) {
               console.putmsg(green + "openNewMBase(" + high_intensity +
                   bbs.cursub_code + normal + green + ");\nWorking with " +
@@ -303,7 +307,19 @@ msg_base = {
 	  var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
 
           if (userSettings.debug.message_scan) {
-              console.putmsg("Made it past openNewMBase();\n");
+              console.putmsg("Made it past openNewMBase();\nstartNum: " +
+                  startNum + "\n");
+          }
+
+          if (startNum !== undefined) {
+              if (userSettings.debug.message_scan) {
+                  console.putmsg(green + "Made it into readNew()\n");
+              }
+              msg_area.sub[bbs.cursub_code].scan_ptr = startNum;
+          } else {
+              if (userSettings.debug.message_scan) {
+                  console.putmsg(yellow + "Made it into readNew() w/undef\n");
+              }
           }
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
 	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
@@ -320,6 +336,7 @@ msg_base = {
 
             }
 	  //} */
+
 	  mBase.close();
           docIface.nav.findNew();
 	  return;
@@ -449,7 +466,7 @@ msg_base = {
                 continue;   //skip this shit, we don't want this indexed
             } else {
               if (userSettings.debug.message_scan) {
-                console.putmsg("\n" + yellow + high_intensity + ndx + " to " +
+                console.putmsg(yellow + high_intensity + ndx + " to " +
                   curPtr);
               }
               msgMap[curPtr++] = ndx;
@@ -628,6 +645,8 @@ msg_base = {
         msgNum = console.getnum(maxMsgs);    //is this defined here?
 
         mBase = msg_base.util.openNewMBase(mBase.cfg.code);
+        msgMap = msg_base.util.remap_message_indices(mBase);
+
         if (msgNum >= mBase.last_msg) {
             throw new docIface.dDocException("gotoMessageByNum() Exception",
                 "msgNum > last message base message", 1);
@@ -640,23 +659,28 @@ msg_base = {
         //we need to code this separately at some point, to make a
         //findNewMsgIdx() method or something of the sort; no doubt it'll be
         //useful elsewhere
-        msgMap = msg_base.util.remap_message_indices(mBase);
+
         if (msgMap.indexOf(msgNum) == -1) {
             //scroll ahead to the next valid message or end of the room
-            for (; msgNum <= mBase.last_msg; msgNum++) {
+            for (; msgMap[msgNum] <= mBase.last_msg; msgNum++) {
                 if (msgMap.indexOf(msgNum) != -1) {
                     //we've got a valid message
                     success = true;
                     break;
                 }
             }
+        } else {
+            success = true;
         }
 
         if (success) {
-            msg_base.dispMsg(mBase, msgNum, false);
+            //msg_base.dispMsg(mBase, msgNum, false);
+            msg_base.read_cmd.readNew(msgMap[msgNum]);
         } else {
+            //throw new docIface.dDocException("gotoMessageByNum() Exception",
+            //    "no messages @ or past specified index found", 2);
             throw new docIface.dDocException("gotoMessageByNum() Exception",
-                "no messages @ or past specified index found", 2);
+                "msg_base.read_cmd.readNew(" + msgMap[msgNum] + ") failed", 2);
         }
     },
         /*
