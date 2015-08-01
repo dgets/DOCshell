@@ -449,7 +449,7 @@ msg_base = {
                 continue;   //skip this shit, we don't want this indexed
             } else {
               if (userSettings.debug.message_scan) {
-                console.putmsg(yellow + high_intensity + ndx + " to " +
+                console.putmsg("\n" + yellow + high_intensity + ndx + " to " +
                   curPtr);
               }
               msgMap[curPtr++] = ndx;
