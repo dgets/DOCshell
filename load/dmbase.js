@@ -298,7 +298,6 @@ msg_base = {
          *      is initiated via jump to a specific message #
 	 */
         readNew : function(startNum) {
-
           if (userSettings.debug.message_scan) {
               console.putmsg(green + "openNewMBase(" + high_intensity +
                   bbs.cursub_code + normal + green + ");\nWorking with " +
@@ -313,14 +312,26 @@ msg_base = {
 
           if (startNum !== undefined) {
               if (userSettings.debug.message_scan) {
-                  console.putmsg(green + "Made it into readNew()\n");
+                  console.putmsg(green + "Made it into readNew(" + startNum +
+                                 ")\n");
               }
               msg_area.sub[bbs.cursub_code].scan_ptr = startNum;
+              //never had to use lead_read before, but let's see where it gets
+              /* if (startNum > 0) {
+                  msg_area.sub[bbs.cursub_code].lead_read = startNum - 1;
+              } else {
+                  msg_area.sub[bbs.cursub_code].lead_read = 0;
+              } */
+              //I do believe the above commented out block is entirely useless
+
+              msg_base.scanSub(msg_area.sub[bbs.cursub_code],
+                               msg_base.util.remap_message_indices(mBase),
+                               true);
           } else {
               if (userSettings.debug.message_scan) {
                   console.putmsg(yellow + "Made it into readNew() w/undef\n");
               }
-          }
+          
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
 	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
 	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
@@ -333,8 +344,8 @@ msg_base = {
               //for now; we'll worry about doing it correctly later
 
               msg_area.sub[bbs.cursub_code].scan_ptr = mBase.first_msg;
-
-            }
+              */
+          }
 	  //} */
 
 	  mBase.close();
