@@ -298,7 +298,6 @@ msg_base = {
          *      is initiated via jump to a specific message #
 	 */
         readNew : function(startNum) {
-
           if (userSettings.debug.message_scan) {
               console.putmsg(green + "openNewMBase(" + high_intensity +
                   bbs.cursub_code + normal + green + ");\nWorking with " +
@@ -313,14 +312,26 @@ msg_base = {
 
           if (startNum !== undefined) {
               if (userSettings.debug.message_scan) {
-                  console.putmsg(green + "Made it into readNew()\n");
+                  console.putmsg(green + "Made it into readNew(" + startNum +
+                                 ")\n");
               }
               msg_area.sub[bbs.cursub_code].scan_ptr = startNum;
+              //never had to use lead_read before, but let's see where it gets
+              /* if (startNum > 0) {
+                  msg_area.sub[bbs.cursub_code].lead_read = startNum - 1;
+              } else {
+                  msg_area.sub[bbs.cursub_code].lead_read = 0;
+              } */
+              //I do believe the above commented out block is entirely useless
+
+              msg_base.scanSub(msg_area.sub[bbs.cursub_code],
+                               msg_base.util.remap_message_indices(mBase),
+                               true);
           } else {
               if (userSettings.debug.message_scan) {
                   console.putmsg(yellow + "Made it into readNew() w/undef\n");
               }
-          }
+          
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
 	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
 	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
@@ -333,8 +344,8 @@ msg_base = {
               //for now; we'll worry about doing it correctly later
 
               msg_area.sub[bbs.cursub_code].scan_ptr = mBase.first_msg;
-
-            }
+              */
+          }
 	  //} */
 
 	  mBase.close();
@@ -637,15 +648,17 @@ msg_base = {
          */
     gotoMessageByNum : function(bufNum) {
         var mBase = new MsgBase(bbs.cursub_code);
+        //var mBase = msg_base.util.openNewMBase(mBase.cfg.code);
+        var msgMap = msg_base.util.remap_message_indices(mBase);
         var success = false;
-        var msgNum, msgMap;
+        var msgNum;
 
         console.putmsg(green + high_intensity + "Go to message #> ");
         console.ungetstr(bufNum);    //put it back on the input stack
         msgNum = console.getnum(maxMsgs);    //is this defined here?
 
         mBase = msg_base.util.openNewMBase(mBase.cfg.code);
-        msgMap = msg_base.util.remap_message_indices(mBase);
+        //msgMap = msg_base.util.remap_message_indices(mBase);
 
         if (msgNum >= mBase.last_msg) {
             throw new docIface.dDocException("gotoMessageByNum() Exception",
@@ -662,9 +675,16 @@ msg_base = {
 
         if (msgMap.indexOf(msgNum) == -1) {
             //scroll ahead to the next valid message or end of the room
-            for (; msgMap[msgNum] <= mBase.last_msg; msgNum++) {
+            for (; msgNum <= msgMap[msgMap.length - 1]; msgNum++) {
+                if (userSettings.debug.message_scan) {
+                    console.putmsg(green + "Looking for " + msgNum + " in " +
+                        msgMap + "\n");
+                }
                 if (msgMap.indexOf(msgNum) != -1) {
                     //we've got a valid message
+                    if (userSettings.debug.message_scan) {
+                        console.putmsg(green + high_intensity + "Found it\n");
+                    }
                     success = true;
                     break;
                 }
@@ -675,12 +695,17 @@ msg_base = {
 
         if (success) {
             //msg_base.dispMsg(mBase, msgNum, false);
-            msg_base.read_cmd.readNew(msgMap[msgNum]);
+            if (userSettings.debug.message_scan) {
+                console.putmsg(cyan + "Executing msg_base.read_cmd.readNew(" +
+                    msgNum + ")\n");
+            }
+            msg_base.read_cmd.readNew(msgNum);
+
         } else {
             //throw new docIface.dDocException("gotoMessageByNum() Exception",
             //    "no messages @ or past specified index found", 2);
             throw new docIface.dDocException("gotoMessageByNum() Exception",
-                "msg_base.read_cmd.readNew(" + msgMap[msgNum] + ") failed", 2);
+                "msg_base.read_cmd.readNew(" + msgNum + ") failed", 2);
         }
     },
         /*
