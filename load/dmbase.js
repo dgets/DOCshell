@@ -662,9 +662,16 @@ msg_base = {
 
         if (msgMap.indexOf(msgNum) == -1) {
             //scroll ahead to the next valid message or end of the room
-            for (; msgMap[msgNum] <= mBase.last_msg; msgNum++) {
+            for (; msgNum <= msgMap[msgMap.length - 1]; msgNum++) {
+                if (userSettings.debug.message_scan) {
+                    console.putmsg(green + "Looking for " + msgNum + " in " +
+                        msgMap + "\n");
+                }
                 if (msgMap.indexOf(msgNum) != -1) {
                     //we've got a valid message
+                    if (userSettings.debug.message_scan) {
+                        console.putmsg(green + high_intensity + "Found it\n");
+                    }
                     success = true;
                     break;
                 }
