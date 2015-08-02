@@ -637,15 +637,17 @@ msg_base = {
          */
     gotoMessageByNum : function(bufNum) {
         var mBase = new MsgBase(bbs.cursub_code);
+        //var mBase = msg_base.util.openNewMBase(mBase.cfg.code);
+        var msgMap = msg_base.util.remap_message_indices(mBase);
         var success = false;
-        var msgNum, msgMap;
+        var msgNum;
 
         console.putmsg(green + high_intensity + "Go to message #> ");
         console.ungetstr(bufNum);    //put it back on the input stack
         msgNum = console.getnum(maxMsgs);    //is this defined here?
 
         mBase = msg_base.util.openNewMBase(mBase.cfg.code);
-        msgMap = msg_base.util.remap_message_indices(mBase);
+        //msgMap = msg_base.util.remap_message_indices(mBase);
 
         if (msgNum >= mBase.last_msg) {
             throw new docIface.dDocException("gotoMessageByNum() Exception",
@@ -682,12 +684,17 @@ msg_base = {
 
         if (success) {
             //msg_base.dispMsg(mBase, msgNum, false);
-            msg_base.read_cmd.readNew(msgMap[msgNum]);
+            if (userSettings.debug.message_scan) {
+                console.putmsg(cyan + "Executing msg_base.read_cmd.readNew(" +
+                    msgNum + ")\n");
+            }
+            msg_base.read_cmd.readNew(msgNum);
+
         } else {
             //throw new docIface.dDocException("gotoMessageByNum() Exception",
             //    "no messages @ or past specified index found", 2);
             throw new docIface.dDocException("gotoMessageByNum() Exception",
-                "msg_base.read_cmd.readNew(" + msgMap[msgNum] + ") failed", 2);
+                "msg_base.read_cmd.readNew(" + msgNum + ") failed", 2);
         }
     },
         /*
