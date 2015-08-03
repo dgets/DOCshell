@@ -529,7 +529,7 @@ msg_base = {
 	}
 
 	if ((mHdr.from_ext == user.number) || (mHdr.from == user.alias) ||
-	    (mHdr.from == user.name)) {
+	    (mHdr.from == user.name) || (user.security.level >= 80)) {
 	  //we are go for trying to delete this message
 	  try {
 	    mBase.remove_msg(ndx);
@@ -539,9 +539,14 @@ msg_base = {
 	    throw new dDocException("deleteMsg() exception",
 	      "Unable to remove_msg(" + ndx + "):" + e.message, 3);
 	  }
-	}
 
-	console.putmsg(red + high_intensity + "Message baleeted . . .\n"); 
+          console.putmsg(red + high_intensity + "Message baleeted . . .\n");
+	} else {
+            console.putmsg(red + high_intensity + "Unable to baleet message " +
+                           ". . .\n");
+        }
+
+	 
 
     }
   },
@@ -822,7 +827,7 @@ msg_base = {
 	 *	true for screen pauses
 	 */
   dispMsg : function(base, ptr, breaks) {
-	var mHdr, mBody, fHdr;
+	var mHdr, mIdx, mBody, fHdr;
 
 	if (breaks != false) { 
 	    breaks = true;
@@ -867,6 +872,7 @@ msg_base = {
         //try/catch this
 	try {
           mHdr = base.get_msg_header(ptr);
+          mIdx = base.get_msg_index(ptr);
           mBody = base.get_msg_body(ptr);
 	} catch (e) {
 	  console.putmsg(red + "Error fetching mHdr & mBody\nName: " + e.name +
@@ -892,16 +898,20 @@ msg_base = {
 	fHdr = "\n" + magenta + high_intensity + mHdr.date + green + " from "
 	      + cyan + mHdr.from + "\n" + green;
 
-	if (breaks) {
+        if (mIdx.attr & MSG_DELETE) {
+            console.putmsg(red + "Message Deleted (awaiting purge)\n");
+        } else {
+	  if (breaks) {
 	    console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into the
 		// putmsg here so it gets included in the line count for breaks
-        } else {
+          } else {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg("Putting out message next:\n");
 	    }
 
 	    console.putmsg(fHdr + mBody, (P_NOPAUSE | P_WORDWRAP));
-	}
+	  }
+        }
 
 	return 0;
   },
