@@ -585,7 +585,10 @@ msg_base = {
 	  case 'b':	// scan backwards
 	    console.putmsg(green + high_intensity + "Read backward\n");
 	    try {
-	        msg_base.scanSub(msg_area.sub[bbs.cursub_code], false);
+                base = msg_base.util.openNewMBase(user.cursub);
+	        msg_base.scanSub(msg_area.sub[bbs.cursub_code],
+                                 msg_base.util.remap_message_indices(base),
+                                 false);
 	    } catch (e) {
 		console.putmsg(yellow + "Exception reading backwards: " +
 		      e.toString() + "\n");
