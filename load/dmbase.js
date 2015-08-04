@@ -845,6 +845,10 @@ msg_base = {
 	    console.putmsg(yellow + "base was closed; reopening\n");
 	  }
 
+          //actually this should probably be swapped out for the right openbase
+          //functionality, I'm just not sure what's up with the message about
+          //'Mail' down there; I think that's just spurious, but I don't know
+          //for sure, so that will wait for more research
 	  try {
 	    base.open();
 	  } catch (e) {
