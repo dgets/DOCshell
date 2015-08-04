@@ -236,8 +236,6 @@ roomData = {
 	  throw new docIface.dDocException("Unable to open JSON conf file",
 		"Unable to open " + configurationFile, 1);
 	}
-	/*configurationFile = userRecords.userDataIO.stripComments(
-				configurationFile); */
 
 	try {
 	  chunky = configurationFile.read();
@@ -436,7 +434,6 @@ roomData = {
 	  for each(entry in zappedChunx) {
 	    if (entry.number == user.number) {
 		success = true;		//shouldn't be necessary now
-		//zappedRooms = zappedChunx;
 		return entry.zRooms;
 		break;
 	    }
@@ -454,9 +451,6 @@ roomData = {
 	 *	necessary, to record the entries
 	 */
       writeUserZappedRooms : function() {
-	//var success = false;
-	/*var outfile = new File(this.roomData.userDir + 
-				this.userRoomSettingsFilename); */
 	var outfile = new File(system.data_dir + "user/durooms");
 
 	if (userSettings.debug.navigation) {
@@ -464,15 +458,13 @@ roomData = {
 		JSON.stringify(zappedRooms) + "\n");
 	}
 	for each(ouah in zappedRooms) {
-	  /*if (userSettings.debug.navigation) {
-		console.putmsg(cyan + JSON.stringify(ouah));
-	  }*/
 	  if (ouah.number == user.number) {
 		success = true;
 	  }
 	}
 
 	try {
+          //wut is all of this shit?  I never did it...  @ntwitch?
 	  //userRecords.userDataIO.openFileWrap(outfile, "r+");
 	  outfile.open("w");
 	  //outfile.truncate(outfile.position);
