@@ -293,8 +293,11 @@ msg_base = {
 	 * summary:
 	 *	Read any new messages in the current room, then call findNew to
 	 *	move to the next room with unread messages
+         * startNum:
+         *      Optional parameter to start at a certain number for when reading
+         *      is initiated via jump to a specific message #
 	 */
-        readNew : function() {
+        readNew : function(startNum) {
           if (userSettings.debug.message_scan) {
               console.putmsg(green + "openNewMBase(" + high_intensity +
                   bbs.cursub_code + normal + green + ");\nWorking with " +
@@ -303,8 +306,32 @@ msg_base = {
 	  var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
 
           if (userSettings.debug.message_scan) {
-              console.putmsg("Made it past openNewMBase();\n");
+              console.putmsg("Made it past openNewMBase();\nstartNum: " +
+                  startNum + "\n");
           }
+
+          if (startNum !== undefined) {
+              if (userSettings.debug.message_scan) {
+                  console.putmsg(green + "Made it into readNew(" + startNum +
+                                 ")\n");
+              }
+              msg_area.sub[bbs.cursub_code].scan_ptr = startNum;
+              //never had to use lead_read before, but let's see where it gets
+              /* if (startNum > 0) {
+                  msg_area.sub[bbs.cursub_code].lead_read = startNum - 1;
+              } else {
+                  msg_area.sub[bbs.cursub_code].lead_read = 0;
+              } */
+              //I do believe the above commented out block is entirely useless
+
+              msg_base.scanSub(msg_area.sub[bbs.cursub_code],
+                               msg_base.util.remap_message_indices(mBase),
+                               true);
+          } else {
+              if (userSettings.debug.message_scan) {
+                  console.putmsg(yellow + "Made it into readNew() w/undef\n");
+              }
+          
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
 	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
 	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
@@ -317,9 +344,10 @@ msg_base = {
               //for now; we'll worry about doing it correctly later
 
               msg_area.sub[bbs.cursub_code].scan_ptr = mBase.first_msg;
-
-            }
+              */
+          }
 	  //} */
+
 	  mBase.close();
           docIface.nav.findNew();
 	  return;
@@ -501,7 +529,7 @@ msg_base = {
 	}
 
 	if ((mHdr.from_ext == user.number) || (mHdr.from == user.alias) ||
-	    (mHdr.from == user.name)) {
+	    (mHdr.from == user.name) || (user.security.level >= 80)) {
 	  //we are go for trying to delete this message
 	  try {
 	    mBase.remove_msg(ndx);
@@ -511,9 +539,14 @@ msg_base = {
 	    throw new dDocException("deleteMsg() exception",
 	      "Unable to remove_msg(" + ndx + "):" + e.message, 3);
 	  }
-	}
 
-	console.putmsg(red + high_intensity + "Message baleeted . . .\n"); 
+          console.putmsg(red + high_intensity + "Message baleeted . . .\n");
+	} else {
+            console.putmsg(red + high_intensity + "Unable to baleet message " +
+                           ". . .\n");
+        }
+
+	 
 
     }
   },
@@ -557,7 +590,10 @@ msg_base = {
 	  case 'b':	// scan backwards
 	    console.putmsg(green + high_intensity + "Read backward\n");
 	    try {
-	        msg_base.scanSub(msg_area.sub[bbs.cursub_code], false);
+                base = msg_base.util.openNewMBase(user.cursub);
+	        msg_base.scanSub(msg_area.sub[bbs.cursub_code],
+                                 msg_base.util.remap_message_indices(base),
+                                 false);
 	    } catch (e) {
 		console.putmsg(yellow + "Exception reading backwards: " +
 		      e.toString() + "\n");
@@ -607,6 +643,77 @@ msg_base = {
               console.putmsg("\nNot handled yet . . .\n\n");
 	    }
             break;
+        }
+    },
+        /*
+         * summary:
+         *      Checks to make sure that a message is in bounds, when jumping
+         *      by message number, before handing off to dispMsg(); this to
+         *      avoid catastrophic failure a la issue #193 (github)
+         * bufNum:
+         *      Number already in the input buffer signaling that we are jumping
+         *      to message by number
+         */
+    gotoMessageByNum : function(bufNum) {
+        var mBase = new MsgBase(bbs.cursub_code);
+        //var mBase = msg_base.util.openNewMBase(mBase.cfg.code);
+        var msgMap = msg_base.util.remap_message_indices(mBase);
+        var success = false;
+        var msgNum;
+
+        console.putmsg(green + high_intensity + "Go to message #> ");
+        console.ungetstr(bufNum);    //put it back on the input stack
+        msgNum = console.getnum(maxMsgs);    //is this defined here?
+
+        mBase = msg_base.util.openNewMBase(mBase.cfg.code);
+        //msgMap = msg_base.util.remap_message_indices(mBase);
+
+        if (msgNum >= mBase.last_msg) {
+            throw new docIface.dDocException("gotoMessageByNum() Exception",
+                "msgNum > last message base message", 1);
+        }
+
+        //the original command after this point was:
+        //msg_base.dispMsg(new MsgBase(bbs.cursub_code),
+        //                         console.getnum(maxMsgs), false);
+
+        //we need to code this separately at some point, to make a
+        //findNewMsgIdx() method or something of the sort; no doubt it'll be
+        //useful elsewhere
+
+        if (msgMap.indexOf(msgNum) == -1) {
+            //scroll ahead to the next valid message or end of the room
+            for (; msgNum <= msgMap[msgMap.length - 1]; msgNum++) {
+                if (userSettings.debug.message_scan) {
+                    console.putmsg(green + "Looking for " + msgNum + " in " +
+                        msgMap + "\n");
+                }
+                if (msgMap.indexOf(msgNum) != -1) {
+                    //we've got a valid message
+                    if (userSettings.debug.message_scan) {
+                        console.putmsg(green + high_intensity + "Found it\n");
+                    }
+                    success = true;
+                    break;
+                }
+            }
+        } else {
+            success = true;
+        }
+
+        if (success) {
+            //msg_base.dispMsg(mBase, msgNum, false);
+            if (userSettings.debug.message_scan) {
+                console.putmsg(cyan + "Executing msg_base.read_cmd.readNew(" +
+                    msgNum + ")\n");
+            }
+            msg_base.read_cmd.readNew(msgNum);
+
+        } else {
+            //throw new docIface.dDocException("gotoMessageByNum() Exception",
+            //    "no messages @ or past specified index found", 2);
+            throw new docIface.dDocException("gotoMessageByNum() Exception",
+                "msg_base.read_cmd.readNew(" + msgNum + ") failed", 2);
         }
     },
         /*
@@ -720,7 +827,7 @@ msg_base = {
 	 *	true for screen pauses
 	 */
   dispMsg : function(base, ptr, breaks) {
-	var mHdr, mBody, fHdr;
+	var mHdr, mIdx, mBody, fHdr;
 
 	if (breaks != false) { 
 	    breaks = true;
@@ -738,6 +845,10 @@ msg_base = {
 	    console.putmsg(yellow + "base was closed; reopening\n");
 	  }
 
+          //actually this should probably be swapped out for the right openbase
+          //functionality, I'm just not sure what's up with the message about
+          //'Mail' down there; I think that's just spurious, but I don't know
+          //for sure, so that will wait for more research
 	  try {
 	    base.open();
 	  } catch (e) {
@@ -765,6 +876,7 @@ msg_base = {
         //try/catch this
 	try {
           mHdr = base.get_msg_header(ptr);
+          mIdx = base.get_msg_index(ptr);
           mBody = base.get_msg_body(ptr);
 	} catch (e) {
 	  console.putmsg(red + "Error fetching mHdr & mBody\nName: " + e.name +
@@ -790,16 +902,20 @@ msg_base = {
 	fHdr = "\n" + magenta + high_intensity + mHdr.date + green + " from "
 	      + cyan + mHdr.from + "\n" + green;
 
-	if (breaks) {
+        if (mIdx.attr & MSG_DELETE) {
+            console.putmsg(red + "Message Deleted (awaiting purge)\n");
+        } else {
+	  if (breaks) {
 	    console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into the
 		// putmsg here so it gets included in the line count for breaks
-        } else {
+          } else {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg("Putting out message next:\n");
 	    }
 
 	    console.putmsg(fHdr + mBody, (P_NOPAUSE | P_WORDWRAP));
-	}
+	  }
+        }
 
 	return 0;
   },
