@@ -135,8 +135,6 @@ msg_base = {
 		    bbs.log_key("w");
 		  }
 		  wholist.list_long(wholist.populate);
-                  /* console.putmsg(yellow + "Not supported (yet)" +
-                        "...\n"); */
                   break;
                 case 'E':	//enter (upload) message
 		  bbs.log_key("E");
@@ -197,6 +195,8 @@ msg_base = {
                   bbs.curdir = docIface.util.preFileDir;
                   user.settings = docIface.util.preUserSettings;
 
+                  //something in the next bit toggling is fucking up all kinds
+                  //of shit :|
                   //disable H exemption in case they go back to usual shell so
                   //that we can handle events, etc
                   user.security.exemptions &= ~UFLAG_H;
@@ -263,7 +263,6 @@ msg_base = {
                     }
                     msg_base.dispMsg(new MsgBase(bbs.cursub_code),
                                    console.getnum(base.last_msg), false);
-                    //switched out maxMsgs (500) for base.last_msg above. duh
                   } catch (e) {
                       if (userSettings.debug.message_scan) {
                           console.putmsg(cyan + "Did we even fuckin get here?");
@@ -316,13 +315,6 @@ msg_base = {
                                  ")\n");
               }
               msg_area.sub[bbs.cursub_code].scan_ptr = startNum;
-              //never had to use lead_read before, but let's see where it gets
-              /* if (startNum > 0) {
-                  msg_area.sub[bbs.cursub_code].lead_read = startNum - 1;
-              } else {
-                  msg_area.sub[bbs.cursub_code].lead_read = 0;
-              } */
-              //I do believe the above commented out block is entirely useless
 
               msg_base.scanSub(msg_area.sub[bbs.cursub_code],
                                msg_base.util.remap_message_indices(mBase),
@@ -331,22 +323,17 @@ msg_base = {
               if (userSettings.debug.message_scan) {
                   console.putmsg(yellow + "Made it into readNew() w/undef\n");
               }
-          
+
+          //this next one could be fairly important; leaving this commented code
+          //in:
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
 	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
 	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
                                msg_base.util.remap_message_indices(
                                                 mBase),
                                true);
-	    } /* else if (msg_area.sub[bbs.cursub_code].scan_ptr >
-                            mBase.total_msgs) {
-              //let's reset this to something sane just to get it working again
-              //for now; we'll worry about doing it correctly later
-
-              msg_area.sub[bbs.cursub_code].scan_ptr = mBase.first_msg;
-              */
+	    }
           }
-	  //} */
 
 	  mBase.close();
           docIface.nav.findNew();
@@ -373,9 +360,6 @@ msg_base = {
        *    away from the error code passing shit through returns
        */
     openNewMBase : function(mb) {
-        //try {
-	  //take care of this in calling code
-          //mBase.close();
           mBase = new MsgBase(mb);
 	  try {
             mBase.open();
@@ -389,13 +373,6 @@ msg_base = {
             console.putmsg(red + "Opened: " + mb +
         	           " allegedly . . .\n");
           }
-        /* } catch (e) {
-          console.putmsg(red + "Error opening new mBase:\n"
-		+ e.toString() + "\n");
-          log("Error skipping through scanSub(): " +
-            e.toString());
-          throw new dDocException("openNewMBase() Error", e.message, 2);
-        } */
 
 	return mBase;
     },
@@ -656,7 +633,6 @@ msg_base = {
          */
     gotoMessageByNum : function(bufNum) {
         var mBase = new MsgBase(bbs.cursub_code);
-        //var mBase = msg_base.util.openNewMBase(mBase.cfg.code);
         var msgMap = msg_base.util.remap_message_indices(mBase);
         var success = false;
         var msgNum;
@@ -666,16 +642,11 @@ msg_base = {
         msgNum = console.getnum(maxMsgs);    //is this defined here?
 
         mBase = msg_base.util.openNewMBase(mBase.cfg.code);
-        //msgMap = msg_base.util.remap_message_indices(mBase);
 
         if (msgNum >= mBase.last_msg) {
             throw new docIface.dDocException("gotoMessageByNum() Exception",
                 "msgNum > last message base message", 1);
         }
-
-        //the original command after this point was:
-        //msg_base.dispMsg(new MsgBase(bbs.cursub_code),
-        //                         console.getnum(maxMsgs), false);
 
         //we need to code this separately at some point, to make a
         //findNewMsgIdx() method or something of the sort; no doubt it'll be
@@ -702,7 +673,6 @@ msg_base = {
         }
 
         if (success) {
-            //msg_base.dispMsg(mBase, msgNum, false);
             if (userSettings.debug.message_scan) {
                 console.putmsg(cyan + "Executing msg_base.read_cmd.readNew(" +
                     msgNum + ")\n");
@@ -710,8 +680,6 @@ msg_base = {
             msg_base.read_cmd.readNew(msgNum);
 
         } else {
-            //throw new docIface.dDocException("gotoMessageByNum() Exception",
-            //    "no messages @ or past specified index found", 2);
             throw new docIface.dDocException("gotoMessageByNum() Exception",
                 "msg_base.read_cmd.readNew(" + msgNum + ") failed", 2);
         }
@@ -906,8 +874,8 @@ msg_base = {
             console.putmsg(red + "Message Deleted (awaiting purge)\n");
         } else {
 	  if (breaks) {
-	    console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into the
-		// putmsg here so it gets included in the line count for breaks
+	    console.putmsg(fHdr + mBody, P_WORDWRAP);   //add fHdr into the
+		//putmsg here so it gets included in the line count for breaks
           } else {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg("Putting out message next:\n");
@@ -959,12 +927,11 @@ msg_base = {
 		  "Error in openNewMBase()", 1);
 	}
 
-	//tmpPtr = sBoard.scan_ptr;     //old way to handle this
         if ((tmpPtr = indices.indexOf(sBoard.scan_ptr)) == -1) {
             tmpPtr = 0;     //start from the beginning of these indices
         }
 
-	//if (userSettings.debug.message_scan) {
+	if (userSettings.debug.message_scan) {
 	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
           console.putmsg("sBoard.ptridx = " + sBoard.ptridx + "\n");
           console.putmsg("tmpPtr = " + tmpPtr + "\n");
@@ -973,7 +940,7 @@ msg_base = {
 	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
 	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
 	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
-	//}
+	}
 	
 	if (forward) {
             inc = 1;

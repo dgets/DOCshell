@@ -165,7 +165,6 @@ docIface = {
 	  throw new dDocException("log_str_n_char() Error", e.message, 1);
 	}
 
-	//return 0;
   },
   /*
    * summary:
@@ -196,7 +195,6 @@ docIface = {
 	    "\n");
 	}
 
-	//console.putmsg(this.menu);
   },
   //sub-objects
   nav : {
@@ -249,10 +247,8 @@ docIface = {
 
 	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
 	    if (userSettings.debug.navigation) {
-		console.putmsg(yellow + /*msg_area.sub[bbs.cursub_code].index*/
-		  + ndx + ": " + roomData.tieIns.isZapped(ndx)
-					/*msg_area.sub[bbs.cursub_code].index)*/
-		  + "\n");
+		console.putmsg(yellow + ndx + ": " +
+                    roomData.tieIns.isZapped(ndx) + "\n");
 	    }
 
 	    if (!roomData.tieIns.isZapped(ndx)) {
@@ -275,6 +271,7 @@ docIface = {
 		} else if (subList[ndx].scan_ptr > mBase.total_msg) {
                     //we've got some corrupt shit to fix here; not sure how it
                     //happened but we might as well have a way to fix it
+                    //maybe checking for validity?
                     subList[ndx].scan_ptr = mBase.first_msg;
                     if (userSettings.debug.navigation) {
                         console.putmsg(yellow + " just fixed scan ptrs\n");
@@ -397,16 +394,6 @@ docIface = {
         *       read; it should just skip to the next room in the list
 	*/
     skip: function () {
-	// mark all messages as read in current room
-	//var mBase = msg_base.openNewMBase(bbs.cursub_code);
-
-        /* this is the code that is leaving skip adjusting the message pointers
-         * that we really don't want to eff with; they need to stay the same
-         * for the next return to this sub
-	if (mBase != null) {
-	    msg_area.sub[bbs.cursub_code].scan_ptr = mBase.total_msgs;
-	    mBase.close();
-	} */
 	// use findNew to change to next room with unread messages
 	this.findNew();
     },
@@ -532,6 +519,8 @@ docIface = {
 	}
 
 	//set node status here, maybe?
+        //then again beware the fact that this bitwise shit can really be what
+        //is fucking with shit on other nodes and everything.  the 'orrah
 	docIface.setNodeAction(NODE_MAIN);
 
 	//turn on asynchronous message arrival
@@ -578,7 +567,8 @@ docIface = {
 	 *  	are unwanted in the dDoc interface
 	 */
     turnOffSynchronetDefaults : function() {
-	//turn off scans
+	//turn off scans THIS IS PROBABLY WHERE BITWISE SHIT IS FUCKED UP, OR AT
+        //LEAST A PART OF IT
 	user.settings &= ~USER_ASK_NSCAN;
 	user.settings &= ~USER_ASK_SSCAN;
 	user.settings &= ~USER_ANFSCAN;
@@ -613,7 +603,7 @@ docIface = {
 	  console.putmsg(red + "\nRestoring user.settings . . .\n");
 	}
 
-	//restore initial settings prior to exit
+	//restore initial settings prior to exit MORE BITWISE DEBAUCHERY
 	user.cursub = this.preSubBoard;
 	//user.cursub = bbs.cursub_code;
 	user.curgrp = this.preMsgGroup;
@@ -797,11 +787,6 @@ if (!debugOnly) {
 		  break;
 		case 's':
 		  console.putmsg(green + high_intensity + "Skip room\n");
-		  /*  temp remove to make skip act like vDOC
-		  if (docIface.nav.skip() == null) {
-		      docIface.nav.setSub(msg_area.grp_list[bbs.curgrp].sub_list[0]);
-		  }
-		  */
 		  docIface.nav.skip();
 		  break;
 		case 'c':
@@ -855,10 +840,6 @@ if (!debugOnly) {
                         e.name + "\n" + e.message + "\n\n");
                   }
 
-                  /* console.putmsg(green + high_intensity + "Go to message #> ");
-                  console.ungetstr(uchoice);    //put it back on the input stack
-                  msg_base.dispMsg(new MsgBase(bbs.cursub_code),
-                                   console.getnum(maxMsgs), false); */
                   break;
                 case '$':       //change debugging flags for this user
                   var dropOut = false;

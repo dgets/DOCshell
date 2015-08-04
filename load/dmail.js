@@ -21,7 +21,6 @@ uMail = {
          */
     getMailScanPtr : function(mmBase, prevNdx) {
         var applicableMailList = new Array();
-        //var mNdx = prevNdx;
         var mHdr;
 
         if (userSettings.debug.message_scan) {
@@ -157,7 +156,7 @@ uMail = {
                 	  console.putmsg(red + "Invalid message? base.subnum: "
                           + base.subnum + " ptr: " + ptr + "\n");
             		}
-            	//return;     // Invalid message, skip
+                    // Invalid message, skip
                 }
 
                 fHdr = "\n" + magenta + high_intensity + mHdr.date + green + 

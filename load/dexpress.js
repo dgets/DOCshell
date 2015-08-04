@@ -87,9 +87,7 @@ wholist = {
    * NOTE: This needs to be less of a monolith
    */
   list_long : function(ul) {
-	var timeon;
-
-	//time to do this the right way
+        //time to do this the right way
 	bbs.log_key("w");
 
 	//header
@@ -115,7 +113,6 @@ wholist = {
 	    if (u.alias.length < 8) {
 		console.putmsg("\t");
 	    }
-	    //console.putmsg("\t");
 
 	    //how much to get to tabstop?
 	    console.putmsg("\t" + cyan + high_intensity + u.ip_address);
@@ -164,11 +161,10 @@ wholist = {
 	//name, determines where the nearest tab beyond is, and divides the
 	//available screen columns into that many segments accordingly
 	colBoundary = ((((maxArrayLen + 2) % 8) + 1) * 8);
-	//cols = Math.round(console.screen_columns / colBoundary);
 
 	//generate wholist
-	for (var ouah = 0; ouah < totalUsers; ouah++) {
-	  console.putmsg(green + high_intensity + uNames[ouah]);
+	for (var ouahouah = 0; ouahouah < totalUsers; ouahouah++) {
+	  console.putmsg(green + high_intensity + uNames[ouahouah]);
 
 	  //set the cursor to the right position for next
 	  ouah2 = console.getxy();
