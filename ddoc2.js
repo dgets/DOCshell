@@ -6,7 +6,7 @@
  * contributing/refactoring also by: @Ntwitch (github.com)
  * started: 18aug14
  * alpha phase: 25oct14
- * beta phase: 
+ * beta phase: 2aug15
  * finished:
  *
  * a slightly more organized attempt to emulate the DOC shell from
@@ -28,7 +28,7 @@ load("/sbbs/exec/load/nodedefs.js");
 //pseudo-globals
 const excuse = "\n\nThe rothe strikes!  You die!. . .\n\n",
 	debugOnly = false, topebaseno = 6,
-	alwaysLogout = false, std_logging = true, maxMsgs = 500;
+	alwaysLogout = true, std_logging = true, maxMsgs = 500;
 
 //a few easier hooks for the ctrl-a codes
 const ctrl_a = "\1";
@@ -135,11 +135,14 @@ docIface = {
   getChoice : function() {
 	var cmd = "";
 
+        this.setNodeAction(NODE_MAIN);
+
 	do {
 	  bbs.nodesync();	//check for xpress messages
 	  cmd = console.inkey(K_NOECHO, 1000);
 	} while (cmd == "");
 
+        bbs.log_key(cmd);
 	return cmd;
   },
   /*
@@ -165,6 +168,30 @@ docIface = {
 	  throw new dDocException("log_str_n_char() Error", e.message, 1);
 	}
 
+  },
+  /*
+   * summary:
+   *    Wrapper to handle logging along with node status changes, since they're
+   *    bound to go together pretty often
+   * c:
+   *    Character value to log (keylog)
+   * str:
+   *    String to log to the logfile
+   * na:
+   *    Bitfield for node action status (sbbsdefs.js)
+   */
+  logStatusChange : function(c, str, na) {
+      try {
+          this.log_str_n_char(str, c);
+          this.setNodeAction(na);
+      } catch (e) {
+          var errmsg = "Problems with logStatusChange(): " + e.description +
+                          "\nName: " + e.name + "\t\tMsg: " + e.message + "\n";
+          js.report_error(errmsg);
+          if (userSettings.debug.misc) {
+            console.putmsg(yellow + errmsg);
+          }
+      }
   },
   /*
    * summary:
@@ -301,16 +328,19 @@ docIface = {
 	  console.putmsg(green + "Entered jump()\n");
 	}
 
-	bbs.log_key("J");
+	//bbs.log_key("J");
 
 	console.putmsg(green + high_intensity + "Jump to forum " +
 	  "name? -> ");
 
 	uChoice = console.getstr().toUpperCase();
+
 	if (uChoice == "MAIL") {
 	  if (userSettings.debug.navigation) {
 	    console.putmsg("Entering Mail> code\n");
 	  }
+
+          docIface.logStatusChange("j", "Jumped to Mail>", NODE_RMAL);
 
 	  if (uMail.readMail() == -1) {
 	    if (userSettings.debug.navigation) {
@@ -343,22 +373,23 @@ docIface = {
 	  }
 	}
 
-	if (ouah == "MAIL") {
-	  bbs.log_str("Jumped to Mail");
-	} else {
-	  bbs.log_str("Jumped to " + this.setSub(ouah));
+	if (ouah != "MAIL") {
+          docIface.logStatusChange("j", "Jumped to " + this.setSub(ouah) +
+                                   ">", NODE_RMSG);
+
 	  if (userSettings.debug.navigation) {
 	    console.putmsg(cyan + "Set sub/tmpBase to " + ouah.code + "\n");
 	  }
 
 	  var tmpBase = new MsgBase(ouah.code);
-	  if (!tmpBase.is_open) {
+	  /*if (!tmpBase.is_open) {
 	    try {
 		tmpBase.open();
 	    } catch (e) {
 		console.putmsg(red + e.message + "\n");
 	    }
-	  } 
+	  } */
+          tmpBase = mBase.util.openNewMBase(ouah.code);
 
 	  if (userSettings.debug.navigation) {
 	    console.putmsg(blue + high_intensity + "tmpBase is open: " +
@@ -395,6 +426,7 @@ docIface = {
 	*/
     skip: function () {
 	// use findNew to change to next room with unread messages
+        bbs.log_key("s");
 	this.findNew();
     },
 	/*
@@ -475,7 +507,9 @@ docIface = {
 	 * 	a scratchpad in the $SBBSHOME/user/ directory, as well.
 	 */
     initDdoc : function() {
-	//load user settings
+        bbs.log_str("Initializing dDoc session");
+
+        //load user settings
 	userSettings = userRecords.defaultSettings(user.number);
 	try {
           userSettings = userRecords.userDataIO.loadSettings(user.number);
@@ -487,7 +521,7 @@ docIface = {
 
 	//load room settings -- WHAT THE FUCK IS GOING ON WITH THE NESTED TRY/
         //CATCH BULLSHIT HERE?  Vestigial horror no doubt; fix this
-	try {
+	//try {
           try {
               roomData.fileIO.snagRoomInfoBlob();
           } catch (e) {
@@ -496,11 +530,11 @@ docIface = {
                     + "Message: " + e.message + "\tNum: " + e.number + "\n");
               }
           }
-	} catch (e) {
+	/*} catch (e) {
 	  console.putmsg(red + high_intensity + "Loading room data in " +
 		"initDdoc:\n");
 	  console.putmsg(red + e.message + "\n");
-	}
+	}*/
 
 	if (userSettings.debug.misc) {
 		userRecords.userDataUI.displayDebugFlags(user.number);
@@ -592,8 +626,10 @@ docIface = {
          *	make heads or tails of it just yet
 	 */
     quitDdoc : function() {
-	bbs.log_str(user.alias + " is leaving dDOC shell");
-	bbs.log_key("L");
+	docIface.logStatusChange("l", user.alias + " is leaving dDoc", 
+                                 NODE_LAST_ACTION);
+        /* bbs.log_str(user.alias + " is leaving dDOC shell");
+	bbs.log_key("L"); */
 
 	if (userSettings.debug.flow_control) {
 	  console.putmsg(red + "\nRestoring user.* properties:\n" +
@@ -633,7 +669,7 @@ docIface = {
          *      handled from within dperroom's code right now, though.
 	 */
     dispRoomInfo : function() {
-	bbs.log_key("I");
+	bbs.log_key("i");
 
 	if (userSettings.debug.misc) {
 	  console.putmsg(red + "Entered 'i'nfo (dispRoomInfo()) in " +
@@ -647,8 +683,6 @@ docIface = {
 		green + "Forum info last updated: " + magenta +
 		"<not implemented> " + green + "by " + cyan +
 		"<not implemented>\n\n");
-
-	//here we'll actually pull the room info
     }
 	
   }
@@ -816,6 +850,7 @@ if (!debugOnly) {
 		case 'z':	//zap room
 		  if (console.yesno("Are you sure you want to forget this " +
 		      "forum? ")) {
+                    this.log_str_n_char("z", "Forgetting " + bbs.cursub_code);
 		    roomData.tieIns.zapRoom(bbs.cursub);
 		  }
 		  break;
@@ -845,6 +880,9 @@ if (!debugOnly) {
                   var dropOut = false;
                   var un;
 
+                  this.logStatusChange("$", "Changing debugging flags",
+                                       NODE_DFLT);
+
                   if (user.security.level < 80) {
                       userRecords.userDataUI.queryDebugSettings(user.number);
                   } else {
@@ -872,9 +910,13 @@ if (!debugOnly) {
                   }
                   break;
                 case 'p':       //profile a user
+                  var usr;
+
                   console.putmsg(green + high_intensity +
                       "User to profile -> ");
-                  userRecords.userDataUI.profileUser(console.getstr());
+                  userRecords.userDataUI.profileUser(usr = console.getstr());
+
+                  this.log_str_n_char("p", "Profiled " + usr);
                   break;
 		default:
 		  console.putmsg(excuse);
