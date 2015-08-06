@@ -4,7 +4,7 @@
  * by: Damon Getsman
  * contributing/refactoring also by: @Ntwitch (github.com)
  * alpha phase: 25oct14
- * beta phase: 
+ * beta phase: 2aug15
  * started: 21sept14
  * finished:
  *
@@ -84,6 +84,7 @@ msg_base = {
           while (!valid) {
 	    msg_base.doMprompt(base, ndx);
             uchoice = "";
+            docIface.setNodeAction(NODE_RMSG);
 
             do {
         	bbs.nodesync();       //check for xpress messages
@@ -125,7 +126,9 @@ msg_base = {
 		  break;
 		case 'I':	//prompt for room info
 		  //change room info
-		  bbs.log_key("I");
+		  //bbs.log_key("I");
+                  docIface.logStatusChange("I", "Changing Info for " +
+                                           user.cursub_code, NODE_PMSG);
 		  roomData.roomSettingsUX.promptUserForRoomInfo();
 		  break;
                 case 'p':
@@ -143,7 +146,7 @@ msg_base = {
                   break;
                 case 's':	//stop scan
 		  bbs.log_key("s");
-                  valid = true;hollaBack = 1;
+                  valid = true; hollaBack = 1;
 		  docIface.log_str_n_char(this.log_header, 's');
                   console.putmsg(yellow + high_intensity + "Stop\n");
                   break;
@@ -297,6 +300,8 @@ msg_base = {
          *      is initiated via jump to a specific message #
 	 */
         readNew : function(startNum) {
+          docIface.setNodeAction(NODE_RMSG);
+          
           if (userSettings.debug.message_scan) {
               console.putmsg(green + "openNewMBase(" + high_intensity +
                   bbs.cursub_code + normal + green + ");\nWorking with " +
@@ -510,6 +515,7 @@ msg_base = {
 	  //we are go for trying to delete this message
 	  try {
 	    mBase.remove_msg(ndx);
+            bbs.log_str("Deleted message " + ndx + " from " + bbs.cursub_code);
 	  } catch (e) {
 	    console.putmsg(yellow + "Unable to delete message, sysop " +
 		"has been notified\n");
@@ -522,9 +528,6 @@ msg_base = {
             console.putmsg(red + high_intensity + "Unable to baleet message " +
                            ". . .\n");
         }
-
-	 
-
     }
   },
   /*
@@ -677,6 +680,8 @@ msg_base = {
                 console.putmsg(cyan + "Executing msg_base.read_cmd.readNew(" +
                     msgNum + ")\n");
             }
+            bbs.log_str("Went to message # " + msgNum + " in " +
+                        bbs.cursub_code);
             msg_base.read_cmd.readNew(msgNum);
 
         } else {
@@ -807,7 +812,7 @@ msg_base = {
 	}
 
         //this should be swapped out for proper message base open validation
-	if (!base.is_open) {
+	/*if (!base.is_open) {
 	  //let's give this a shotjoin
 	  if (userSettings.debug.message_scan) {
 	    console.putmsg(yellow + "base was closed; reopening\n");
@@ -825,7 +830,8 @@ msg_base = {
 	    throw new docIface.dDocException("dispMsg() Error",
 		"Unable to open mail sub: " + e.message, 2);
 	  }
-	}
+	}*/
+        base = msg_base.util.openNewMBase(base.code);
 
         //let's try and find out if the message we're going to go looking for
         //is bogus before we waste time with this, especially since the mHdr
@@ -884,8 +890,6 @@ msg_base = {
 	    console.putmsg(fHdr + mBody, (P_NOPAUSE | P_WORDWRAP));
 	  }
         }
-
-	return 0;
   },
 	/*
 	 * summary:
