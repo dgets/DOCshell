@@ -917,7 +917,7 @@ if (!debugOnly) {
                       "User to profile -> ");
                   userRecords.userDataUI.profileUser(usr = console.getstr());
 
-                  this.log_str_n_char("p", "Profiled " + usr);
+                  docIface.log_str_n_char("p", "Profiled " + usr);
                   break;
 		default:
 		  console.putmsg(excuse);
