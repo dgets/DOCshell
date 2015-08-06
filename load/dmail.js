@@ -6,6 +6,8 @@
  * finished:
  */
 
+//this code makes d4m0 need: https://www.youtube.com/watch?v=BFxaDoyl-1s
+
 /*
  * summary:
  *    Sub-object holds all of the components to deal with Mail> properly
@@ -83,13 +85,15 @@ uMail = {
         var fuggit = false, displayed = true, increment = 1, mNdx = 0;
         var uChoice, mHdr, mBody, mailList;
 
-        try {
+        /*try {
           mmBase.open();
         } catch (e) {
           console.putmsg(red + high_intensity + "Unable to open mmBase\n");
           throw new dDocException("readMail() exception",
             "The cave is too dark to read yr scroll", 1);
-        }
+        }*/
+        //fuck it, let's give the generic a chance here too
+        msg_base.util.openNewMBase("mail");
 
         //so that mess should have gotten us the current message index scan
         //pointer (or pseudo-version thereof); now we can start
@@ -123,12 +127,20 @@ uMail = {
 
           switch (uChoice) {
 	    case 'a':	//again
+                bbs.log_key("a");
+
 		if (displayed) {
 		  mNdx += (increment * -1);
 		  displayed = false;
 		}
             case 'n':	//next
+                bbs.log_key("n");
+
             case ' ':	//also next
+                if (uChoice != 'a') {
+                    bbs.log_key(" ");
+                }
+
                 //display, if exists, otherwise exit
 		//the 'otherwise exit' part being currently not completed
                 try {
@@ -182,6 +194,8 @@ uMail = {
 		mNdx += increment; displayed = true;
             break;
 	    case 'r':
+                bbs.log_key("r");
+
 		if (userSettings.debug.message_posting) {
 		  console.putmsg("Attempting email reply in Mail>\n" +
 		    "Utilizing from_ext: " + mHdr.from_ext + "\n");
@@ -195,6 +209,8 @@ uMail = {
 		}
 	    break;
 	    case 'e':
+                bbs.log_key("e");
+
 		if (userSettings.debug.message_posting) {
 		  console.putmsg("Attempting initial email in Mail>\n");
 		}
@@ -208,6 +224,8 @@ uMail = {
 	    break;
             case 'b':
                 //switch direction
+                bbs.log_key("b");
+
                 increment *= -1;
 
                 if (userSettings.debug.message_scan) {
@@ -216,6 +234,8 @@ uMail = {
             break;
             case 'd':
                 //delete message
+                bbs.log_key("d");
+
                 try {
                   mmBase.remove_msg(mailList[mNdx]);
                 } catch (e) {
@@ -231,10 +251,14 @@ uMail = {
             break;
             case 's':
                 //stop reading Mail>
+                bbs.log_key("s");
+
                 console.putmsg(yellow + high_intensity + "Stop\n");
                 fuggit = true;
             break;
             case 'l':
+                bbs.log_key("l");
+
                 if (!console.noyes("Logout?")) {
                   if (userSettings.debug.navigation) {
                     console.putmsg(red + "Sending -1 to request logout\n");

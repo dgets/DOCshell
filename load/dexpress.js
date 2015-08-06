@@ -2,7 +2,7 @@
  * dexpress.js
  * by: Damon Getsman
  * started: 12oct14 (lol I'm 37 today; lawd the helpless aging)
- * beta: well prior to 30may15
+ * beta: well prior to 30may15 - officially 2aug15 for the whole project tho
  * finished:
  *
  * Handles text entry and the like for the ddoc suite's express message

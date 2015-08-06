@@ -388,8 +388,8 @@ docIface = {
 	    } catch (e) {
 		console.putmsg(red + e.message + "\n");
 	    }
-	  } */
-          tmpBase = mBase.util.openNewMBase(ouah.code);
+	  }*/
+          tmpBase = msg_base.util.openNewMBase(ouah.code);
 
 	  if (userSettings.debug.navigation) {
 	    console.putmsg(blue + high_intensity + "tmpBase is open: " +
