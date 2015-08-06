@@ -850,7 +850,8 @@ if (!debugOnly) {
 		case 'z':	//zap room
 		  if (console.yesno("Are you sure you want to forget this " +
 		      "forum? ")) {
-                    this.log_str_n_char("z", "Forgetting " + bbs.cursub_code);
+                    this.log_str_n_char("z", "Trying to forget " +
+                                        bbs.cursub_code);
 		    roomData.tieIns.zapRoom(bbs.cursub);
 		  }
 		  break;

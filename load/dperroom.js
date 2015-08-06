@@ -72,6 +72,7 @@ roomData = {
 	      (((roomSettings.moderator == "none set") ||
 		(roomSettings.moderator == null)) &&
 	       (user.security.level >= 80))) {
+                docIface.setNodeAction(NODE_PMSG);
 		console.putmsg(green + high_intensity + 
 			"Enter new room info here:\n");
 		this.changeRoomInfo();
@@ -141,6 +142,8 @@ roomData = {
 	  cyan + roomSettings[bbs.cursub_code].moderator + ".  " +
 	  "Total messages: ");
 
+        msg_base.util.openNewMBase(bbs.cursub_code);
+        /*
 	try {
 	  mBase.open();
 	} catch (e) {
@@ -149,6 +152,7 @@ roomData = {
 	  throw new docIface.dDocException("displayRoomInfoHdr() exception",
 	    "Unable to open mBase: " + e.message, 1);
 	}
+        */
 
 	console.putmsg(red + high_intensity + mBase.total_msgs + "\n" +
 	  green + "Forum info last updated: " + magenta + 
@@ -561,6 +565,10 @@ roomData = {
           console.putmsg("Error in writeUserZappedRooms(): " + e.message +
                 "\n");
         }
+
+        docIface.util.log_str_n_char("Unzapped " + roomNo, "j"); //presumably
+        //it's due to the 'j' from jumping to this room; more research would
+        //be good to make sure about that, though
     }
   }
 }

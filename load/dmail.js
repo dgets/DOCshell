@@ -2,7 +2,7 @@
  * dmail.js
  * by: Damon Getsman
  * started: 10 Apr 15 (at least in a separate file)
- * beta:
+ * beta: 2Aug15
  * finished:
  */
 
