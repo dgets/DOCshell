@@ -276,10 +276,16 @@ userRecords = {
             var profileSettings = { };
             var unum, uObj;
 
+            if ((uname == "") || (uname == null)) {
+                console.putmsg(yellow + "Aborting profile\n");
+                throw new docIface.dDocException("profileUser() Exception",
+                    "Null user specified", 2);
+            }
+
             if ((unum = system.matchuser(uname)) == 0) {
                 console.putmsg(yellow + high_intensity + "User " + green +
                   uname + " was not found!\n");
-                throw new dDocException("profileUser() Exception",
+                throw new docIface.dDocException("profileUser() Exception",
                     "Unable to locate " + uname, 1);
             }
 

@@ -912,12 +912,17 @@ if (!debugOnly) {
                   break;
                 case 'p':       //profile a user
                   var usr;
-
                   console.putmsg(green + high_intensity +
                       "User to profile -> ");
-                  userRecords.userDataUI.profileUser(usr = console.getstr());
 
-                  docIface.log_str_n_char("p", "Profiled " + usr);
+                  try {
+                    userRecords.userDataUI.profileUser(usr = console.getstr());
+                    docIface.log_str_n_char("p", "Profiled " + usr);
+                  } catch (e) {
+                      console.putmsg(red + "Problem profiling: " +
+                          high_intensity + e.message + "\n");
+                  }
+                  
                   break;
 		default:
 		  console.putmsg(excuse);
