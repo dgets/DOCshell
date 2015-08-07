@@ -85,15 +85,16 @@ uMail = {
         var fuggit = false, displayed = true, increment = 1, mNdx = 0;
         var uChoice, mHdr, mBody, mailList;
 
-        /*try {
+        try {
           mmBase.open();
         } catch (e) {
           console.putmsg(red + high_intensity + "Unable to open mmBase\n");
           throw new dDocException("readMail() exception",
             "The cave is too dark to read yr scroll", 1);
-        }*/
-        //fuck it, let's give the generic a chance here too
-        msg_base.util.openNewMBase("mail");
+        }
+        //fuck it, let's give the generic a chance here too; which didn't work.
+        //we need to try to figure out why the fuck that is
+        //msg_base.util.openNewMBase(mmBase.code);
 
         //so that mess should have gotten us the current message index scan
         //pointer (or pseudo-version thereof); now we can start
