@@ -305,9 +305,13 @@ poast = {
 		  //this should be handled better
 		} else {
 		  mHdr["subject"] = "dDoc Mail>";
-		}
+                }
+
+                docIface.setNodeAction(NODE_PMSG);
 	} else {
           	var dMB = new MsgBase(mBase.cfg.code);
+
+                docIface.setNodeAction(NODE_SMAL);
 	}
 
 	/*
@@ -321,7 +325,9 @@ poast = {
 	 * at local users.
 	 */
 
-	//need to move this out into separate code
+	//need to move this out into separate code - not going to do that until
+        //I figure out how I've been repeatedly breaking it doing so with
+        //msg_base.util.openNewMBase(), though
         try {
             dMB.open();
         } catch (e) {
