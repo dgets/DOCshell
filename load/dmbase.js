@@ -915,20 +915,19 @@ msg_base = {
   scanSub : function(sBoard, indices, forward) {
 	var tmpPtr, inc, choice = 0;
 
-	//if (userSettings.debug.navigation) {
+	if (userSettings.debug.message_scan) {
 	  console.putmsg("Entered scanSub(); forward = " + forward +
 	    "  user.cursub: " + user.cursub + "\nsBoard.code: " +
 	    sBoard.code + "\tindices size: " + indices.length + "\n");
-	//}
+	}
 
 	mBase = msg_base.util.openNewMBase(sBoard.code);
-
 	if (mBase === null) {
 	    if (userSettings.debug.message_scan) {
-		console.putmsg("Error in openNewMBase()\n");
+		console.putmsg("Error (null) in openNewMBase()\n");
 	    }
 	    throw new docIface.dDocException("scanSubException",
-		  "Error in openNewMBase()", 1);
+		  "Error (null) in openNewMBase()", 1);
 	}
 
         if ((tmpPtr = indices.indexOf(sBoard.scan_ptr)) == -1) {
@@ -936,6 +935,7 @@ msg_base = {
         }
 
 	if (userSettings.debug.message_scan) {
+          console.putmsg(cyan + "-=-=-=-=-=-=-=-=-=-\n");
 	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
           console.putmsg("sBoard.ptridx = " + sBoard.ptridx + "\n");
           console.putmsg("tmpPtr = " + tmpPtr + "\n");
@@ -944,6 +944,10 @@ msg_base = {
 	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
 	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
 	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
+          console.putmsg(yellow + "scan_ptr:\t" + sBoard.scan_ptr + 
+                         "\tindices[tmpPtr]:\t" + indices[tmpPtr] + 
+                         "\tmBase.last_msg:\t" + mBase.last_msg + "\n");
+          console.putmsg(cyan + "-=-=-=-=-=-=-=-=-=-\n");
 	}
 	
 	if (forward) {
@@ -964,7 +968,6 @@ msg_base = {
 
 	//primary message scan loop
 	while (true) {  // a bit shady, but we exit from within the switch/case
-	//while (roomData.tieIns.isZapped(mBase.index)) {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg(red + "In main scanSub() loop\ttmpPtr: "
 		      + tmpPtr + " total_msgs: " + mBase.total_msgs
@@ -987,32 +990,34 @@ msg_base = {
 		    //break;
 		case 0:		// Next message
 		    if (userSettings.debug.message_scan) {
-			//console.putmsg("DEBUG: Next Msg\n");
                         console.putmsg(high_intensity + "tmpPtr: " + normal +
                             tmpPtr + "\t" + high_intensity + "indices.length: "
                             + normal + indices.length + "\t" + high_intensity +
                             "indices[tmpPtr]: " + normal + indices[tmpPtr] +
                             "\n");
 		    }
-		    if ((tmpPtr <= 0) && (inc == -1)) {
+
+		    if ((tmpPtr = 0) && (inc == -1)) {
 			mBase.close();
 			return 0; // do we reverse scan from room to room also?
-		    } else if ((tmpPtr >= indices.length) && (inc == 1)) {
+		    } else if ((tmpPtr = (indices.length - 1)) && (inc == 1)) {
 			mBase.close();
 			return 1;   // skip to next room
 		    }
+
 		    tmpPtr += inc;
                     try {
-		      if ((tmpPtr >= 0) && (tmpPtr <= indices.length)) {
+                      //here's the main message display loop
+		      if ((tmpPtr >= 0) && (tmpPtr < indices.length)) {
 			while (this.dispMsg(mBase, indices[tmpPtr], true)
                                 == null) {
 			  tmpPtr += inc;
-			  if ((tmpPtr == 0) || (tmpPtr >= indices.length)) {
+			  if ((tmpPtr == 0) || (tmpPtr = (indices.length-1))) {
 			    break;
 			  }
 			}
-			//this.dispMsg(mBase, tmpPtr, true);
-			if (inc == 1) {
+
+			if (inc == 1) { //do we want this if only going forward?
                             sBoard.scan_ptr = indices[tmpPtr];
                         }
 		      }
