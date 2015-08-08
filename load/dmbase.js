@@ -162,6 +162,7 @@ msg_base = {
 
 		  try {
                     poast.addMsg(base, false, 'All');  //not an upload
+                    user.posted_message();
 		  } catch (e) {
 		    console.putmsg(red + high_intensity + "Error " +
 			"in poast.addMsg(): " + e.message + "\n");
