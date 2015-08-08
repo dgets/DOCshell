@@ -361,6 +361,7 @@ uMail = {
 	if (mailTxt != null) {
 	  try {
 	    poast.mWrite(mailTxt, new MsgBase('mail'), uNum);
+            user.sent_email();
 	  } catch (e) {
 	    console.putmsg(red + "Unable to poast.mWrite Mail>: " + e.message +
 		"\n");
