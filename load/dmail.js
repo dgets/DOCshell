@@ -222,6 +222,8 @@ uMail = {
 		  console.putmsg(yellow + "Unable to send email: " +
 		    e.message + "\n");
 		}
+
+                msg_base.doMprompt(mmBase, mNdx);
 	    break;
             case 'b':
                 //switch direction
