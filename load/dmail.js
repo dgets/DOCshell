@@ -234,6 +234,8 @@ uMail = {
                 if (userSettings.debug.message_scan) {
                   console.putmsg("Changed increment to: " + increment + "\n");
                 }
+
+                msg_base.doMprompt(mmBase, mNdx);
             break;
             case 'd':
                 //delete message
@@ -266,7 +268,8 @@ uMail = {
                   if (userSettings.debug.navigation) {
                     console.putmsg(red + "Sending -1 to request logout\n");
                   }
-                  return -1;    //god ouah
+                  throw new docIface.dDocException("readMail() Exception",
+                        "User requested logout", 5);    //god ouah
                 }
             break;
             default:

@@ -342,12 +342,15 @@ docIface = {
 
           docIface.logStatusChange("j", "Jumped to Mail>", NODE_RMAL);
 
-	  if (uMail.readMail() == -1) {
+          try {
+              uMail.readMail();
+          } catch (e) {
 	    if (userSettings.debug.navigation) {
 		console.putmsg(red + "Logout requested from Mail> code\n");
 	    }
 	    docIface.util.quitDdoc();
 	  }
+
 	  ouah = "Mail";	//vestigial?
 	} else if (uChoice == "") {
           //abort
