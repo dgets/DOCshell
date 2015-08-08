@@ -252,6 +252,7 @@ uMail = {
 
                 console.putmsg(yellow + high_intensity + "Mail message " +
                         "baleeted . . .\n");
+                msg_base.doMprompt(mmBase, mNdx);
                 break;
             break;
             case 's':
@@ -338,7 +339,8 @@ uMail = {
 
 	    if (recip == "quit") {
 		console.putmsg(yellow + high_intensity + "Abort\n");
-		return -1;	//user abort
+		throw new docIface.dDocException("sendMail() Exception",
+                    "User aborted email", 1);
 	    }
 	  }
 	} else {
@@ -366,7 +368,8 @@ uMail = {
 	} else {
 	  console.putmsg(red + high_intensity + "Not sending a null " +
 	    "message!\n");
-	  return -2;
+	  throw new docIface.dDocException("sendMail() Exception",
+                "Refusing to send a null message", 2);
 	}
 
     }
