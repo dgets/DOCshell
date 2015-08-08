@@ -39,9 +39,9 @@ wholist = {
 	  }
 	}
 
-	if (debugging) {
+	if (userSettings.debug.instant_messaging) {
 	  console.putmsg(red + "Debugging wholist.populate():\n");
-	  for each (cu in ul) {
+	  for each (var cu in ul) {
 	    console.putmsg(blue + high_intensity + cu.alias + " ");
 	  }
 	  console.putmsg("\n");
@@ -100,7 +100,7 @@ wholist = {
 	}
 	console.putmsg("\n");
 	  
-	for each (u in ul) {
+	for each (var u in ul) {
 	  var skip = false;
 	  //skip if this is an unused node
 	  if (u.alias.length < 3) {
@@ -126,12 +126,6 @@ wholist = {
 		userRecords.userDataIO.loadSettings(u.number).doing + "\n");
 	  }
 	}
-
-	//this is the easy one
-	//NOTE: We're going to be changing this in the future to show
-	//doing fields, though, which will require a custom rewrite
-	/*bbs.log_key("w");
-	bbs.whos_online(); */
   },
     /*
      * summary:
@@ -195,7 +189,8 @@ express = {
          *      work, etc etc etc
 	 */
   readBuf : function() {
-	var abort = false, nao = new Date, mTxt = new Array, xHdr;
+	var nao = new Date, mTxt = new Array;
+        var xHdr;
 
 	xHdr = green + "Xpress message from " + high_intensity +
 		user.alias + normal + green + " sent at " +
@@ -211,37 +206,36 @@ express = {
 	    mTxt[ouah] = console.getstr("", 77);
 	  }
 
-	  if (((mTxt[ouah].toUpperCase() == "ABORT") ||
+	  /* if (((mTxt[ouah].toUpperCase() == "ABORT") ||
 	       (mTxt[ouah].toUpperCase() == "ABORT\r")) ||
 	      (((mTxt[ouah] == "\r") || (mTxt[ouah] == "")) && 
 		(ouah == 0))) {
-	    abort = true; break;
-	  } else if ((mTxt[ouah] == "") || (mTxt[ouah] == "\r")) {
+	    abort = true; break;*/
+          if ((mTxt[ouah].indexOf("ABORT") == 0) ||
+              (((mTxt[ouah] == "\r") || (mTxt[ouah] == "")) && (ouah == 0))) {
+              throw new docIface.dDocException("readBuf() Exception",
+                "eXpress message aborted", 1);
+          } else if (((mTxt[ouah] == "") || (mTxt[ouah] == "\r")) &&
+                     (ouah != 0)) {
 	    //didn't fill up all 5 lines, but done
-	    if (ouah == 0) { abort = true; }
-	    break;	//will require post-processing to avoid sending
-			//all 5 of those lines
-	  }
+            break;
+	  } 
 	}
 
-	if (abort) {
-	  return null;
-	} else {
-	  var full = xHdr;
+	var full = xHdr;
 
-	  full += (green + high_intensity);
-	  for each (xLine in mTxt) {
+	full += (green + high_intensity);
+	for each (xLine in mTxt) {
 		if (xLine === ",") {
 		  //wut the fuck is this?
-		  break;
+		  throw new docIface.dDocException("readBuf() Exception",
+                    "No idea WTF happened in eXpress message", 2);
 		}
 		full += (xLine + "\n");
-	  }
-	  full += "\n";
-
-	  return (full);
-		//postprocessing elsewhere, gotta hurry up 2nite
 	}
+	full += "\n";
+
+	return (full);
   },
   /*
    * summary:
@@ -282,7 +276,8 @@ express = {
 	  //not found
 	  console.putmsg(red + high_intensity +
 		"User record not found\n" + green);
-	  return -1;
+	  throw new docIface.dDocException("chkRcp() Exception",
+            "User record not found", 1);
 	} else {
 	  //user offline
 	  //NOTE: there will have to be a better solution here; ie add a
@@ -290,7 +285,8 @@ express = {
 	  console.putmsg(yellow + high_intensity +
 		"User is currently offline; try Mail>\n" +
 		green);
-	  return 0;
+	  throw new docIface.dDocException("chkRcp() Exception",
+            "User currently offline", 2);
 	}
   },
   /*
@@ -311,13 +307,25 @@ express = {
 	//turn off incoming messages for a bit
 	bbs.sys_status |= SS_MOFF;
 
-	recip = express.chkRcp(wholist.populate());
+        try {
+            recip = express.chkRcp(wholist.populate());
+        } catch (e) {
+            console.putmsg(cyan + high_intensity + "express.chkRcp() err:\t" +
+                e.name + ":\t" + e.message + "\n");
+        }
+
 	if (recip <= 0) {
 	  //oopthieoopth!
-	  return -1;
+	  throw new docIface.dDocException("sendX() Exception",
+            "Unforseen problems in express.sendX()", 1);
 	}
 
-	mTxt = express.readBuf();
+        try {
+            mTxt = express.readBuf();
+        } catch (e) {
+            console.putmsg(yellow + "Express message problem:\t" +
+                high_intensity + e.name + ":\t" + e.message + "\n");
+        }
 	
 	if (mTxt != null) {
 	  bbs.log_key("x");
