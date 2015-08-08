@@ -222,6 +222,8 @@ uMail = {
 		  console.putmsg(yellow + "Unable to send email: " +
 		    e.message + "\n");
 		}
+
+                msg_base.doMprompt(mmBase, mNdx);
 	    break;
             case 'b':
                 //switch direction
@@ -232,6 +234,8 @@ uMail = {
                 if (userSettings.debug.message_scan) {
                   console.putmsg("Changed increment to: " + increment + "\n");
                 }
+
+                msg_base.doMprompt(mmBase, mNdx);
             break;
             case 'd':
                 //delete message
@@ -248,6 +252,7 @@ uMail = {
 
                 console.putmsg(yellow + high_intensity + "Mail message " +
                         "baleeted . . .\n");
+                msg_base.doMprompt(mmBase, mNdx);
                 break;
             break;
             case 's':
@@ -264,7 +269,8 @@ uMail = {
                   if (userSettings.debug.navigation) {
                     console.putmsg(red + "Sending -1 to request logout\n");
                   }
-                  return -1;    //god ouah
+                  throw new docIface.dDocException("readMail() Exception",
+                        "User requested logout", 5);    //god ouah
                 }
             break;
             default:
@@ -333,7 +339,8 @@ uMail = {
 
 	    if (recip == "quit") {
 		console.putmsg(yellow + high_intensity + "Abort\n");
-		return -1;	//user abort
+		throw new docIface.dDocException("sendMail() Exception",
+                    "User aborted email", 1);
 	    }
 	  }
 	} else {
@@ -361,7 +368,8 @@ uMail = {
 	} else {
 	  console.putmsg(red + high_intensity + "Not sending a null " +
 	    "message!\n");
-	  return -2;
+	  throw new docIface.dDocException("sendMail() Exception",
+                "Refusing to send a null message", 2);
 	}
 
     }
