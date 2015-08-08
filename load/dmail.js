@@ -108,8 +108,9 @@ uMail = {
 
         while (!fuggit) {
           //let's read da shit
-          uChoice = console.getkey();   //NOTE: this will have to be replaced
+          //uChoice = console.getkey();   //NOTE: this will have to be replaced
                                         //w/one checking for Xes
+          uChoice = docIface.getChoice();
 
           if (((uChoice == 'n') && (uChoice != ' ')) &&
 	      (((mNdx >= mailList.length) && (increment == 1)) ||
@@ -311,13 +312,6 @@ uMail = {
 	 * upload:
 	 *	Boolean value for whether or not the message is handled as
 	 *	uploaded text
-	 * return:
-	 *	-1 for recipient not found/successfully prompted for, -2 for
-	 *	trying to send a null message; this bullshit needs to change
-         * NOTE:
-         *      Once again the return codes are bogus and it would be a really
-         *      great idea to actually use some of the exceptions that we like
-         *      to do together anymore
 	 */
     sendMail : function(recip, upload) {
 	var uNum;
