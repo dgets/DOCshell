@@ -345,9 +345,17 @@ docIface = {
           try {
               uMail.readMail();
           } catch (e) {
-	    if (userSettings.debug.navigation) {
+	    /*
+             * oh we've got a hell of a lot more than just this to worry about
+             * now
+             * if (userSettings.debug.navigation) {
 		console.putmsg(red + "Logout requested from Mail> code\n");
-	    }
+	       }
+             */
+            if (userSettings.debug.message_scan) {
+                console.putmsg(red + "Exception:\t" + high_intensity +
+                    e.name + "\n" + normal + magenta + e.message + "\n");
+            }
 	    docIface.util.quitDdoc();
 	  }
 

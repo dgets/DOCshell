@@ -35,8 +35,9 @@ uMail = {
         //there will have to be more elegant handling of the present/prevNdx
         //message pointer at some point in the future here; just trying to
         //get this working for now
-        for (var i = msg_base.sub["mail"].last_read; i < mmBase.total_msgs;
-             ++i) {
+        /*for (var i = msg_area.sub[mmBase.code].last_read; i < mmBase.total_msgs;
+             ++i) {*/
+        for (var i = 0; i < mmBase.total_msgs; i++) {
           if (userSettings.debug.message_scan) {
             console.putmsg(red + i + " ");
           }
@@ -125,6 +126,11 @@ uMail = {
           //let's read da shit
           //uChoice = console.getkey();   //NOTE: this will have to be replaced
                                         //w/one checking for Xes
+          if (userSettings.debug.message_scan) {
+              console.putmsg(yellow + "\nuChoice:\t" + high_intensity + 
+                uChoice + "\n");
+          }
+
           uChoice = docIface.getChoice();
 
           if (((uChoice == 'n') && (uChoice != ' ')) &&
@@ -151,10 +157,13 @@ uMail = {
 		  displayed = false;
 		}
             case 'n':	//next
-                bbs.log_key("n");
+
+                if (uChoice != 'a') {
+                    bbs.log_key("n");
+                }
 
             case ' ':	//also next
-                if (uChoice != 'a') {
+                if ((uChoice != 'a') && (uChoice != 'n')) {
                     bbs.log_key(" ");
                 }
 
@@ -191,6 +200,10 @@ uMail = {
                 fHdr = "\n" + magenta + high_intensity + mHdr.date + green + 
                   " from " + cyan + mHdr.from + green + " to " + cyan +
                   mHdr.to + "\n" + green;
+
+                if (userSettings.debug.message_scan) {
+                    console.putmsg(magenta + "Dumping message:\n");
+                }
 
                 //if (breaks) {
             	  console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into
