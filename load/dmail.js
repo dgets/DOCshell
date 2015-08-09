@@ -21,7 +21,7 @@ uMail = {
          * return:
          *      Returns an array of applicable message indices
          */
-    getMailScanPtr : function(mmBase, prevNdx) {
+    getMailScanPtr : function(mmBase) {
         var applicableMailList = new Array();
         var mHdr;
 
@@ -35,7 +35,9 @@ uMail = {
         //there will have to be more elegant handling of the present/prevNdx
         //message pointer at some point in the future here; just trying to
         //get this working for now
-        for (var i = prevNdx; i < mmBase.total_msgs; ++i) {
+        /*for (var i = msg_area.sub[mmBase.code].last_read; i < mmBase.total_msgs;
+             ++i) {*/
+        for (var i = 0; i < mmBase.total_msgs; i++) {
           if (userSettings.debug.message_scan) {
             console.putmsg(red + i + " ");
           }
@@ -98,11 +100,25 @@ uMail = {
 
         //so that mess should have gotten us the current message index scan
         //pointer (or pseudo-version thereof); now we can start
-        mailList = this.getMailScanPtr(mmBase, mNdx);
+        mailList = this.getMailScanPtr(mmBase);
 
-	if (userSettings.debug.message_scan) {
-	  console.putmsg("Got back mailList: " + mailList.toString() + "\n");
-	}
+        /* if (((mNdx = msg_area.sub["mail"].scan_ptr) < 0) ||
+            (mNdx > mmBase.last_msg)) {
+            if (userSettings.debug.message_scan) {
+                console.putmsg(green + "Dbg:\t" + high_intensity +
+                    "mNdx being reset to 0\n");
+            }
+            mNdx = 0;
+        }
+
+        if ((mailList.findIndex(mNdx)) == -1) {
+            if (userSettings.debug.message_scan) {
+                console.putmsg(cyan + "Dbg:\t" + high_intensity +
+                    "mNdx being reset to 0 (at 2nd opportunity)\n");
+            }
+            mNdx = 0;   //we should have a better way to find a closer message
+                        //to whatever they wanted, but not today
+        } */
 
 	console.putmsg(yellow + high_intensity + "Mail> ");
 
@@ -110,10 +126,15 @@ uMail = {
           //let's read da shit
           //uChoice = console.getkey();   //NOTE: this will have to be replaced
                                         //w/one checking for Xes
+          if (userSettings.debug.message_scan) {
+              console.putmsg(yellow + "\nuChoice:\t" + high_intensity + 
+                uChoice + "\n");
+          }
+
           uChoice = docIface.getChoice();
 
           if (((uChoice == 'n') && (uChoice != ' ')) &&
-	      (((mNdx >= mailList.length) && (increment == 1)) ||
+	      (((mNdx >= mailList[mailList.length - 1]) && (increment == 1)) ||
               ((mNdx == 0) && (increment == -1)))) {
             if (userSettings.debug.message_scan) {
                   console.putmsg("End of messages detected\n");
@@ -136,10 +157,13 @@ uMail = {
 		  displayed = false;
 		}
             case 'n':	//next
-                bbs.log_key("n");
+
+                if (uChoice != 'a') {
+                    bbs.log_key("n");
+                }
 
             case ' ':	//also next
-                if (uChoice != 'a') {
+                if ((uChoice != 'a') && (uChoice != 'n')) {
                     bbs.log_key(" ");
                 }
 
@@ -176,6 +200,10 @@ uMail = {
                 fHdr = "\n" + magenta + high_intensity + mHdr.date + green + 
                   " from " + cyan + mHdr.from + green + " to " + cyan +
                   mHdr.to + "\n" + green;
+
+                if (userSettings.debug.message_scan) {
+                    console.putmsg(magenta + "Dumping message:\n");
+                }
 
                 //if (breaks) {
             	  console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into
@@ -268,11 +296,18 @@ uMail = {
 
                 if (!console.noyes("Logout?")) {
                   if (userSettings.debug.navigation) {
-                    console.putmsg(red + "Sending -1 to request logout\n");
+                    console.putmsg(red + "Throwing exception to request " +
+                        "logout\n");
                   }
                   throw new docIface.dDocException("readMail() Exception",
                         "User requested logout", 5);    //god ouah
                 }
+            break;
+            case 'j':
+                bbs.log_key("j");
+
+                fuggit = true;
+                docIface.nav.jump();
             break;
             default:
                 //wut
