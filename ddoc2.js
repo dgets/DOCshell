@@ -328,8 +328,6 @@ docIface = {
 	  console.putmsg(green + "Entered jump()\n");
 	}
 
-	//bbs.log_key("J");
-
 	console.putmsg(green + high_intensity + "Jump to forum " +
 	  "name? -> ");
 
@@ -353,7 +351,7 @@ docIface = {
 	       }
              */
             if (userSettings.debug.message_scan) {
-                console.putmsg(red + "Exception:\t" + high_intensity +
+                console.putmsg(red + "\nException:\t" + high_intensity +
                     e.name + "\n" + normal + magenta + e.message + "\n");
             }
 	    docIface.util.quitDdoc();
@@ -384,7 +382,7 @@ docIface = {
 	  }
 	}
 
-	if (ouah != "MAIL") {
+	if (ouah.code.toUpperCase() != "MAIL") {
           docIface.logStatusChange("j", "Jumped to " + this.setSub(ouah) +
                                    ">", NODE_RMSG);
 

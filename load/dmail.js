@@ -303,6 +303,12 @@ uMail = {
                         "User requested logout", 5);    //god ouah
                 }
             break;
+            case 'j':
+                bbs.log_key("j");
+
+                fuggit = true;
+                docIface.nav.jump();
+            break;
             default:
                 //wut
                 console.putmsg(yellow + high_intensity + "Wut?\n\n");
