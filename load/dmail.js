@@ -69,6 +69,13 @@ uMail = {
 
         return applicableMailList;
     },
+    /*
+     * summary:
+     *  Method attempts to use the MSG_READ attribute in the header to find out
+     *  where things are at for a current mail scan pointer
+     * return:
+     *  index into pointer array
+     */
     getCurMailScanPtr : function(ptrArray, mmBase) {
         var mHdr;
 
@@ -139,14 +146,18 @@ uMail = {
             if (userSettings.debug.message_scan) {
                 console.putmsg(magenta + high_intensity + "No unread found\n");
             }
+        } else {
+            if (userSettings.debug.message_scan) {
+                console.putmsg(magenta + high_intensity + "First unread found" +
+                    " at slot #" + mNdx + "\tMessage #" + mailList[mNdx] +
+                    "\n");
+            }
         }
 
 	console.putmsg(yellow + high_intensity + "Mail> ");
 
         while (!fuggit) {
           //let's read da shit
-          //uChoice = console.getkey();   //NOTE: this will have to be replaced
-                                        //w/one checking for Xes
           if (userSettings.debug.message_scan) {
               console.putmsg(yellow + "\nuChoice:\t" + high_intensity + 
                 uChoice + "\n");
@@ -231,10 +242,19 @@ uMail = {
                 // putmsg here so it gets included in the line count for
 		// breaks
 
+                if (userSettings.debug.message_scan) {
+                    console.putmsg(red + high_intensity + "Attempting to " +
+                        "mark " + (mNdx + 1) + " (true index value: " +
+                        mailList[mNdx] + ") w/MSG_READ\n");
+                }
                 //mark the message read
-                mHdr.attr |= MSG_READ;
-                mmBase.put_msg_header(mailList[mNdx], mHdr);
-
+                try {
+                    mHdr.attr = MSG_READ;
+                    mmBase.put_msg_header(mailList[mNdx], mHdr);
+                } catch (e) {
+                    throw new dDocException("readMail() Exception",
+                        "Wut: " + e.message, 4);
+                }
 
                 //display prompt
                 msg_base.doMprompt(mmBase, mNdx);
@@ -330,7 +350,8 @@ uMail = {
             break;
             default:
                 //wut
-                console.putmsg(yellow + high_intensity + "Wut?\n\n");
+                console.putmsg(yellow + high_intensity + "You hear the " +
+                    "howling of the Cwyn'ann\n\n");
                 console.putmsg(yellow + high_intensity + "Mail> ");
             break;
           }
