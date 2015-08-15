@@ -189,7 +189,6 @@ uMail = {
 		  displayed = false;
 		}
             case 'n':	//next
-
                 if (uChoice != 'a') {
                     bbs.log_key("n");
                 }
@@ -249,8 +248,8 @@ uMail = {
                 }
                 //mark the message read
                 try {
-                    mHdr.attr = MSG_READ;
-                    mmBase.put_msg_header(mailList[mNdx], mHdr);
+                    mHdr.attr |= MSG_READ;
+                    mmBase.put_msg_header(true, mailList[mNdx], mHdr);
                 } catch (e) {
                     throw new dDocException("readMail() Exception",
                         "Wut: " + e.message, 4);
