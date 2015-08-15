@@ -39,7 +39,7 @@ uMail = {
              ++i) {*/
         for (var i = 0; i < mmBase.total_msgs; i++) {
           if (userSettings.debug.message_scan) {
-            console.putmsg(red + i + " ");
+            console.putmsg(red + (i + 1) + " ");
           }
 
           try {
@@ -54,7 +54,7 @@ uMail = {
           if ((mHdr.to_ext == user.number) ||
               (mHdr.from_ext == user.number)) {
 	    if (userSettings.debug.message_scan) {
-		console.putmsg("Pushing " + i + " to list\n");
+		console.putmsg("Pushing " + (i + 1) + " to list\n");
 	    }
             applicableMailList.push(i);
           }
@@ -68,6 +68,46 @@ uMail = {
         }
 
         return applicableMailList;
+    },
+    /*
+     * summary:
+     *  Method attempts to use the MSG_READ attribute in the header to find out
+     *  where things are at for a current mail scan pointer
+     * return:
+     *  index into pointer array
+     */
+    getCurMailScanPtr : function(ptrArray, mmBase) {
+        var mHdr;
+
+        if (userSettings.debug.message_scan) {
+            console.putmsg(blue + high_intensity +
+                "Entered getCurMailScanPtr()\n");
+        }
+
+        for each (var cPtr in ptrArray) {
+          try {
+            mHdr = mmBase.get_msg_header(true, cPtr, true);
+          } catch (e) {
+              console.putmsg(magenta + "Unable to obtain header: " + cPtr +
+                  "\n");
+              throw new docIface.dDocException("getCurMailScanPtr() Exception",
+                "Unable to obtain header: " + cPtr + " Msg: " + e.message , 1);
+          }
+
+          if (!(mHdr.attr & MSG_READ)) {
+              if (userSettings.debug.message_scan) {
+                  console.putmsg(blue + "Found unread message @ " + cPtr +
+                      "\n");
+              }
+              return ptrArray.indexOf(cPtr);
+          }
+        }
+
+        if (userSettings.debug.message_scan) {
+            console.putmsg(blue + "Found no unread messages\n");
+        }
+
+        return null;
     },
         /*
          * summary:
@@ -84,8 +124,8 @@ uMail = {
          */
     readMail : function() {
         var mmBase = new MsgBase("mail");
-        var fuggit = false, displayed = true, increment = 1, mNdx = 0;
-        var uChoice, mHdr, mBody, mailList;
+        var fuggit = false, displayed = true, increment = 1;
+        var uChoice, mHdr, mBody, mailList, mNdx;
 
         try {
           mmBase.open();
@@ -101,31 +141,23 @@ uMail = {
         //so that mess should have gotten us the current message index scan
         //pointer (or pseudo-version thereof); now we can start
         mailList = this.getMailScanPtr(mmBase);
-
-        /* if (((mNdx = msg_area.sub["mail"].scan_ptr) < 0) ||
-            (mNdx > mmBase.last_msg)) {
-            if (userSettings.debug.message_scan) {
-                console.putmsg(green + "Dbg:\t" + high_intensity +
-                    "mNdx being reset to 0\n");
-            }
+        if ((mNdx = this.getCurMailScanPtr(mailList, mmBase)) == null) {
             mNdx = 0;
-        }
-
-        if ((mailList.findIndex(mNdx)) == -1) {
             if (userSettings.debug.message_scan) {
-                console.putmsg(cyan + "Dbg:\t" + high_intensity +
-                    "mNdx being reset to 0 (at 2nd opportunity)\n");
+                console.putmsg(magenta + high_intensity + "No unread found\n");
             }
-            mNdx = 0;   //we should have a better way to find a closer message
-                        //to whatever they wanted, but not today
-        } */
+        } else {
+            if (userSettings.debug.message_scan) {
+                console.putmsg(magenta + high_intensity + "First unread found" +
+                    " at slot #" + mNdx + "\tMessage #" + mailList[mNdx] +
+                    "\n");
+            }
+        }
 
 	console.putmsg(yellow + high_intensity + "Mail> ");
 
         while (!fuggit) {
           //let's read da shit
-          //uChoice = console.getkey();   //NOTE: this will have to be replaced
-                                        //w/one checking for Xes
           if (userSettings.debug.message_scan) {
               console.putmsg(yellow + "\nuChoice:\t" + high_intensity + 
                 uChoice + "\n");
@@ -157,7 +189,6 @@ uMail = {
 		  displayed = false;
 		}
             case 'n':	//next
-
                 if (uChoice != 'a') {
                     bbs.log_key("n");
                 }
@@ -206,16 +237,23 @@ uMail = {
                 }
 
                 //if (breaks) {
-            	  console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into
-                  // putmsg here so it gets included in the line count for
-		  // breaks
-                /*} else {
-            	    if (userSettings.debug.message_scan) {
-                	console.putmsg("Putting out message next:\n");
-                    }
+            	console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into
+                // putmsg here so it gets included in the line count for
+		// breaks
 
-                    console.putmsg(fHdr + mBody, (P_NOPAUSE | P_WORDWRAP));
-                } */
+                if (userSettings.debug.message_scan) {
+                    console.putmsg(red + high_intensity + "Attempting to " +
+                        "mark " + (mNdx + 1) + " (true index value: " +
+                        mailList[mNdx] + ") w/MSG_READ\n");
+                }
+                //mark the message read
+                try {
+                    mHdr.attr |= MSG_READ;
+                    mmBase.put_msg_header(true, mailList[mNdx], mHdr);
+                } catch (e) {
+                    throw new dDocException("readMail() Exception",
+                        "Wut: " + e.message, 4);
+                }
 
                 //display prompt
                 msg_base.doMprompt(mmBase, mNdx);
@@ -311,7 +349,8 @@ uMail = {
             break;
             default:
                 //wut
-                console.putmsg(yellow + high_intensity + "Wut?\n\n");
+                console.putmsg(yellow + high_intensity + "You hear the " +
+                    "howling of the Cwyn'ann\n\n");
                 console.putmsg(yellow + high_intensity + "Mail> ");
             break;
           }
