@@ -81,7 +81,7 @@ poast = {
 	/*
 	 * summary:
 	 *	Modularizes the text snagging routine (w/optional maximum
-	 *	number of lines); note that the 'X' option still needs to be
+	 *	number of lines); note that the 'X' optihttps://github.com/dgets/DOCshellon still needs to be
          *	implemented here to enable Xpress messages to be sent (not sure
          *	if they're set up for asynchronous receive or not at this point;
          *	I guess I'd assume that they aren't)
@@ -178,7 +178,7 @@ poast = {
         //going to use a generic subject for now; ignoring it from the
         //ddoc interface completely to see how it goes
 	mTxt = this.getTextBlob(null);
-	if (userSettings.debug.message_posting) {
+	if ((userSettings.debug.message_posting) && (mTxt != null)) {
 	  console.putmsg(red + "Got mTxt array of length: " +
 		mTxt.length + " back from getTextBlob()\n");
 	}
@@ -194,7 +194,10 @@ poast = {
                                        "writing to " + base.name +
                                        "\nSorry; error is logged.\n");
                   }
-	}
+	} else {
+            throw new docIface.dDocException("getMsgBody() Exception",
+                "Null message/aborted", 1);
+        }
     },
         /*
          * summary:
@@ -408,11 +411,19 @@ poast = {
 	//doing this by user number now, since lookup by user number and
 	//other methods to determine the sysop's alias seem lobotimized,
 	//non-existant, or otherwise retarded
-	poast.addMsg(mb, false, 1);
+	try {
+          poast.addMsg(mb, false, 1);
+        } catch (e) {
+            console.putmsg(green + high_intensity + "Message aborted: " +
+                e.message + "\n");
+            return;
+        }
 
-	console.putmsg(green + high_intensity + "If you didn't see " +
-	  "anything foreboding above, your message will be read by " +
-	  "system user #1 upon next login.\n");
+        if (userSettings.debug.message_posting) {
+	  console.putmsg(green + high_intensity + "If you didn't see " +
+            "anything foreboding above, your message will be read by " +
+            "system user #1 upon next login.\n");
+        }
     }
 }
 
