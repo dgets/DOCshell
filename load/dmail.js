@@ -259,7 +259,7 @@ uMail = {
                 msg_base.doMprompt(mmBase, mNdx);
 
 		//get ready for next
-		mNdx += increment; displayed = true;
+		mNdx += increment;displayed = true;
             break;
 	    case 'r':
                 bbs.log_key("r");
@@ -430,6 +430,8 @@ uMail = {
 	  try {
 	    poast.mWrite(mailTxt, new MsgBase('mail'), uNum);
             user.sent_email();
+            system.put_telegram(uNum, "Received mail from " + user.alias +
+                "\n");
 	  } catch (e) {
 	    console.putmsg(red + "Unable to poast.mWrite Mail>: " + e.message +
 		"\n");
