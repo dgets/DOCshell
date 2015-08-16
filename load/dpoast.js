@@ -211,11 +211,6 @@ poast = {
 	 *	if to anybody other than 'All'
          */
     addMsg : function(base, upload, recip) {
-        /*
-         * NOTE: This method is way too big and needs to be chopped the
-         * fuck up in order to make this more readable and more reusable
-         */
-
 	//turn off instant messages coming in while posting BITWISE DEBAUCHERY
 	bbs.sys_status |= SS_MOFF;
 
@@ -365,6 +360,10 @@ poast = {
 		+ e.message);
 	    throw new docIface.dDocException("mWriteException", e.message,
 			e.number);
+        }
+
+        if (mBase.subnum != -1) {
+            user.posted_message();  //increment posted message count
         }
 
         try {
