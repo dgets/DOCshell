@@ -316,10 +316,6 @@ msg_base = {
           }
 
           if (startNum !== undefined) {
-              if (userSettings.debug.message_scan) {
-                  console.putmsg(green + "Made it into readNew(" + startNum +
-                                 ")\n");
-              }
               msg_area.sub[bbs.cursub_code].scan_ptr = startNum;
 
               msg_base.scanSub(msg_area.sub[bbs.cursub_code],
@@ -333,10 +329,9 @@ msg_base = {
           //this next one could be fairly important; leaving this commented code
           //in:
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
-	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
+	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.last_msg) {
 	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
-                               msg_base.util.remap_message_indices(
-                                                mBase),
+                               msg_base.util.remap_message_indices(mBase),
                                true);
 	    }
           }
@@ -456,7 +451,7 @@ msg_base = {
                     "() Exception", e.message, 2);
             }
 
-            if ((curHdr == null) || (curHdr.attr&MSG_DELETE)) {
+            if ((curHdr == null) || (curHdr.attr & MSG_DELETE)) {
                 continue;   //skip this shit, we don't want this indexed
             } else {
               if (userSettings.debug.message_scan) {
@@ -832,7 +827,7 @@ msg_base = {
 		"Unable to open mail sub: " + e.message, 2);
 	  }
 	}*/
-        base = msg_base.util.openNewMBase(base.code);
+        base = msg_base.util.openNewMBase(user.cursub);
 
         //let's try and find out if the message we're going to go looking for
         //is bogus before we waste time with this, especially since the mHdr
@@ -891,6 +886,8 @@ msg_base = {
 	    console.putmsg(fHdr + mBody, (P_NOPAUSE | P_WORDWRAP));
 	  }
         }
+
+        return null;
   },
 	/*
 	 * summary:
@@ -1000,9 +997,17 @@ msg_base = {
 
 		    if ((tmpPtr = 0) && (inc == -1)) {
 			mBase.close();
-			return 0; // do we reverse scan from room to room also?
-		    } else if ((tmpPtr = (indices.length - 1)) && (inc == 1)) {
+			throw new docIface.dDocException("scanSub() Exception",
+                            "Reverse scan hit message 0", 2);
+		    } else if ((tmpPtr > indices.length) && (inc == 1)) {
+
+                        this.dispMsg(user.cursub, indices[tmpPtr], true);
+
 			mBase.close();
+                        if (userSettings.debug.message_scan) {
+                            console.putmsg(red + high_intensity + "tmpPtr out" +
+                                " of bounds\n");
+                        }
 			return 1;   // skip to next room
 		    }
 
@@ -1010,7 +1015,7 @@ msg_base = {
                     try {
                       //here's the main message display loop
 		      if ((tmpPtr >= 0) && (tmpPtr < indices.length)) {
-			while (this.dispMsg(mBase, indices[tmpPtr], true)
+			while (this.dispMsg(user.cursub, indices[tmpPtr], true)
                                 == null) {
 			  tmpPtr += inc;
 			  if ((tmpPtr == 0) || (tmpPtr = (indices.length-1))) {
