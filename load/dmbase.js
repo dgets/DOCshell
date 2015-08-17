@@ -890,164 +890,57 @@ msg_base = {
         return null;
   },
 	/*
-	 * summary:
-	 *	Sequentially scans for new messages within one
-	 *	particular sub-board; don't forget to add the support
-	 *	for whether confined or not after this is beta working; needs
-         *	to be using exception handling instead of passing error codes
-	 * sBoard: String
-	 *	Synchronet Sub-board object
-         * indices: Array
-         *      Freshly remapped array indices conveniently skipping any deleted
-         *      messages or other crap that we don't need to worry about
-	 * forward: Boolean
-	 *	true for forward read & converse
-	 * return:
-	 *	null/negative for errors; 1 to move on to the next sub, 
-	 *	still working on further shite -- fix this for exceptions!
-         * NOTE:
-         *      Once again in this method we need to run through things and
-         *      make sure that we're not using return for error codes; a proper
-         *      exception throwing model really needs to be adhered to
-	 */
+         * summary:
+         *      Rewrite of scanSub() so that it doesn't suck ass, hopefully
+         * sBoard:
+         *      msg_area object currently being scanned
+         * indices:
+         *      Valid message indexes for the current sub
+         * forward:
+         *      Boolean; true for forward & vice versa
+         */
   scanSub : function(sBoard, indices, forward) {
-	var tmpPtr, inc, choice = 0;
+      var tmpPtr, inc;
 
-	if (userSettings.debug.message_scan) {
-	  console.putmsg("Entered scanSub(); forward = " + forward +
-	    "  user.cursub: " + user.cursub + "\nsBoard.code: " +
-	    sBoard.code + "\tindices size: " + indices.length + "\n");
-	}
+      mBase = msg_base.util.openNewMBase(sBoard.code);
+      if (mBase === null) {
+          throw new docIface.dDocException("scanSub() Exception",
+            "Error (null) in openNewMBase()", 1);
+      }
 
-	mBase = msg_base.util.openNewMBase(sBoard.code);
-	if (mBase === null) {
-	    if (userSettings.debug.message_scan) {
-		console.putmsg("Error (null) in openNewMBase()\n");
-	    }
-	    throw new docIface.dDocException("scanSubException",
-		  "Error (null) in openNewMBase()", 1);
-	}
+      tmpPtr = indices.indexOf(sBoard.scan_ptr);
+      if (tmpPtr == -1) {
+          tmpPtr = 0;   //start from the beginning of these indices
+      }
 
-        if ((tmpPtr = indices.indexOf(sBoard.scan_ptr)) == -1) {
-            tmpPtr = 0;     //start from the beginning of these indices
-        }
+      if (forward) {
+          inc = 1;
+      } else {
+          inc = -1;
+          if (tmpPtr <= (indices.length - 1)) {
+              tmpPtr +=1;   //so as to start with the most recently read msg
+          }
+      }
 
-	if (userSettings.debug.message_scan) {
-          console.putmsg(cyan + "-=-=-=-=-=-=-=-=-=-\n");
-	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
-          console.putmsg("sBoard.ptridx = " + sBoard.ptridx + "\n");
-          console.putmsg("tmpPtr = " + tmpPtr + "\n");
-          console.putmsg("indices[tmpPtr] = " + indices[tmpPtr] + "\n");
-          console.putmsg("mBase.cfg.ptridx = " + mBase.cfg.ptridx + "\n");
-	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
-	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
-	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
-          console.putmsg(yellow + "scan_ptr:\t" + sBoard.scan_ptr + 
-                         "\tindices[tmpPtr]:\t" + indices[tmpPtr] + 
-                         "\tmBase.last_msg:\t" + mBase.last_msg + "\n");
-          console.putmsg(cyan + "-=-=-=-=-=-=-=-=-=-\n");
-	}
-	
-	if (forward) {
-            inc = 1;
-        } else {
-            inc = -1;
-        }
-	
-	// if starting in reverse from the room prompt, unskip one message
-	if (!forward) {
-            tmpPtr += 1;  // so we start with the most recently read
-                          // message.  In all other cases we want to skip one.
-        }
-	
-	if (userSettings.debug.message_scan) {
-	  console.putmsg("Inc: " + inc + "\tbased on forward\n");
-	}
+      while (((forward) && tmpPtr <= (indices.length - 1)) ||
+             ((!forward) && tmpPtr >= 0)) {
 
-	//primary message scan loop
-	while (true) {  // a bit shady, but we exit from within the switch/case
-	    if (userSettings.debug.message_scan) {
-		console.putmsg(red + "In main scanSub() loop\ttmpPtr: "
-		      + tmpPtr + " total_msgs: " + mBase.total_msgs
-		      + " is_open: " + (mBase.is_open ? "yes" : "no") + "\n");
-	    }
+          this.dispMsg(user.cursub, indices[tmpPtr], true);
+          sBoard.scan_ptr = indices[tmpPtr];
+          tmpPtr += inc;
 
-	    switch (choice) {
-		case 1:		// Stop scan
-		    if (userSettings.debug.message_scan) {
-			console.putmsg("DEBUG: Stopping scan\n");
-		    }
-		    mBase.close();
-		    return null;
-		case 2:		// Reverse scan direction
-		    if (userSettings.debug.message_scan) {
-			console.putmsg(red + "DEBUG: Reversing direction\n");
-		    }
-		    inc *= -1;
-		    //Fall through to read message
-		    //break;
-		case 0:		// Next message
-		    if (userSettings.debug.message_scan) {
-                        console.putmsg(high_intensity + "tmpPtr: " + normal +
-                            tmpPtr + "\t" + high_intensity + "indices.length: "
-                            + normal + indices.length + "\t" + high_intensity +
-                            "indices[tmpPtr]: " + normal + indices[tmpPtr] +
-                            "\n");
-		    }
+          choice = this.read_cmd_rcChoice(mBase, indices[tmpPtr]);
+          switch (choice) {
+              case 1:       //stop scan
+                  mBase.close();
+                  return null;
+              break;
+              case 2:       //reverse scan direction
+                  inc *= -1;
+              break;
+          }
 
-		    if ((tmpPtr = 0) && (inc == -1)) {
-			mBase.close();
-			throw new docIface.dDocException("scanSub() Exception",
-                            "Reverse scan hit message 0", 2);
-		    } else if ((tmpPtr > indices.length) && (inc == 1)) {
+      }
 
-                        this.dispMsg(user.cursub, indices[tmpPtr], true);
-
-			mBase.close();
-                        if (userSettings.debug.message_scan) {
-                            console.putmsg(red + high_intensity + "tmpPtr out" +
-                                " of bounds\n");
-                        }
-			return 1;   // skip to next room
-		    }
-
-		    tmpPtr += inc;
-                    try {
-                      //here's the main message display loop
-		      if ((tmpPtr >= 0) && (tmpPtr < indices.length)) {
-			while (this.dispMsg(user.cursub, indices[tmpPtr], true)
-                                == null) {
-			  tmpPtr += inc;
-			  if ((tmpPtr == 0) || (tmpPtr = (indices.length-1))) {
-			    break;
-			  }
-			}
-
-			if (inc == 1) { //do we want this if only going forward?
-                            sBoard.scan_ptr = indices[tmpPtr];
-                        }
-		      }
-                    } catch (e) {
-                        console.putmsg(yellow + "Uncaught exception from " +
-                            "dispMsg(): " + e.message + "\n");
-                    }
-		    break;
-		default:
-		    console.putmsg(red + "\nUnexpected value from rcChoice: "
-			  + choice + "\n");
-		    return null;
-	    }
-
-	    if (userSettings.debug.message_scan) {
-		console.putmsg(red + "End of scanSub() main loop\n"
-		      + "tmpPtr: " + tmpPtr + "\tinc: " + inc + "\n");
-	    }
-	    choice = this.read_cmd.rcChoice(mBase, indices[tmpPtr]);
-	}
-
-	mBase.close();
-	if (userSettings.debug.message_scan) {
-	  console.putmsg(red + "Closed mBase: " + sBoard.code + "\n");
-	}
-    }
+  }
 }
