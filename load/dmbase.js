@@ -902,6 +902,10 @@ msg_base = {
   scanSub : function(sBoard, indices, forward) {
       var tmpPtr, inc;
 
+      if (userSettings.debug.message_scan) {
+          console.putmsg("Entered scanSub()\tforward: " + forward + "\n");
+      }
+
       mBase = msg_base.util.openNewMBase(sBoard.code);
       if (mBase === null) {
           throw new docIface.dDocException("scanSub() Exception",
@@ -911,6 +915,11 @@ msg_base = {
       tmpPtr = indices.indexOf(sBoard.scan_ptr);
       if (tmpPtr == -1) {
           tmpPtr = 0;   //start from the beginning of these indices
+          if (userSettings.debug.message_scan) {
+              console.putmsg("Setting tmpPtr to 0\n");
+          }
+      } else if (userSettings.debug.message_scan) {
+          console.putmsg("Setting tmpPtr to " + tmpPtr + "\n");
       }
 
       if (forward) {
@@ -924,6 +933,10 @@ msg_base = {
 
       while (((forward) && tmpPtr <= (indices.length - 1)) ||
              ((!forward) && tmpPtr >= 0)) {
+
+          if (userSettings.debug.message_scan) {
+              console.putmsg(yellow + "Entered scanSub() primary loop\n");
+          }
 
           this.dispMsg(user.cursub, indices[tmpPtr], true);
           sBoard.scan_ptr = indices[tmpPtr];
@@ -942,5 +955,6 @@ msg_base = {
 
       }
 
+      return null;
   }
 }
