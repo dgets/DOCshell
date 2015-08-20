@@ -329,11 +329,11 @@ msg_base = {
           //this next one could be fairly important; leaving this commented code
           //in:
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
-	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.last_msg) {
+	    //if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.last_msg) {
 	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
                                msg_base.util.remap_message_indices(mBase),
                                true);
-	    }
+	    //}
           }
 
 	  mBase.close();
@@ -773,7 +773,7 @@ msg_base = {
 		  + " to check for updates\n");
 	  }
 	  console.putmsg(yellow + high_intensity + "\n[" + base.cfg.name +
-	      "> msg #" + (ndx + 1) + " (" + (mBase.total_msgs - ndx) +
+	      "> msg #" + (ndx + 1) + " (" + (mBase.last_msg - ndx) +
 	      " remaining)] " + cyan + "Read cmd -> ");
 	} else {
 	  console.putmsg(yellow + high_intensity + "\n[Mail> msg #" + 
@@ -807,26 +807,6 @@ msg_base = {
 	    "\tbreaks: " + breaks + "\n");
 	}
 
-        //this should be swapped out for proper message base open validation
-	/*if (!base.is_open) {
-	  //let's give this a shotjoin
-	  if (userSettings.debug.message_scan) {
-	    console.putmsg(yellow + "base was closed; reopening\n");
-	  }
-
-          //actually this should probably be swapped out for the right openbase
-          //functionality, I'm just not sure what's up with the message about
-          //'Mail' down there; I think that's just spurious, but I don't know
-          //for sure, so that will wait for more research
-	  try {
-	    base.open();
-	  } catch (e) {
-	    console.putmsg(red + "Unable to open Mail> sub:\t" + e.message +
-		"\n");
-	    throw new docIface.dDocException("dispMsg() Error",
-		"Unable to open mail sub: " + e.message, 2);
-	  }
-	}*/
         base = msg_base.util.openNewMBase(user.cursub);
 
         //let's try and find out if the message we're going to go looking for
@@ -942,7 +922,7 @@ msg_base = {
           sBoard.scan_ptr = indices[tmpPtr];
           tmpPtr += inc;
 
-          choice = this.read_cmd_rcChoice(mBase, indices[tmpPtr]);
+          choice = this.read_cmd.rcChoice(mBase, indices[tmpPtr]);
           switch (choice) {
               case 1:       //stop scan
                   mBase.close();
