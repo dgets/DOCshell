@@ -94,7 +94,7 @@ msg_base = {
             switch (uchoice) {
                 case '?':
 		  bbs.log_key("?");
-                case 'h':	//see menu
+                case 'h':	//see menuscanSub
 		  if (uchoice == "h") {
 		    bbs.log_key("h");
 		  }
@@ -318,7 +318,31 @@ msg_base = {
           if (startNum !== undefined) {
               msg_area.sub[bbs.cursub_code].scan_ptr = startNum;
 
-              try {
+              if (userSettings.debug.message_scan) {
+                console.putmsg(green + high_intensity + "startNum !undef\n");
+              }
+          } else {
+              if (userSettings.debug.message_scan) {
+                  console.putmsg(green + "startNum defined\n");
+              }
+          }
+
+          try {
+              msg_base.scanSub(msg_area.sub[bbs.cursub_code],
+                               msg_base.util.remap_message_indices(mBase),
+                               true);
+          } catch (e) {
+              if ((e.number == 2) && (userSettings.debug.message_scan))  {
+                console.putmsg(cyan + high_intensity + "Got exception 2 " +
+                    "in readNew()\n");
+              } else {
+                  console.putmsg(cyan + "Got other exception in readNew()\n");
+              }
+
+              return;
+          }
+
+          /*    try {
                 msg_base.scanSub(msg_area.sub[bbs.cursub_code],
                                  msg_base.util.remap_message_indices(mBase),
                                  true);
@@ -353,7 +377,7 @@ msg_base = {
                   }
               }
 	    //}
-          }
+          } */
 
 	  mBase.close();
           docIface.nav.findNew();
