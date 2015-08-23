@@ -318,9 +318,18 @@ msg_base = {
           if (startNum !== undefined) {
               msg_area.sub[bbs.cursub_code].scan_ptr = startNum;
 
-              msg_base.scanSub(msg_area.sub[bbs.cursub_code],
-                               msg_base.util.remap_message_indices(mBase),
-                               true);
+              try {
+                msg_base.scanSub(msg_area.sub[bbs.cursub_code],
+                                 msg_base.util.remap_message_indices(mBase),
+                                 true);
+              } catch (e) {
+                  if (e.number == 2) {  //aborted scan
+                    if (userSettings.debug.message_scan) {
+                        console.putmsg("Got exception 2 in readNew()\n");
+                    }
+                    return;
+                  }
+              }
           } else {
               if (userSettings.debug.message_scan) {
                   console.putmsg(yellow + "Made it into readNew() w/undef\n");
@@ -330,9 +339,19 @@ msg_base = {
           //in:
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
 	    //if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.last_msg) {
-	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
-                               msg_base.util.remap_message_indices(mBase),
-                               true);
+	      try {
+                msg_base.scanSub(msg_area.sub[bbs.cursub_code],
+                                 msg_base.util.remap_message_indices(mBase),
+                                 true);
+              } catch (e) {
+                  if (e.number == 2) {  //aborted scan
+                      if (userSettings.debug.message_scan) {
+                          console.putmsg("Got exception 2 in readNew()" +
+                            " (2nd chance)\n");
+                      }
+                    return;
+                  }
+              }
 	    //}
           }
 
@@ -573,6 +592,13 @@ msg_base = {
 	    } catch (e) {
 		console.putmsg(yellow + "Exception reading backwards: " +
 		      e.toString() + "\n");
+                if (e.number == 2) {
+                    //stop
+                    if (userSettings.debug.message_scan) {
+                        console.putmsg(green + "Got stop exception in " +
+                            "handler()\n");
+                    }
+                }
 	    }
 	    break;
           case 'k':     //list scanned bases
@@ -926,7 +952,12 @@ msg_base = {
           switch (choice) {
               case 1:       //stop scan
                   mBase.close();
-                  return null;
+                  if (userSettings.debug.message_scan) {
+                      console.putmsg(blue + high_intensity + "Attempting to " +
+                        "throw exception to break scanSub()/readNew()\n");
+                  }
+                  throw new dDocIface.dDocException("scanSub() Exception",
+                    "Aborted message scan", 2);
               break;
               case 2:       //reverse scan direction
                   inc *= -1;
