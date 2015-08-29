@@ -342,26 +342,9 @@ msg_base = {
               return;
           }
 
-          /*    try {
-                msg_base.scanSub(msg_area.sub[bbs.cursub_code],
-                                 msg_base.util.remap_message_indices(mBase),
-                                 true);
-              } catch (e) {
-                  if (e.number == 2) {  //aborted scan
-                    if (userSettings.debug.message_scan) {
-                        console.putmsg("Got exception 2 in readNew()\n");
-                    }
-                    return;
-                  }
-              }
-          } else {
-              if (userSettings.debug.message_scan) {
-                  console.putmsg(yellow + "Made it into readNew() w/undef\n");
-              }
-
           //this next one could be fairly important; leaving this commented code
           //in:
-	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
+	  /*if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
 	    //if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.last_msg) {
 	      try {
                 msg_base.scanSub(msg_area.sub[bbs.cursub_code],
