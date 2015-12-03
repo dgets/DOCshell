@@ -72,7 +72,8 @@ docIface = {
        "<u>\tungoto last room\n<v>\texpress -1\n<w>\tWho's online?\n" +
        "<W>\tshort wholist\n<x>\tsend eXpress message\n" +
        "<X>\ttoggle eXpress status\n<^X>\tcheck old X messages\n" +
-       "<y>\tyell\n<z>\tzaproom\n<0-9>\tquickX\n<#>\tRead room by " +
+       "<y>\tyell\n<z>\tzaproom\n" +    //<0-9>\tquickX\n
+       "<#>\tRead room by " +
        "number\n<->\tread last n messages\n<%>\ttoggle guideflag " +
        "status\n<@>\taidelist\n<\">\tquote Xes to Sysop\n" +
        "<$>\tchange debugging settings\n\n",
