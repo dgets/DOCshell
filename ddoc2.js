@@ -6,7 +6,7 @@
  * contributing/refactoring also by: @Ntwitch (github.com)
  * started: 18aug14
  * alpha phase: 25oct14
- * beta phase: 
+ * beta phase: 2aug15
  * finished:
  *
  * a slightly more organized attempt to emulate the DOC shell from
@@ -28,7 +28,7 @@ load("/sbbs/exec/load/nodedefs.js");
 //pseudo-globals
 const excuse = "\n\nThe rothe strikes!  You die!. . .\n\n",
 	debugOnly = false, topebaseno = 6,
-	alwaysLogout = false, std_logging = true, maxMsgs = 500;
+	alwaysLogout = true, std_logging = true, maxMsgs = 500;
 
 //a few easier hooks for the ctrl-a codes
 const ctrl_a = "\1";
@@ -135,11 +135,14 @@ docIface = {
   getChoice : function() {
 	var cmd = "";
 
+        this.setNodeAction(NODE_MAIN);
+
 	do {
 	  bbs.nodesync();	//check for xpress messages
 	  cmd = console.inkey(K_NOECHO, 1000);
 	} while (cmd == "");
 
+        bbs.log_key(cmd);
 	return cmd;
   },
   /*
@@ -165,7 +168,30 @@ docIface = {
 	  throw new dDocException("log_str_n_char() Error", e.message, 1);
 	}
 
-	//return 0;
+  },
+  /*
+   * summary:
+   *    Wrapper to handle logging along with node status changes, since they're
+   *    bound to go together pretty often
+   * c:
+   *    Character value to log (keylog)
+   * str:
+   *    String to log to the logfile
+   * na:
+   *    Bitfield for node action status (sbbsdefs.js)
+   */
+  logStatusChange : function(c, str, na) {
+      try {
+          this.log_str_n_char(str, c);
+          this.setNodeAction(na);
+      } catch (e) {
+          var errmsg = "Problems with logStatusChange(): " + e.description +
+                          "\nName: " + e.name + "\t\tMsg: " + e.message + "\n";
+          js.report_error(errmsg);
+          if (userSettings.debug.misc) {
+            console.putmsg(yellow + errmsg);
+          }
+      }
   },
   /*
    * summary:
@@ -196,7 +222,6 @@ docIface = {
 	    "\n");
 	}
 
-	//console.putmsg(this.menu);
   },
   //sub-objects
   nav : {
@@ -249,10 +274,8 @@ docIface = {
 
 	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
 	    if (userSettings.debug.navigation) {
-		console.putmsg(yellow + /*msg_area.sub[bbs.cursub_code].index*/
-		  + ndx + ": " + roomData.tieIns.isZapped(ndx)
-					/*msg_area.sub[bbs.cursub_code].index)*/
-		  + "\n");
+		console.putmsg(yellow + ndx + ": " +
+                    roomData.tieIns.isZapped(ndx) + "\n");
 	    }
 
 	    if (!roomData.tieIns.isZapped(ndx)) {
@@ -275,6 +298,7 @@ docIface = {
 		} else if (subList[ndx].scan_ptr > mBase.total_msg) {
                     //we've got some corrupt shit to fix here; not sure how it
                     //happened but we might as well have a way to fix it
+                    //maybe checking for validity?
                     subList[ndx].scan_ptr = mBase.first_msg;
                     if (userSettings.debug.navigation) {
                         console.putmsg(yellow + " just fixed scan ptrs\n");
@@ -304,23 +328,35 @@ docIface = {
 	  console.putmsg(green + "Entered jump()\n");
 	}
 
-	bbs.log_key("J");
-
 	console.putmsg(green + high_intensity + "Jump to forum " +
 	  "name? -> ");
 
 	uChoice = console.getstr().toUpperCase();
+
 	if (uChoice == "MAIL") {
 	  if (userSettings.debug.navigation) {
 	    console.putmsg("Entering Mail> code\n");
 	  }
 
-	  if (uMail.readMail() == -1) {
-	    if (userSettings.debug.navigation) {
+          docIface.logStatusChange("j", "Jumped to Mail>", NODE_RMAL);
+
+          try {
+              uMail.readMail();
+          } catch (e) {
+	    /*
+             * oh we've got a hell of a lot more than just this to worry about
+             * now
+             * if (userSettings.debug.navigation) {
 		console.putmsg(red + "Logout requested from Mail> code\n");
-	    }
+	       }
+             */
+            if (userSettings.debug.message_scan) {
+                console.putmsg(red + "\nException:\t" + high_intensity +
+                    e.name + "\n" + normal + magenta + e.message + "\n");
+            }
 	    docIface.util.quitDdoc();
 	  }
+
 	  ouah = "Mail";	//vestigial?
 	} else if (uChoice == "") {
           //abort
@@ -346,22 +382,23 @@ docIface = {
 	  }
 	}
 
-	if (ouah == "MAIL") {
-	  bbs.log_str("Jumped to Mail");
-	} else {
-	  bbs.log_str("Jumped to " + this.setSub(ouah));
+	if (ouah.code.toUpperCase() != "MAIL") {
+          docIface.logStatusChange("j", "Jumped to " + this.setSub(ouah) +
+                                   ">", NODE_RMSG);
+
 	  if (userSettings.debug.navigation) {
 	    console.putmsg(cyan + "Set sub/tmpBase to " + ouah.code + "\n");
 	  }
 
 	  var tmpBase = new MsgBase(ouah.code);
-	  if (!tmpBase.is_open) {
+	  /*if (!tmpBase.is_open) {
 	    try {
 		tmpBase.open();
 	    } catch (e) {
 		console.putmsg(red + e.message + "\n");
 	    }
-	  } 
+	  }*/
+          tmpBase = msg_base.util.openNewMBase(ouah.code);
 
 	  if (userSettings.debug.navigation) {
 	    console.putmsg(blue + high_intensity + "tmpBase is open: " +
@@ -397,17 +434,8 @@ docIface = {
         *       read; it should just skip to the next room in the list
 	*/
     skip: function () {
-	// mark all messages as read in current room
-	//var mBase = msg_base.openNewMBase(bbs.cursub_code);
-
-        /* this is the code that is leaving skip adjusting the message pointers
-         * that we really don't want to eff with; they need to stay the same
-         * for the next return to this sub
-	if (mBase != null) {
-	    msg_area.sub[bbs.cursub_code].scan_ptr = mBase.total_msgs;
-	    mBase.close();
-	} */
 	// use findNew to change to next room with unread messages
+        bbs.log_key("s");
 	this.findNew();
     },
 	/*
@@ -488,7 +516,9 @@ docIface = {
 	 * 	a scratchpad in the $SBBSHOME/user/ directory, as well.
 	 */
     initDdoc : function() {
-	//load user settings
+        bbs.log_str("Initializing dDoc session");
+
+        //load user settings
 	userSettings = userRecords.defaultSettings(user.number);
 	try {
           userSettings = userRecords.userDataIO.loadSettings(user.number);
@@ -500,7 +530,7 @@ docIface = {
 
 	//load room settings -- WHAT THE FUCK IS GOING ON WITH THE NESTED TRY/
         //CATCH BULLSHIT HERE?  Vestigial horror no doubt; fix this
-	try {
+	//try {
           try {
               roomData.fileIO.snagRoomInfoBlob();
           } catch (e) {
@@ -509,11 +539,11 @@ docIface = {
                     + "Message: " + e.message + "\tNum: " + e.number + "\n");
               }
           }
-	} catch (e) {
+	/*} catch (e) {
 	  console.putmsg(red + high_intensity + "Loading room data in " +
 		"initDdoc:\n");
 	  console.putmsg(red + e.message + "\n");
-	}
+	}*/
 
 	if (userSettings.debug.misc) {
 		userRecords.userDataUI.displayDebugFlags(user.number);
@@ -532,6 +562,8 @@ docIface = {
 	}
 
 	//set node status here, maybe?
+        //then again beware the fact that this bitwise shit can really be what
+        //is fucking with shit on other nodes and everything.  the 'orrah
 	docIface.setNodeAction(NODE_MAIN);
 
 	//turn on asynchronous message arrival
@@ -578,7 +610,8 @@ docIface = {
 	 *  	are unwanted in the dDoc interface
 	 */
     turnOffSynchronetDefaults : function() {
-	//turn off scans
+	//turn off scans THIS IS PROBABLY WHERE BITWISE SHIT IS FUCKED UP, OR AT
+        //LEAST A PART OF IT
 	user.settings &= ~USER_ASK_NSCAN;
 	user.settings &= ~USER_ASK_SSCAN;
 	user.settings &= ~USER_ANFSCAN;
@@ -602,8 +635,10 @@ docIface = {
          *	make heads or tails of it just yet
 	 */
     quitDdoc : function() {
-	bbs.log_str(user.alias + " is leaving dDOC shell");
-	bbs.log_key("L");
+	docIface.logStatusChange("l", user.alias + " is leaving dDoc", 
+                                 NODE_LAST_ACTION);
+        /* bbs.log_str(user.alias + " is leaving dDOC shell");
+	bbs.log_key("L"); */
 
 	if (userSettings.debug.flow_control) {
 	  console.putmsg(red + "\nRestoring user.* properties:\n" +
@@ -613,7 +648,7 @@ docIface = {
 	  console.putmsg(red + "\nRestoring user.settings . . .\n");
 	}
 
-	//restore initial settings prior to exit
+	//restore initial settings prior to exit MORE BITWISE DEBAUCHERY
 	user.cursub = this.preSubBoard;
 	//user.cursub = bbs.cursub_code;
 	user.curgrp = this.preMsgGroup;
@@ -643,7 +678,7 @@ docIface = {
          *      handled from within dperroom's code right now, though.
 	 */
     dispRoomInfo : function() {
-	bbs.log_key("I");
+	bbs.log_key("i");
 
 	if (userSettings.debug.misc) {
 	  console.putmsg(red + "Entered 'i'nfo (dispRoomInfo()) in " +
@@ -657,8 +692,6 @@ docIface = {
 		green + "Forum info last updated: " + magenta +
 		"<not implemented> " + green + "by " + cyan +
 		"<not implemented>\n\n");
-
-	//here we'll actually pull the room info
     }
 	
   }
@@ -797,11 +830,6 @@ if (!debugOnly) {
 		  break;
 		case 's':
 		  console.putmsg(green + high_intensity + "Skip room\n");
-		  /*  temp remove to make skip act like vDOC
-		  if (docIface.nav.skip() == null) {
-		      docIface.nav.setSub(msg_area.grp_list[bbs.curgrp].sub_list[0]);
-		  }
-		  */
 		  docIface.nav.skip();
 		  break;
 		case 'c':
@@ -831,6 +859,8 @@ if (!debugOnly) {
 		case 'z':	//zap room
 		  if (console.yesno("Are you sure you want to forget this " +
 		      "forum? ")) {
+                    this.log_str_n_char("z", "Trying to forget " +
+                                        bbs.cursub_code);
 		    roomData.tieIns.zapRoom(bbs.cursub);
 		  }
 		  break;
@@ -855,14 +885,13 @@ if (!debugOnly) {
                         e.name + "\n" + e.message + "\n\n");
                   }
 
-                  /* console.putmsg(green + high_intensity + "Go to message #> ");
-                  console.ungetstr(uchoice);    //put it back on the input stack
-                  msg_base.dispMsg(new MsgBase(bbs.cursub_code),
-                                   console.getnum(maxMsgs), false); */
                   break;
                 case '$':       //change debugging flags for this user
                   var dropOut = false;
                   var un;
+
+                  docIface.logStatusChange("$", "Changing debugging flags",
+                                       NODE_DFLT);
 
                   if (user.security.level < 80) {
                       userRecords.userDataUI.queryDebugSettings(user.number);
@@ -891,9 +920,18 @@ if (!debugOnly) {
                   }
                   break;
                 case 'p':       //profile a user
+                  var usr;
                   console.putmsg(green + high_intensity +
                       "User to profile -> ");
-                  userRecords.userDataUI.profileUser(console.getstr());
+
+                  try {
+                    userRecords.userDataUI.profileUser(usr = console.getstr());
+                    docIface.log_str_n_char("p", "Profiled " + usr);
+                  } catch (e) {
+                      console.putmsg(red + "Problem profiling: " +
+                          high_intensity + e.message + "\n");
+                  }
+                  
                   break;
 		default:
 		  console.putmsg(excuse);

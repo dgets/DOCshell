@@ -4,7 +4,7 @@
  * by: Damon Getsman
  * contributing/refactoring also by: @Ntwitch (github.com)
  * alpha phase: 25oct14
- * beta phase: 
+ * beta phase: 2aug15
  * started: 21sept14
  * finished:
  *
@@ -84,6 +84,7 @@ msg_base = {
           while (!valid) {
 	    msg_base.doMprompt(base, ndx);
             uchoice = "";
+            docIface.setNodeAction(NODE_RMSG);
 
             do {
         	bbs.nodesync();       //check for xpress messages
@@ -125,7 +126,9 @@ msg_base = {
 		  break;
 		case 'I':	//prompt for room info
 		  //change room info
-		  bbs.log_key("I");
+		  //bbs.log_key("I");
+                  docIface.logStatusChange("I", "Changing Info for " +
+                                           user.cursub_code, NODE_PMSG);
 		  roomData.roomSettingsUX.promptUserForRoomInfo();
 		  break;
                 case 'p':
@@ -135,8 +138,6 @@ msg_base = {
 		    bbs.log_key("w");
 		  }
 		  wholist.list_long(wholist.populate);
-                  /* console.putmsg(yellow + "Not supported (yet)" +
-                        "...\n"); */
                   break;
                 case 'E':	//enter (upload) message
 		  bbs.log_key("E");
@@ -145,7 +146,7 @@ msg_base = {
                   break;
                 case 's':	//stop scan
 		  bbs.log_key("s");
-                  valid = true;hollaBack = 1;
+                  valid = true; hollaBack = 1;
 		  docIface.log_str_n_char(this.log_header, 's');
                   console.putmsg(yellow + high_intensity + "Stop\n");
                   break;
@@ -161,6 +162,7 @@ msg_base = {
 
 		  try {
                     poast.addMsg(base, false, 'All');  //not an upload
+                    user.posted_message();
 		  } catch (e) {
 		    console.putmsg(red + high_intensity + "Error " +
 			"in poast.addMsg(): " + e.message + "\n");
@@ -197,6 +199,8 @@ msg_base = {
                   bbs.curdir = docIface.util.preFileDir;
                   user.settings = docIface.util.preUserSettings;
 
+                  //something in the next bit toggling is fucking up all kinds
+                  //of shit :|
                   //disable H exemption in case they go back to usual shell so
                   //that we can handle events, etc
                   user.security.exemptions &= ~UFLAG_H;
@@ -263,7 +267,6 @@ msg_base = {
                     }
                     msg_base.dispMsg(new MsgBase(bbs.cursub_code),
                                    console.getnum(base.last_msg), false);
-                    //switched out maxMsgs (500) for base.last_msg above. duh
                   } catch (e) {
                       if (userSettings.debug.message_scan) {
                           console.putmsg(cyan + "Did we even fuckin get here?");
@@ -298,6 +301,8 @@ msg_base = {
          *      is initiated via jump to a specific message #
 	 */
         readNew : function(startNum) {
+          docIface.setNodeAction(NODE_RMSG);
+          
           if (userSettings.debug.message_scan) {
               console.putmsg(green + "openNewMBase(" + high_intensity +
                   bbs.cursub_code + normal + green + ");\nWorking with " +
@@ -311,18 +316,7 @@ msg_base = {
           }
 
           if (startNum !== undefined) {
-              if (userSettings.debug.message_scan) {
-                  console.putmsg(green + "Made it into readNew(" + startNum +
-                                 ")\n");
-              }
               msg_area.sub[bbs.cursub_code].scan_ptr = startNum;
-              //never had to use lead_read before, but let's see where it gets
-              /* if (startNum > 0) {
-                  msg_area.sub[bbs.cursub_code].lead_read = startNum - 1;
-              } else {
-                  msg_area.sub[bbs.cursub_code].lead_read = 0;
-              } */
-              //I do believe the above commented out block is entirely useless
 
               msg_base.scanSub(msg_area.sub[bbs.cursub_code],
                                msg_base.util.remap_message_indices(mBase),
@@ -331,22 +325,16 @@ msg_base = {
               if (userSettings.debug.message_scan) {
                   console.putmsg(yellow + "Made it into readNew() w/undef\n");
               }
-          
-	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
-	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.total_msgs) {
-	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
-                               msg_base.util.remap_message_indices(
-                                                mBase),
-                               true);
-	    } /* else if (msg_area.sub[bbs.cursub_code].scan_ptr >
-                            mBase.total_msgs) {
-              //let's reset this to something sane just to get it working again
-              //for now; we'll worry about doing it correctly later
 
-              msg_area.sub[bbs.cursub_code].scan_ptr = mBase.first_msg;
-              */
+          //this next one could be fairly important; leaving this commented code
+          //in:
+	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
+	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.last_msg) {
+	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
+                               msg_base.util.remap_message_indices(mBase),
+                               true);
+	    }
           }
-	  //} */
 
 	  mBase.close();
           docIface.nav.findNew();
@@ -373,9 +361,6 @@ msg_base = {
        *    away from the error code passing shit through returns
        */
     openNewMBase : function(mb) {
-        //try {
-	  //take care of this in calling code
-          //mBase.close();
           mBase = new MsgBase(mb);
 	  try {
             mBase.open();
@@ -389,13 +374,6 @@ msg_base = {
             console.putmsg(red + "Opened: " + mb +
         	           " allegedly . . .\n");
           }
-        /* } catch (e) {
-          console.putmsg(red + "Error opening new mBase:\n"
-		+ e.toString() + "\n");
-          log("Error skipping through scanSub(): " +
-            e.toString());
-          throw new dDocException("openNewMBase() Error", e.message, 2);
-        } */
 
 	return mBase;
     },
@@ -473,7 +451,7 @@ msg_base = {
                     "() Exception", e.message, 2);
             }
 
-            if ((curHdr == null) || (curHdr.attr&MSG_DELETE)) {
+            if ((curHdr == null) || (curHdr.attr & MSG_DELETE)) {
                 continue;   //skip this shit, we don't want this indexed
             } else {
               if (userSettings.debug.message_scan) {
@@ -533,6 +511,7 @@ msg_base = {
 	  //we are go for trying to delete this message
 	  try {
 	    mBase.remove_msg(ndx);
+            bbs.log_str("Deleted message " + ndx + " from " + bbs.cursub_code);
 	  } catch (e) {
 	    console.putmsg(yellow + "Unable to delete message, sysop " +
 		"has been notified\n");
@@ -545,9 +524,6 @@ msg_base = {
             console.putmsg(red + high_intensity + "Unable to baleet message " +
                            ". . .\n");
         }
-
-	 
-
     }
   },
   /*
@@ -656,7 +632,6 @@ msg_base = {
          */
     gotoMessageByNum : function(bufNum) {
         var mBase = new MsgBase(bbs.cursub_code);
-        //var mBase = msg_base.util.openNewMBase(mBase.cfg.code);
         var msgMap = msg_base.util.remap_message_indices(mBase);
         var success = false;
         var msgNum;
@@ -666,16 +641,11 @@ msg_base = {
         msgNum = console.getnum(maxMsgs);    //is this defined here?
 
         mBase = msg_base.util.openNewMBase(mBase.cfg.code);
-        //msgMap = msg_base.util.remap_message_indices(mBase);
 
         if (msgNum >= mBase.last_msg) {
             throw new docIface.dDocException("gotoMessageByNum() Exception",
                 "msgNum > last message base message", 1);
         }
-
-        //the original command after this point was:
-        //msg_base.dispMsg(new MsgBase(bbs.cursub_code),
-        //                         console.getnum(maxMsgs), false);
 
         //we need to code this separately at some point, to make a
         //findNewMsgIdx() method or something of the sort; no doubt it'll be
@@ -702,16 +672,15 @@ msg_base = {
         }
 
         if (success) {
-            //msg_base.dispMsg(mBase, msgNum, false);
             if (userSettings.debug.message_scan) {
                 console.putmsg(cyan + "Executing msg_base.read_cmd.readNew(" +
                     msgNum + ")\n");
             }
+            bbs.log_str("Went to message # " + msgNum + " in " +
+                        bbs.cursub_code);
             msg_base.read_cmd.readNew(msgNum);
 
         } else {
-            //throw new docIface.dDocException("gotoMessageByNum() Exception",
-            //    "no messages @ or past specified index found", 2);
             throw new docIface.dDocException("gotoMessageByNum() Exception",
                 "msg_base.read_cmd.readNew(" + msgNum + ") failed", 2);
         }
@@ -839,7 +808,7 @@ msg_base = {
 	}
 
         //this should be swapped out for proper message base open validation
-	if (!base.is_open) {
+	/*if (!base.is_open) {
 	  //let's give this a shotjoin
 	  if (userSettings.debug.message_scan) {
 	    console.putmsg(yellow + "base was closed; reopening\n");
@@ -857,7 +826,8 @@ msg_base = {
 	    throw new docIface.dDocException("dispMsg() Error",
 		"Unable to open mail sub: " + e.message, 2);
 	  }
-	}
+	}*/
+        base = msg_base.util.openNewMBase(user.cursub);
 
         //let's try and find out if the message we're going to go looking for
         //is bogus before we waste time with this, especially since the mHdr
@@ -906,8 +876,8 @@ msg_base = {
             console.putmsg(red + "Message Deleted (awaiting purge)\n");
         } else {
 	  if (breaks) {
-	    console.putmsg(fHdr + mBody, P_WORDWRAP);   // add fHdr into the
-		// putmsg here so it gets included in the line count for breaks
+	    console.putmsg(fHdr + mBody, P_WORDWRAP);   //add fHdr into the
+		//putmsg here so it gets included in the line count for breaks
           } else {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg("Putting out message next:\n");
@@ -917,7 +887,7 @@ msg_base = {
 	  }
         }
 
-	return 0;
+        return null;
   },
 	/*
 	 * summary:
@@ -943,28 +913,27 @@ msg_base = {
   scanSub : function(sBoard, indices, forward) {
 	var tmpPtr, inc, choice = 0;
 
-	//if (userSettings.debug.navigation) {
+	if (userSettings.debug.message_scan) {
 	  console.putmsg("Entered scanSub(); forward = " + forward +
 	    "  user.cursub: " + user.cursub + "\nsBoard.code: " +
 	    sBoard.code + "\tindices size: " + indices.length + "\n");
-	//}
-
-	mBase = msg_base.util.openNewMBase(sBoard.code);
-
-	if (mBase === null) {
-	    if (userSettings.debug.message_scan) {
-		console.putmsg("Error in openNewMBase()\n");
-	    }
-	    throw new docIface.dDocException("scanSubException",
-		  "Error in openNewMBase()", 1);
 	}
 
-	//tmpPtr = sBoard.scan_ptr;     //old way to handle this
+	mBase = msg_base.util.openNewMBase(sBoard.code);
+	if (mBase === null) {
+	    if (userSettings.debug.message_scan) {
+		console.putmsg("Error (null) in openNewMBase()\n");
+	    }
+	    throw new docIface.dDocException("scanSubException",
+		  "Error (null) in openNewMBase()", 1);
+	}
+
         if ((tmpPtr = indices.indexOf(sBoard.scan_ptr)) == -1) {
             tmpPtr = 0;     //start from the beginning of these indices
         }
 
-	//if (userSettings.debug.message_scan) {
+	if (userSettings.debug.message_scan) {
+          console.putmsg(cyan + "-=-=-=-=-=-=-=-=-=-\n");
 	  console.putmsg("sBoard.scan_ptr = " + sBoard.scan_ptr + "\n");
           console.putmsg("sBoard.ptridx = " + sBoard.ptridx + "\n");
           console.putmsg("tmpPtr = " + tmpPtr + "\n");
@@ -973,7 +942,11 @@ msg_base = {
 	  console.putmsg("mBase.first_msg = " + mBase.first_msg + "\n");
 	  console.putmsg("mBase.total_msgs = " + mBase.total_msgs + "\n");
 	  console.putmsg("mBase.last_msg = " + mBase.last_msg + "\n");
-	//}
+          console.putmsg(yellow + "scan_ptr:\t" + sBoard.scan_ptr + 
+                         "\tindices[tmpPtr]:\t" + indices[tmpPtr] + 
+                         "\tmBase.last_msg:\t" + mBase.last_msg + "\n");
+          console.putmsg(cyan + "-=-=-=-=-=-=-=-=-=-\n");
+	}
 	
 	if (forward) {
             inc = 1;
@@ -993,7 +966,6 @@ msg_base = {
 
 	//primary message scan loop
 	while (true) {  // a bit shady, but we exit from within the switch/case
-	//while (roomData.tieIns.isZapped(mBase.index)) {
 	    if (userSettings.debug.message_scan) {
 		console.putmsg(red + "In main scanSub() loop\ttmpPtr: "
 		      + tmpPtr + " total_msgs: " + mBase.total_msgs
@@ -1016,32 +988,42 @@ msg_base = {
 		    //break;
 		case 0:		// Next message
 		    if (userSettings.debug.message_scan) {
-			//console.putmsg("DEBUG: Next Msg\n");
                         console.putmsg(high_intensity + "tmpPtr: " + normal +
                             tmpPtr + "\t" + high_intensity + "indices.length: "
                             + normal + indices.length + "\t" + high_intensity +
                             "indices[tmpPtr]: " + normal + indices[tmpPtr] +
                             "\n");
 		    }
-		    if ((tmpPtr <= 0) && (inc == -1)) {
+
+		    if ((tmpPtr = 0) && (inc == -1)) {
 			mBase.close();
-			return 0; // do we reverse scan from room to room also?
-		    } else if ((tmpPtr >= indices.length) && (inc == 1)) {
+			throw new docIface.dDocException("scanSub() Exception",
+                            "Reverse scan hit message 0", 2);
+		    } else if ((tmpPtr > indices.length) && (inc == 1)) {
+
+                        this.dispMsg(user.cursub, indices[tmpPtr], true);
+
 			mBase.close();
+                        if (userSettings.debug.message_scan) {
+                            console.putmsg(red + high_intensity + "tmpPtr out" +
+                                " of bounds\n");
+                        }
 			return 1;   // skip to next room
 		    }
+
 		    tmpPtr += inc;
                     try {
-		      if ((tmpPtr >= 0) && (tmpPtr <= indices.length)) {
-			while (this.dispMsg(mBase, indices[tmpPtr], true)
+                      //here's the main message display loop
+		      if ((tmpPtr >= 0) && (tmpPtr < indices.length)) {
+			while (this.dispMsg(user.cursub, indices[tmpPtr], true)
                                 == null) {
 			  tmpPtr += inc;
-			  if ((tmpPtr == 0) || (tmpPtr >= indices.length)) {
+			  if ((tmpPtr == 0) || (tmpPtr = (indices.length-1))) {
 			    break;
 			  }
 			}
-			//this.dispMsg(mBase, tmpPtr, true);
-			if (inc == 1) {
+
+			if (inc == 1) { //do we want this if only going forward?
                             sBoard.scan_ptr = indices[tmpPtr];
                         }
 		      }

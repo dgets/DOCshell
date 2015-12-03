@@ -72,6 +72,7 @@ roomData = {
 	      (((roomSettings.moderator == "none set") ||
 		(roomSettings.moderator == null)) &&
 	       (user.security.level >= 80))) {
+                docIface.setNodeAction(NODE_PMSG);
 		console.putmsg(green + high_intensity + 
 			"Enter new room info here:\n");
 		this.changeRoomInfo();
@@ -141,6 +142,8 @@ roomData = {
 	  cyan + roomSettings[bbs.cursub_code].moderator + ".  " +
 	  "Total messages: ");
 
+        msg_base.util.openNewMBase(bbs.cursub_code);
+        /*
 	try {
 	  mBase.open();
 	} catch (e) {
@@ -149,6 +152,7 @@ roomData = {
 	  throw new docIface.dDocException("displayRoomInfoHdr() exception",
 	    "Unable to open mBase: " + e.message, 1);
 	}
+        */
 
 	console.putmsg(red + high_intensity + mBase.total_msgs + "\n" +
 	  green + "Forum info last updated: " + magenta + 
@@ -236,8 +240,6 @@ roomData = {
 	  throw new docIface.dDocException("Unable to open JSON conf file",
 		"Unable to open " + configurationFile, 1);
 	}
-	/*configurationFile = userRecords.userDataIO.stripComments(
-				configurationFile); */
 
 	try {
 	  chunky = configurationFile.read();
@@ -436,7 +438,6 @@ roomData = {
 	  for each(entry in zappedChunx) {
 	    if (entry.number == user.number) {
 		success = true;		//shouldn't be necessary now
-		//zappedRooms = zappedChunx;
 		return entry.zRooms;
 		break;
 	    }
@@ -454,9 +455,6 @@ roomData = {
 	 *	necessary, to record the entries
 	 */
       writeUserZappedRooms : function() {
-	//var success = false;
-	/*var outfile = new File(this.roomData.userDir + 
-				this.userRoomSettingsFilename); */
 	var outfile = new File(system.data_dir + "user/durooms");
 
 	if (userSettings.debug.navigation) {
@@ -464,15 +462,13 @@ roomData = {
 		JSON.stringify(zappedRooms) + "\n");
 	}
 	for each(ouah in zappedRooms) {
-	  /*if (userSettings.debug.navigation) {
-		console.putmsg(cyan + JSON.stringify(ouah));
-	  }*/
 	  if (ouah.number == user.number) {
 		success = true;
 	  }
 	}
 
 	try {
+          //wut is all of this shit?  I never did it...  @ntwitch?
 	  //userRecords.userDataIO.openFileWrap(outfile, "r+");
 	  outfile.open("w");
 	  //outfile.truncate(outfile.position);
@@ -569,6 +565,10 @@ roomData = {
           console.putmsg("Error in writeUserZappedRooms(): " + e.message +
                 "\n");
         }
+
+        docIface.util.log_str_n_char("Unzapped " + roomNo, "j"); //presumably
+        //it's due to the 'j' from jumping to this room; more research would
+        //be good to make sure about that, though
     }
   }
 }

@@ -81,7 +81,7 @@ poast = {
 	/*
 	 * summary:
 	 *	Modularizes the text snagging routine (w/optional maximum
-	 *	number of lines); note that the 'X' option still needs to be
+	 *	number of lines); note that the 'X' optihttps://github.com/dgets/DOCshellon still needs to be
          *	implemented here to enable Xpress messages to be sent (not sure
          *	if they're set up for asynchronous receive or not at this point;
          *	I guess I'd assume that they aren't)
@@ -174,16 +174,11 @@ poast = {
 	 */
     getMsgBody : function(/*upload,*/ base, recip) {
 	var mTxt = new Array();
-	//var lNdx, uchoice, done = false;
-
-	/*if (userSettings.debug.message_posting) {
-	  console.putmsg("Attempting post to: " + base.cfg.code + "\n");
-	}*/
 
         //going to use a generic subject for now; ignoring it from the
         //ddoc interface completely to see how it goes
 	mTxt = this.getTextBlob(null);
-	if (userSettings.debug.message_posting) {
+	if ((userSettings.debug.message_posting) && (mTxt != null)) {
 	  console.putmsg(red + "Got mTxt array of length: " +
 		mTxt.length + " back from getTextBlob()\n");
 	}
@@ -199,7 +194,10 @@ poast = {
                                        "writing to " + base.name +
                                        "\nSorry; error is logged.\n");
                   }
-	}
+	} else {
+            throw new docIface.dDocException("getMsgBody() Exception",
+                "Null message/aborted", 1);
+        }
     },
         /*
          * summary:
@@ -213,12 +211,7 @@ poast = {
 	 *	if to anybody other than 'All'
          */
     addMsg : function(base, upload, recip) {
-        /*
-         * NOTE: This method is way too big and needs to be chopped the
-         * fuck up in order to make this more readable and more reusable
-         */
-
-	//turn off instant messages coming in while posting
+	//turn off instant messages coming in while posting BITWISE DEBAUCHERY
 	bbs.sys_status |= SS_MOFF;
 
         //var debugging = false;        //only for local here
@@ -310,9 +303,13 @@ poast = {
 		  //this should be handled better
 		} else {
 		  mHdr["subject"] = "dDoc Mail>";
-		}
+                }
+
+                docIface.setNodeAction(NODE_PMSG);
 	} else {
           	var dMB = new MsgBase(mBase.cfg.code);
+
+                docIface.setNodeAction(NODE_SMAL);
 	}
 
 	/*
@@ -326,7 +323,9 @@ poast = {
 	 * at local users.
 	 */
 
-	//need to move this out into separate code
+	//need to move this out into separate code - not going to do that until
+        //I figure out how I've been repeatedly breaking it doing so with
+        //msg_base.util.openNewMBase(), though
         try {
             dMB.open();
         } catch (e) {
@@ -363,6 +362,10 @@ poast = {
 			e.number);
         }
 
+        if (mBase.subnum != -1) {
+            user.posted_message();  //increment posted message count
+        }
+
         try {
             dMB.close();
         } catch (e) {
@@ -389,13 +392,6 @@ poast = {
          *       throw exception
 	 */
     yell : function() {
-	/* console.putmsg(green + high_intensity + "\nPress 'y' to send" +
-	  " a yell to the Sysop(s).\n\nEnter your choice -> ");
-	if (console.getkey().toUpperCase() != 'Y') {
-	  throw new dDocException("yell() Exception",
-            "User didn't want to yell", 1);
-	} */
-
         if (console.noyes("Send Yell to SysOp")) {
             console.putmsg(yellow + high_intensity + "Aborting Yell to " +
                 "SysOp\n");
@@ -414,11 +410,19 @@ poast = {
 	//doing this by user number now, since lookup by user number and
 	//other methods to determine the sysop's alias seem lobotimized,
 	//non-existant, or otherwise retarded
-	poast.addMsg(mb, false, 1);
+	try {
+          poast.addMsg(mb, false, 1);
+        } catch (e) {
+            console.putmsg(green + high_intensity + "Message aborted: " +
+                e.message + "\n");
+            return;
+        }
 
-	console.putmsg(green + high_intensity + "If you didn't see " +
-	  "anything foreboding above, your message will be read by " +
-	  "system user #1 upon next login.\n");
+        if (userSettings.debug.message_posting) {
+	  console.putmsg(green + high_intensity + "If you didn't see " +
+            "anything foreboding above, your message will be read by " +
+            "system user #1 upon next login.\n");
+        }
     }
 }
 

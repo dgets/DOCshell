@@ -5,7 +5,7 @@
  * contributing/rewrites also by: @Ntwitch (github.com)
  * started: 26Jan15
  * alpha phase: 28Feb15
- * beta phase:
+ * beta phase: 2aug15
  * finished:
  *
  * This file is for any of the functionality that I still need to work on that
@@ -273,30 +273,36 @@ userRecords = {
              *      Name of the user to profile
              */
         profileUser : function (uname) {
-            var profileeSettings = { };
+            var profileSettings = { };
             var unum, uObj;
+
+            if ((uname == "") || (uname == null)) {
+                console.putmsg(yellow + "Aborting profile\n");
+                throw new docIface.dDocException("profileUser() Exception",
+                    "Null user specified", 2);
+            }
 
             if ((unum = system.matchuser(uname)) == 0) {
                 console.putmsg(yellow + high_intensity + "User " + green +
                   uname + " was not found!\n");
-                throw new dDocException("profileUser() Exception",
+                throw new docIface.dDocException("profileUser() Exception",
                     "Unable to locate " + uname, 1);
             }
 
-            profileeSettings = userRecords.userDataIO.loadSettings(unum);
+            profileSettings = userRecords.userDataIO.loadSettings(unum);
             uObj = new User(unum);
 
             console.putmsg(cyan + high_intensity + uObj.alias + "\n" +
                 yellow + high_intensity + uObj.address + "\n" +
                 uObj.location + "\n");
 
-            if (profileeSettings == null) { //that is the error condition, no?
+            if (profileSettings == null) { //that is the error condition, no?
                 console.putmsg(yellow + high_intensity + "User has not set up" +
                     " profile information yet\n\n");
             } else {
                 console.putmsg(high_intensity + green + "Doing: " + cyan +
-                    profileeSettings.doing + "\n\n");
-                for each (var infoLine in profileeSettings.info) {
+                    profileSettings.doing + "\n\n");
+                for each (var infoLine in profileSettings.info) {
                     console.putmsg(green + high_intensity + infoLine + "\n");
                 }
                 console.putmsg("\n");
@@ -373,7 +379,9 @@ userRecords = {
 		    if (console.yesno("Would you like to help debugging " +
 			   opt)) {
 			tmpSettings.debug[opt] = true;
-		    }
+		    } else {
+                        tmpSettings.debug[opt] = false;
+                    }
 		}
 
 		if (console.noyes("Do you need to go through these again")) {
@@ -434,8 +442,11 @@ userConfig = {
      *      menu choice response for user configuration options
      */
     reConfigure: function () {
+        /*
+         * NOTE: I haven't put any logging in here yet; not really sure if it's
+         * going to be necessary at this point or not
+         */
 	var stillAlahv = true, uResponse = null;
-
 
 	while (stillAlahv) {
 	    console.putmsg(yellow + high_intensity + this.cConfPrompt);
