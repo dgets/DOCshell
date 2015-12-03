@@ -890,7 +890,7 @@ if (!debugOnly) {
                   var dropOut = false;
                   var un;
 
-                  this.logStatusChange("$", "Changing debugging flags",
+                  docIface.logStatusChange("$", "Changing debugging flags",
                                        NODE_DFLT);
 
                   if (user.security.level < 80) {

@@ -379,7 +379,9 @@ userRecords = {
 		    if (console.yesno("Would you like to help debugging " +
 			   opt)) {
 			tmpSettings.debug[opt] = true;
-		    }
+		    } else {
+                        tmpSettings.debug[opt] = false;
+                    }
 		}
 
 		if (console.noyes("Do you need to go through these again")) {
