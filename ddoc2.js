@@ -275,34 +275,48 @@ docIface = {
 
 	for ( /* ndx already set */ ; ndx < subList.length ; ndx += 1 ) {
 	    if (userSettings.debug.navigation) {
-		console.putmsg(yellow + ndx + ": " +
+		console.putmsg(yellow + ndx + ": " + "zapped? " +
                     roomData.tieIns.isZapped(ndx) + "\n");
 	    }
 
 	    if (!roomData.tieIns.isZapped(ndx)) {
 		mBase = msg_base.util.openNewMBase(subList[ndx].code);
 
-		if (userSettings.debug.navigation) {
+		if (userSettings.debug.message_scan) {
 		  console.putmsg("Room not zapped\t\tscan_ptr: " +
                       subList[ndx].scan_ptr + "\t\ttotal: " +
                       mBase.total_msgs + "\n");
 		}
                 
                 if (mBase == null) {
+                  if (userSettings.debug.message_scan) {
+                      console.putmsg("mBase found as null\n");
+                  }
 		  break;
 		}
 
 		if (subList[ndx].scan_ptr < mBase.total_msgs) {
+                    if (userSettings.debug.message_scan) {
+                        console.putmsg(green + "Found new\n");
+                    }
 		    docIface.nav.setSub(subList[ndx]);
+                    msg_base.read_cmd.readNew(subList[ndx].scan_ptr);
 		    mBase.close();
 		    return subList[ndx];
 		} else if (subList[ndx].scan_ptr > mBase.total_msg) {
                     //we've got some corrupt shit to fix here; not sure how it
                     //happened but we might as well have a way to fix it
                     //maybe checking for validity?
+                    if (userSettings.debug.message_scan) {
+                        console.putmsg(yellow + "Corrupt pointer: ");
+                    }
                     subList[ndx].scan_ptr = mBase.first_msg;
-                    if (userSettings.debug.navigation) {
+                    if (userSettings.debug.message_scan) {
                         console.putmsg(yellow + " just fixed scan ptrs\n");
+                    }
+                } else {
+                    if (userSettings.debug.message_scan) {
+                        console.putmsg(cyan + "No new found\n");
                     }
                 }
 		mBase.close();
