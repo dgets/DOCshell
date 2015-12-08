@@ -926,6 +926,7 @@ msg_base = {
       }
 
       tmpPtr = indices.indexOf(sBoard.scan_ptr);
+      tmpPtr++;
       if (tmpPtr == -1) {
           tmpPtr = 0;   //start from the beginning of these indices
           if (userSettings.debug.message_scan) {
@@ -940,11 +941,11 @@ msg_base = {
       } else {
           inc = -1;
           if (tmpPtr <= (indices.length - 1)) {
-              tmpPtr +=1;   //so as to start with the most recently read msg
+              tmpPtr += 1;   //so as to start with the most recently read msg
           }
       }
 
-      while (((forward) && tmpPtr <= (indices.length - 1)) ||
+      while (((forward) && tmpPtr < (indices.length - 1)) ||
              ((!forward) && tmpPtr >= 0)) {
 
           if (userSettings.debug.message_scan) {
@@ -952,8 +953,15 @@ msg_base = {
           }
 
           this.dispMsg(user.cursub, indices[tmpPtr], true);
-          sBoard.scan_ptr = indices[tmpPtr];
-          tmpPtr += inc;
+
+          if (inc == 1) {
+              if (userSettings.debug.message_scan) {
+                  console.putmsg("\n\nSetting sBoard.scan_ptr to " +
+                      indices[tmpPtr] + "\n");
+              }
+              tmpPtr += inc;
+              sBoard.scan_ptr = indices[tmpPtr];
+          }
 
           choice = this.read_cmd.rcChoice(mBase, indices[tmpPtr]);
           switch (choice) {

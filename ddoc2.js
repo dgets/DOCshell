@@ -295,7 +295,7 @@ docIface = {
 		  break;
 		}
 
-		if (subList[ndx].scan_ptr < mBase.total_msgs) {
+		if (subList[ndx].scan_ptr <= mBase.total_msgs) {
                     if (userSettings.debug.message_scan) {
                         console.putmsg(green + "Found new\n");
                     }
@@ -744,8 +744,16 @@ if (!debugOnly) {
 	}
 
 	//dynamic prompt
-	dprompt = yellow + high_intensity + msg_area.sub[user.cursub].name +
+	try {
+            dprompt = yellow + high_intensity + msg_area.sub[user.cursub].name +
 		  "> ";
+        }
+        catch (e) {
+            console.putmsg(red + "\nCrashed setting dynamic prompt!\n");
+            console.putmsg("Exception name: " + e.name + "\tNumber: " +
+                e.number + "\nException message: " + e.message + "\n");
+            dprompt = yellow + high_intensity + "All fucked up> ";
+        }
 
 	//maintenance
 	bbs.main_cmds++;
