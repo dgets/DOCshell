@@ -315,8 +315,8 @@ msg_base = {
                   startNum + "\n");
           }
 
-          if (startNum !== undefined) {
-              msg_area.sub[bbs.cursub_code].scan_ptr = startNum;
+          if (startNum === undefined) {
+              startNum = msg_area.sub[bbs.cursub_code].scan_ptr;
 
               if (userSettings.debug.message_scan) {
                 console.putmsg(green + high_intensity + "startNum !undef\n");
@@ -926,7 +926,7 @@ msg_base = {
       }
 
       tmpPtr = indices.indexOf(sBoard.scan_ptr);
-      tmpPtr++;
+      //tmpPtr++;
       if (tmpPtr == -1) {
           tmpPtr = 0;   //start from the beginning of these indices
           //should there be something here to make sure that there's not also
@@ -935,6 +935,7 @@ msg_base = {
               console.putmsg("Setting tmpPtr to 0\n");
           }
       } else if (userSettings.debug.message_scan) {
+          tmpPtr++;
           console.putmsg("Setting tmpPtr to " + tmpPtr + "\n");
       }
 
@@ -942,10 +943,10 @@ msg_base = {
           inc = 1;
       } else {
           inc = -1;
-          if (tmpPtr <= (indices.length - 1)) {
+          /* if (tmpPtr <= (indices.length - 1)) {
               tmpPtr += 1;   //so as to start with the most recently read msg
               //this seems suspect to me; let's do some debugging here
-          }
+          } */
       }
 
       while (((forward) && (tmpPtr < (indices.length - 1))) ||
