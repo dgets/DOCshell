@@ -295,7 +295,7 @@ docIface = {
 		  break;
 		}
 
-		if (subList[ndx].scan_ptr <= mBase.total_msgs) {
+		if (subList[ndx].scan_ptr < mBase.total_msgs) {
                     if (userSettings.debug.message_scan) {
                         console.putmsg(green + "Found new\n");
                     }
@@ -749,10 +749,14 @@ if (!debugOnly) {
 		  "> ";
         }
         catch (e) {
-            console.putmsg(red + "\nCrashed setting dynamic prompt!\n");
+            /* console.putmsg(red + "\nCrashed setting dynamic prompt!\n");
             console.putmsg("Exception name: " + e.name + "\tNumber: " +
                 e.number + "\nException message: " + e.message + "\n");
             dprompt = yellow + high_intensity + "All fucked up> ";
+            user.cursub = this.preSubBoard; */
+            throw new this.dDocException("undef cursub", "user.cursub is undefined",
+                1); //guess we'll have to still with this for now since I have
+                    //no real clue of how to fix this :|
         }
 
 	//maintenance

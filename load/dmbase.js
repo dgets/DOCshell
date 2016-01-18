@@ -929,6 +929,8 @@ msg_base = {
       tmpPtr++;
       if (tmpPtr == -1) {
           tmpPtr = 0;   //start from the beginning of these indices
+          //should there be something here to make sure that there's not also
+          //a scan_ptr of 0?
           if (userSettings.debug.message_scan) {
               console.putmsg("Setting tmpPtr to 0\n");
           }
@@ -942,11 +944,12 @@ msg_base = {
           inc = -1;
           if (tmpPtr <= (indices.length - 1)) {
               tmpPtr += 1;   //so as to start with the most recently read msg
+              //this seems suspect to me; let's do some debugging here
           }
       }
 
-      while (((forward) && tmpPtr < (indices.length - 1)) ||
-             ((!forward) && tmpPtr >= 0)) {
+      while (((forward) && (tmpPtr < (indices.length - 1))) ||
+             ((!forward) && (tmpPtr >= 0))) {
 
           if (userSettings.debug.message_scan) {
               console.putmsg(yellow + "Entered scanSub() primary loop\n");
