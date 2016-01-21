@@ -34,8 +34,23 @@ msg_base = {
          *      properties and methods
          */
   read_cmd : {
-        //property
-        /*
+        scanSub : function(sBoard, indices, forward) {
+            //if everything is working perfectly at this point, than this
+            //sub has already had marked that it has new messages
+
+        },
+        readNew : function(sBoard) {
+
+        }
+  },
+  /*
+   * summary:
+   *	Sub-object created for deleteMsg() and any other methods/properties
+   *	that may need to exist that don't exactly fall under reading
+   *	messages
+   */
+  util : {
+      /*
          * summary:
          *      String containing the entirety of the read command menu
          */
@@ -51,7 +66,7 @@ msg_base = {
          *      Reads choice for valid selection; note that this monolith should
          *      really be broken up.  The switch makes that highly improbable,
          *      but refactoring this along with gmorehouse might be a good idea
-         * base: MsgBase object 
+         * base: MsgBase object
          *      currently in use; originally this was to be opened when passed
          *      to the method, however I'm not sure that state for this is
          *      always preserved.  I've added code to check and cope in some of
@@ -108,7 +123,7 @@ msg_base = {
                 case 'A':	//see message again
 				//NOTE: not implemented properly
 		  bbs.log_key("A");
-		  console.putmsg(green + high_intensity + 
+		  console.putmsg(green + high_intensity +
 			"Again (no breaks)\n");
 		  msg_base.dispMsg(base, ndx, false);
 		  break;
@@ -271,7 +286,7 @@ msg_base = {
                       if (userSettings.debug.message_scan) {
                           console.putmsg(cyan + "Did we even fuckin get here?");
                       }
-                      
+
                       if (e.number == 3) {
                           console.putmsg(yellow + "Invalid message #!\n");
                       } else {
@@ -291,15 +306,7 @@ msg_base = {
           }
 
         return hollaBack;
-        }
-  },
-  /*
-   * summary:
-   *	Sub-object created for deleteMsg() and any other methods/properties
-   *	that may need to exist that don't exactly fall under reading
-   *	messages
-   */
-  util : {
+        },
       /*
        * summary:
        *	Opens a new message base (modularizing); doesn't use proper 
@@ -690,7 +697,6 @@ msg_base = {
         }
         console.putmsg("\n");
     }
-
 
   },
   //msg_base properties
