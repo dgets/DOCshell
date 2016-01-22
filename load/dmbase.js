@@ -34,14 +34,98 @@ msg_base = {
          *      properties and methods
          */
   read_cmd : {
-        scanSub : function(sBoard, indices, forward) {
+        scanSub : function(/*sBoard, indices,*/ forward) {
             //if everything is working perfectly at this point, than this
             //sub has already had marked that it has new messages
+            var tmpPtr = -1, choice = 0;
+            //var toScan = ["mail"];    //things are reading mail alright, but
+                                        //aren't going to the next rooms  FIX
+            var toScan = new Array();
 
-        },
-        readNew : function(sBoard) {
+            /*mBase = msg_base.util.openNewMBase(sBoard.code);
+            if (mBase === null) {
+                if (userSettings.debug.message_scan) {
+                    console.putmsg("Error (null) in openNewMBase()\n");
+                }
 
+                throw new dDocException("MBase Error", "null when opening", 1);
+            }*/
+
+            if (forward) {
+                inc = 1;
+            } else {
+                inc = -1;
+            }
+
+            for each (topeSub in msg_area.grp_list[topebaseno].sub_list) {
+                toScan.push(topeSub);   //should now hold our list to check
+            }
+
+            for each (sub in toScan) {
+                mBase = msg_base.util.openNewMBase(sub);
+                var indices = msg_base.util.remap_message_indices(mBase);
+
+                tmpPtr = indices.indexOf(mBase.scan_ptr);
+
+                if ((tmpPtr == -1) ||
+                    ((inc == 1) && (indices[tmpPtr] == mBase.last_msg))) {
+                    continue; //no new messages
+                }
+
+                if ((inc == -1) && (tmpPtr == 0)) {
+                    if (userSettings.debug.message_scan) {
+                        putmsg("Reading backwards & at first message!\n");
+                    }
+                    throw new docIface.dDocException("scanSub() Exception",
+                        "Reverse scan hit first msg", 1);
+                    //continue;   //reading backward, but already at first
+                }
+
+                switch (choice) {
+                    case 1:     //end scan
+                        if (userSettings.debug.message_scan) {
+                            console.putmsg("DEBUG: Stopping scan\n");
+                        }
+                        mBase.close();
+                        return null;
+                    case 2:     //reverse scan direction
+                        if (userSettings.debug.message_scan) {
+                            console.putmsg("DEBUG: Reversing direction\n");
+                        }
+                        inc *= -1;
+                        //just fall through to next message now (ie no 'break')
+                    case 0:     //display the next message
+                        if ((tmpPtr > (indices.length - 1)) && (inc == 1)) {
+                            if (userSettings.debug.message_scan) {
+                                console.putmsg("DEBUG: tmpPtr out of bounds\n");
+                            }
+                            throw new docIface.dDocException("scanSub() " +
+                                "Exception", "tmpPtr out of bounds", 2);
+                            //is this the behavior that we want here or do we
+                            //want to just cycle to the next room?
+                        }
+
+                        try {
+                            this.dispMsg(mBase.code, indices[tmpPtr], true);
+                        } catch (e) {
+                            console.putmsg(yellow + "No idea what happened:\n" +
+                                e.message + "\n");
+                        }
+
+                        if (inc == 1) {
+                            mBase.scan_ptr = indices[tmpPtr];
+                        }
+                        tmpPtr += inc;
+
+                        choice = this.read_cmd.rcChoice(mBase, indices[tmpPtr]);
+                }
+
+            }
         }
+        /* this looks vestigial
+         * readNew : function(sBoard) {
+
+        }*/
   },
   /*
    * summary:
@@ -330,8 +414,7 @@ msg_base = {
           }
 
           if (userSettings.debug.message_scan) {
-            console.putmsg(red + "Opened: " + mb +
-        	           " allegedly . . .\n");
+            console.putmsg(red + "Opened: " + mb + " allegedly . . .\n");
           }
 
 	return mBase;
@@ -389,8 +472,12 @@ msg_base = {
         var msgMap = new Array(), curHdr = new Object();
         var curPtr = 0;
 
-        mBase = this.openNewMBase(mBase.cfg.code);
-
+        if (mBase == "mail") {
+            uMail.readMail();
+        } else {
+            mBase = this.openNewMBase(mBase);
+        }
+        
         if (userSettings.debug.message_scan) {
             console.putmsg(yellow + "Remapping:\n");
         }
@@ -516,7 +603,7 @@ msg_base = {
           case 'n':     //read new
 	    console.putmsg(green + high_intensity + "Read new\n");
 	    try {
-		msg_base.read_cmd.readNew();
+		msg_base.read_cmd.scanSub(true);
 	    } catch (e) {
 		console.putmsg(yellow + "Exception reading new: " +
 		      e.toString() + "\n");

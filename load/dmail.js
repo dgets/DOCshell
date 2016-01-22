@@ -124,8 +124,8 @@ uMail = {
          */
     readMail : function() {
         var mmBase = new MsgBase("mail");
-        var fuggit = false, displayed = true, increment = 1;
-        var uChoice, mHdr, mBody, mailList, mNdx;
+        var fuggit = false, displayed = true, increment = 1, uChoice = 'n';
+        var mHdr, mBody, mailList, mNdx;
 
         try {
           mmBase.open();
