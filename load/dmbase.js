@@ -58,12 +58,12 @@ msg_base = {
             }
 
             for each (topeSub in msg_area.grp_list[topebaseno].sub_list) {
-                toScan.push(topeSub);   //should now hold our list to check
+                toScan.push(topeSub.code);   //should now hold our list to check
             }
 
             for each (sub in toScan) {
                 mBase = msg_base.util.openNewMBase(sub);
-                var indices = msg_base.util.remap_message_indices(mBase);
+                var indices = msg_base.util.remap_message_indices(sub);
 
                 tmpPtr = indices.indexOf(mBase.scan_ptr);
 
