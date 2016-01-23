@@ -35,12 +35,21 @@ msg_base = {
          */
   read_cmd : {
         scanSub : function(/*sBoard, indices,*/ forward) {
+            //testing code to see how functional some shit that I forgot about
+            //actually is at this point
+            docIface.nav.findNew();
+            console.putmsg("findNew() put us in: " + user.cursub + "\n");
+            console.getkey();
+            //this shit works; findNew() returns the room name, so we can gut
+            //this method a little bit more and get things working without
+            //reinventing so much schitt'h
+
             //if everything is working perfectly at this point, than this
             //sub has already had marked that it has new messages
             var tmpPtr = -1, choice = 0;
             //var toScan = ["mail"];    //things are reading mail alright, but
                                         //aren't going to the next rooms  FIX
-            var toScan = new Array();
+            //var toScan = new Array();
 
             /*mBase = msg_base.util.openNewMBase(sBoard.code);
             if (mBase === null) {
@@ -58,18 +67,27 @@ msg_base = {
             }
 
             for each (topeSub in msg_area.grp_list[topebaseno].sub_list) {
-                toScan.push(topeSub.code);   //should now hold our list to check
-            }
+                mBase = msg_base.util.openNewMBase(topeSub.code);
+                var indices = msg_base.util.remap_message_indices(topeSub.code);
 
-            for each (sub in toScan) {
-                mBase = msg_base.util.openNewMBase(sub);
-                var indices = msg_base.util.remap_message_indices(sub);
+                if (userSettings.debug.message_scan) {
+                    console.putmsg("Working on " + topeSub.code + "\n");
+                }
 
                 tmpPtr = indices.indexOf(mBase.scan_ptr);
 
-                if ((tmpPtr == -1) ||
-                    ((inc == 1) && (indices[tmpPtr] == mBase.last_msg))) {
-                    continue; //no new messages
+                if (tmpPtr == -1) {
+                    /*if (userSettings.debug.message_scan) {
+                        console.putmsg("Invalid tmpPtr (-1)\n");
+                    }
+                    continue;*/   //invalid pointer (no messages?) FIX & HELP
+                    tmpPtr = 0;
+                }
+                if ((inc == 1) && (indices[tmpPtr] == mBase.last_msg)) {
+                        if (userSettings.debug.message_scan) {
+                            console.putmsg("Going forward at last message!\n");
+                        }
+                        continue; //no new messages
                 }
 
                 if ((inc == -1) && (tmpPtr == 0)) {
@@ -80,6 +98,8 @@ msg_base = {
                         "Reverse scan hit first msg", 1);
                     //continue;   //reading backward, but already at first
                 }
+
+                msg_base.dispMsg(mBase.code, indices[tmpPtr], true);
 
                 switch (choice) {
                     case 1:     //end scan
@@ -106,7 +126,8 @@ msg_base = {
                         }
 
                         try {
-                            this.dispMsg(mBase.code, indices[tmpPtr], true);
+                            //msg_base.dispMsg(mBase.code, indices[tmpPtr], true);
+                            //this.readNew(mBase.code, indices);
                         } catch (e) {
                             console.putmsg(yellow + "No idea what happened:\n" +
                                 e.message + "\n");
@@ -115,17 +136,16 @@ msg_base = {
                         if (inc == 1) {
                             mBase.scan_ptr = indices[tmpPtr];
                         }
-                        tmpPtr += inc;
-
-                        choice = this.read_cmd.rcChoice(mBase, indices[tmpPtr]);
+                        tmpPtr += inc;   
                 }
-
+                msg_base.doMprompt(mBase, indices[tmpPtr]);
+                choice = msg_base.util.rcChoice(mBase, indices[tmpPtr]);
             }
-        }
-        /* this looks vestigial
-         * readNew : function(sBoard) {
+        } /*,
 
-        }*/
+        readNew : function(sBoard) {
+
+        } */
   },
   /*
    * summary:
@@ -171,7 +191,7 @@ msg_base = {
           var valid = false;
           var hollaBack = 0;    //can be used to switch dir, etc
 
-	  if (base === undefined) {
+	  if (base == undefined) {
 	    throw new docIface.dDocException("base not defined to rcChoice()");
 	  }
 
@@ -859,7 +879,7 @@ msg_base = {
 	    "\tbreaks: " + breaks + "\n");
 	}
 
-        base = msg_base.util.openNewMBase(user.cursub);
+        mBase = msg_base.util.openNewMBase(base);
 
         //let's try and find out if the message we're going to go looking for
         //is bogus before we waste time with this, especially since the mHdr
@@ -869,7 +889,7 @@ msg_base = {
             //shit's out of range, man
             throw new docIface.dDocException("dispMsg() error",
                 "Invalid message slot", 3);
-        } else if (ptr > base.last_msg) {
+        } else if (ptr > mBase.last_msg) {
             console.putmsg(yellow + "Your message # was over the top; " +
               "pointing you at the last message\n");
             ptr = base.last_msg;
@@ -877,9 +897,9 @@ msg_base = {
 
         //try/catch this
 	try {
-          mHdr = base.get_msg_header(ptr);
-          mIdx = base.get_msg_index(ptr);
-          mBody = base.get_msg_body(ptr);
+          mHdr = mBase.get_msg_header(ptr);
+          mIdx = mBase.get_msg_index(ptr);
+          mBody = mBase.get_msg_body(ptr);
 	} catch (e) {
 	  console.putmsg(red + "Error fetching mHdr & mBody\nName: " + e.name +
 	    "\tNumber: " + e.number + "\nMessage: " + e.message + "\n");
@@ -888,14 +908,14 @@ msg_base = {
 	}
 
 	if (userSettings.debug.message_scan) {
-	    console.putmsg(red + "ptr: " + ptr + "\tbase.last_msg: "
-		+ base.last_msg + "\n");
+	    console.putmsg(red + "ptr: " + ptr + "\tmBase.last_msg: "
+		+ mBase.last_msg + "\n");
 	}
 
 	if (mHdr === null) {
 	    if (userSettings.debug.message_scan) {
-		console.putmsg(red + "Invalid message? base.subnum: "
-		      + base.subnum + " ptr: " + ptr + "\n");
+		console.putmsg(red + "Invalid message? mBase.subnum: "
+		      + mBase.subnum + " ptr: " + ptr + "\n");
 	    }
 	    throw new docIface.dDocException("dispMsg() error",
 		"Invalid message slot", 3);	// Invalid message, skip
