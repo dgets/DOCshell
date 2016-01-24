@@ -39,26 +39,15 @@ msg_base = {
             //actually is at this point
             docIface.nav.findNew();
             console.putmsg("findNew() put us in: " + user.cursub + "\n");
-            console.getkey();
+            //console.getkey();
             //this shit works; findNew() returns the room name, so we can gut
             //this method a little bit more and get things working without
             //reinventing so much schitt'h
 
             //if everything is working perfectly at this point, than this
             //sub has already had marked that it has new messages
-            var tmpPtr = -1, choice = 0;
-            //var toScan = ["mail"];    //things are reading mail alright, but
-                                        //aren't going to the next rooms  FIX
-            //var toScan = new Array();
-
-            /*mBase = msg_base.util.openNewMBase(sBoard.code);
-            if (mBase === null) {
-                if (userSettings.debug.message_scan) {
-                    console.putmsg("Error (null) in openNewMBase()\n");
-                }
-
-                throw new dDocException("MBase Error", "null when opening", 1);
-            }*/
+            var tmpPtr, choice = 0;
+            var indices = msg_base.util.remap_message_indices(user.cursub);
 
             if (forward) {
                 inc = 1;
@@ -66,7 +55,12 @@ msg_base = {
                 inc = -1;
             }
 
-            for each (topeSub in msg_area.grp_list[topebaseno].sub_list) {
+            for (tmpPtr = 0; tmpPtr < indices.length; tmpPtr++) {
+                msg_base.dispMsg(user.cursub, indices[tmpPtr], true);
+            }
+
+        }
+            /*for each (topeSub in msg_area.grp_list[topebaseno].sub_list) {
                 mBase = msg_base.util.openNewMBase(topeSub.code);
                 var indices = msg_base.util.remap_message_indices(topeSub.code);
 
@@ -76,12 +70,12 @@ msg_base = {
 
                 tmpPtr = indices.indexOf(mBase.scan_ptr);
 
-                if (tmpPtr == -1) {
+                if (tmpPtr == -1) {*/
                     /*if (userSettings.debug.message_scan) {
                         console.putmsg("Invalid tmpPtr (-1)\n");
                     }
                     continue;*/   //invalid pointer (no messages?) FIX & HELP
-                    tmpPtr = 0;
+                    /*tmpPtr = 0;
                 }
                 if ((inc == 1) && (indices[tmpPtr] == mBase.last_msg)) {
                         if (userSettings.debug.message_scan) {
@@ -141,11 +135,8 @@ msg_base = {
                 msg_base.doMprompt(mBase, indices[tmpPtr]);
                 choice = msg_base.util.rcChoice(mBase, indices[tmpPtr]);
             }
-        } /*,
-
-        readNew : function(sBoard) {
-
         } */
+
   },
   /*
    * summary:
@@ -625,7 +616,7 @@ msg_base = {
 	    try {
 		msg_base.read_cmd.scanSub(true);
 	    } catch (e) {
-		console.putmsg(yellow + "Exception reading new: " +
+		console.putmsg(yellow + "Exception scanning new: " +
 		      e.toString() + "\n");
 	    }
             break;

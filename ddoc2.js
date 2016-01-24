@@ -300,7 +300,9 @@ docIface = {
                         console.putmsg(green + "Found new\n");
                     }
 		    docIface.nav.setSub(subList[ndx]);
-                    msg_base.read_cmd.readNew(subList[ndx].scan_ptr);
+                    //msg_base.read_cmd.readNew(subList[ndx].scan_ptr);
+                    msg_base.dispMsg(subList[ndx].code, subList[ndx].scan_ptr,
+                        true);
 		    mBase.close();
 		    return subList[ndx];
 		} else if (subList[ndx].scan_ptr > mBase.total_msg) {
