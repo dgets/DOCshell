@@ -291,7 +291,7 @@ msg_base = {
           }
 
         return hollaBack;
-        }
+        },
         /*
 	 * summary:
 	 *	Read any new messages in the current room, then call findNew to
@@ -340,6 +340,29 @@ msg_base = {
           docIface.nav.findNew();
 	  return;
         } */
+        readNew : function(startNum) {
+            var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
+            var indices = msg_base.util.remapMessageIndices(mBase.cfg.code);
+            //var tmp;
+
+            docIface.setNodeAction(NODE_RMSG);
+
+            if ((startNum == undefined) && (indices.length == 0)) {
+                throw new docIface.dDocException("readNew() Exception",
+                    "No messages found", 1);
+            } else if (startNum == undefined) {
+                startNum = 0;
+            }
+
+            for (tmp = 0; tmp < indices.length; tmp++) {
+                if (tmp < startNum) {
+                    continue;
+                }
+
+
+            }
+
+        }
   },
   /*
    * summary:
@@ -426,7 +449,7 @@ msg_base = {
          * NOTE: We might have to configure this to pass back a valid new
          *       'current' index since we're remapping the whole lot of 'em
          */
-    remap_message_indices : function(mBase) {
+    remapMessageIndices : function(mBase) {
         var msgMap = new Array(), curHdr = new Object();
         var curPtr = 0;
 
