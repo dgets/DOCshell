@@ -309,7 +309,7 @@ docIface = {
 	}
 	// No new messages, reset to first room
 	docIface.nav.setSub(subList[0]);
-	return null;
+	return subList[ndx];
     },
 
 	/*

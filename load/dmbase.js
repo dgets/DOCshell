@@ -291,7 +291,7 @@ msg_base = {
           }
 
         return hollaBack;
-        },
+        }
         /*
 	 * summary:
 	 *	Read any new messages in the current room, then call findNew to
@@ -300,7 +300,7 @@ msg_base = {
          *      Optional parameter to start at a certain number for when reading
          *      is initiated via jump to a specific message #
 	 */
-        readNew : function(startNum) {
+        /* readNew : function(startNum) {
           docIface.setNodeAction(NODE_RMSG);
           
           if (userSettings.debug.message_scan) {
@@ -328,7 +328,7 @@ msg_base = {
 
           //this next one could be fairly important; leaving this commented code
           //in:
-	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)) {
+	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)){
 	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.last_msg) {
 	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
                                msg_base.util.remap_message_indices(mBase),
@@ -339,7 +339,7 @@ msg_base = {
 	  mBase.close();
           docIface.nav.findNew();
 	  return;
-        }
+        } */
   },
   /*
    * summary:
@@ -779,7 +779,7 @@ msg_base = {
 	  console.putmsg(yellow + high_intensity + "\n[Mail> msg #" + 
 	    (ndx + 1) + " (unknown remaining)] " + cyan + "Read cmd -> ");
 	}
-  },
+  }
         /*
 	 * summary:
 	 *	Displays message with or without pauses
@@ -795,7 +795,7 @@ msg_base = {
 	 *	Default: true
 	 *	true for screen pauses
 	 */
-  dispMsg : function(base, ptr, breaks) {
+  /* dispMsg : function(base, ptr, breaks) {
 	var mHdr, mIdx, mBody, fHdr;
 
 	if (breaks != false) { 
@@ -807,26 +807,6 @@ msg_base = {
 	    "\tbreaks: " + breaks + "\n");
 	}
 
-        //this should be swapped out for proper message base open validation
-	/*if (!base.is_open) {
-	  //let's give this a shotjoin
-	  if (userSettings.debug.message_scan) {
-	    console.putmsg(yellow + "base was closed; reopening\n");
-	  }
-
-          //actually this should probably be swapped out for the right openbase
-          //functionality, I'm just not sure what's up with the message about
-          //'Mail' down there; I think that's just spurious, but I don't know
-          //for sure, so that will wait for more research
-	  try {
-	    base.open();
-	  } catch (e) {
-	    console.putmsg(red + "Unable to open Mail> sub:\t" + e.message +
-		"\n");
-	    throw new docIface.dDocException("dispMsg() Error",
-		"Unable to open mail sub: " + e.message, 2);
-	  }
-	}*/
         base = msg_base.util.openNewMBase(user.cursub);
 
         //let's try and find out if the message we're going to go looking for
@@ -888,7 +868,7 @@ msg_base = {
         }
 
         return null;
-  },
+  }, */
 	/*
 	 * summary:
 	 *	Sequentially scans for new messages within one
@@ -910,7 +890,7 @@ msg_base = {
          *      make sure that we're not using return for error codes; a proper
          *      exception throwing model really needs to be adhered to
 	 */
-  scanSub : function(sBoard, indices, forward) {
+  /* scanSub : function(sBoard, indices, forward) {
 	var tmpPtr, inc, choice = 0;
 
 	if (userSettings.debug.message_scan) {
@@ -999,7 +979,7 @@ msg_base = {
 			mBase.close();
 			throw new docIface.dDocException("scanSub() Exception",
                             "Reverse scan hit message 0", 2);
-		    } else if ((tmpPtr > indices.length) && (inc == 1)) {
+		    } else if ((tmpPtr >= indices.length) && (inc == 1)) {
 
                         this.dispMsg(user.cursub, indices[tmpPtr], true);
 
@@ -1011,7 +991,7 @@ msg_base = {
 			return 1;   // skip to next room
 		    }
 
-		    tmpPtr += inc;
+		    //tmpPtr += inc;
                     try {
                       //here's the main message display loop
 		      if ((tmpPtr >= 0) && (tmpPtr < indices.length)) {
@@ -1049,5 +1029,5 @@ msg_base = {
 	if (userSettings.debug.message_scan) {
 	  console.putmsg(red + "Closed mBase: " + sBoard.code + "\n");
 	}
-    }
+    } */
 }
