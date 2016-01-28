@@ -291,11 +291,11 @@ docIface = {
 		  break;
 		}
 
-		if (subList[ndx].scan_ptr < mBase.total_msgs) {
+		if (subList[ndx].scan_ptr < (mBase.total_msgs - 1)) {
 		    docIface.nav.setSub(subList[ndx]);
 		    mBase.close();
 		    return subList[ndx];
-		} else if (subList[ndx].scan_ptr > mBase.total_msg) {
+		} else if (subList[ndx].scan_ptr > (mBase.total_msg - 1)) {
                     //we've got some corrupt shit to fix here; not sure how it
                     //happened but we might as well have a way to fix it
                     //maybe checking for validity?
