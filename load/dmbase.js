@@ -342,8 +342,7 @@ msg_base = {
         } */
         readNew : function(startNum) {
             var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
-            var indices = msg_base.util.remapMessageIndices(mBase.cfg.code);
-            //var tmp;
+            var indices = msg_base.util.remapMessageIndices(bbs.cursub_code);
 
             docIface.setNodeAction(NODE_RMSG);
 
@@ -359,6 +358,11 @@ msg_base = {
                     continue;
                 }
 
+                try {
+                    msg_base.dispMsg(bbs.cursub_code, indices[tmp], true);
+                } catch (e) {
+                    console.putmsg("\nError: " + e.message + " in readNew()\n");
+                }
 
             }
 
@@ -453,7 +457,7 @@ msg_base = {
         var msgMap = new Array(), curHdr = new Object();
         var curPtr = 0;
 
-        mBase = this.openNewMBase(mBase.cfg.code);
+        mBase = this.openNewMBase(bbs.cursub_code);
 
         if (userSettings.debug.message_scan) {
             console.putmsg(yellow + "Remapping:\n");
@@ -802,7 +806,7 @@ msg_base = {
 	  console.putmsg(yellow + high_intensity + "\n[Mail> msg #" + 
 	    (ndx + 1) + " (unknown remaining)] " + cyan + "Read cmd -> ");
 	}
-  }
+  },
         /*
 	 * summary:
 	 *	Displays message with or without pauses
@@ -818,7 +822,7 @@ msg_base = {
 	 *	Default: true
 	 *	true for screen pauses
 	 */
-  /* dispMsg : function(base, ptr, breaks) {
+  dispMsg : function(base, ptr, breaks) {
 	var mHdr, mIdx, mBody, fHdr;
 
 	if (breaks != false) { 
@@ -891,7 +895,7 @@ msg_base = {
         }
 
         return null;
-  }, */
+  }
 	/*
 	 * summary:
 	 *	Sequentially scans for new messages within one
