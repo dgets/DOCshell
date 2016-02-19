@@ -319,7 +319,7 @@ msg_base = {
               msg_area.sub[bbs.cursub_code].scan_ptr = startNum;
 
               msg_base.scanSub(msg_area.sub[bbs.cursub_code],
-                               msg_base.util.remap_message_indices(mBase),
+                               msg_base.util.remapMessageIndices(mBase),
                                true);
           } else {
               if (userSettings.debug.message_scan) {
@@ -331,7 +331,7 @@ msg_base = {
 	  //if (!roomData.tieIns.isZapped(msg_area.sub[bbs.cursub_code].index)){
 	    if (msg_area.sub[bbs.cursub_code].scan_ptr < mBase.last_msg) {
 	      msg_base.scanSub(msg_area.sub[bbs.cursub_code],
-                               msg_base.util.remap_message_indices(mBase),
+                               msg_base.util.remapMessageIndices(mBase),
                                true);
 	    }
           }
@@ -346,23 +346,31 @@ msg_base = {
 
             docIface.setNodeAction(NODE_RMSG);
 
-            if ((startNum == undefined) && (indices.length == 0)) {
+            if (indices.length == 0) {
                 throw new docIface.dDocException("readNew() Exception",
                     "No messages found", 1);
             } else if (startNum == undefined) {
-                startNum = 0;
+                startNum = msg_area.grp_list.sub_list[mBase.cfg.index].scan_ptr;
             }
 
             for (tmp = 0; tmp < indices.length; tmp++) {
-                if (tmp < startNum) {
+                if (tmp < indices.indexOf(startNum)) {
                     continue;
+                }
+
+                if (!mBase.is_open) {
+                    console.putmsg("\nWTF, mBase is not open\n");
                 }
 
                 try {
                     msg_base.dispMsg(bbs.cursub_code, indices[tmp], true);
+                    msg_area.grp_list.sub_list[mBase.cfg.index].scan_ptr =
+                        indices[tmp];
                 } catch (e) {
                     console.putmsg("\nError: " + e.message + " in readNew()\n");
                 }
+
+                //msg_base.doMprompt(mBase, indices[tmp]);
 
             }
 
@@ -595,7 +603,7 @@ msg_base = {
 	    try {
                 base = msg_base.util.openNewMBase(user.cursub);
 	        msg_base.scanSub(msg_area.sub[bbs.cursub_code],
-                                 msg_base.util.remap_message_indices(base),
+                                 msg_base.util.remapMessageIndices(base),
                                  false);
 	    } catch (e) {
 		console.putmsg(yellow + "Exception reading backwards: " +
@@ -659,7 +667,7 @@ msg_base = {
          */
     gotoMessageByNum : function(bufNum) {
         var mBase = new MsgBase(bbs.cursub_code);
-        var msgMap = msg_base.util.remap_message_indices(mBase);
+        var msgMap = msg_base.util.remapMessageIndices(mBase);
         var success = false;
         var msgNum;
 
