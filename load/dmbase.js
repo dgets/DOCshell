@@ -347,6 +347,7 @@ msg_base = {
                     "Can't use readNew() on mail", 1);
             }
 
+            var interval = 1;
             var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
             var indices = msg_base.util.remapMessageIndices(bbs.cursub_code);
 
@@ -359,7 +360,9 @@ msg_base = {
                 startNum = msg_area.sub[bbs.cursub_code].scan_ptr;
             }
 
-            for (tmp = 0; tmp < indices.length; tmp++) {
+            for (tmp = 0; tmp < indices.length; tmp += interval) {
+                console.putmsg("In for loop, tmp = " + tmp + "\n");
+                
                 if (tmp < indices.indexOf(startNum)) {
                     continue;
                 }
@@ -378,7 +381,20 @@ msg_base = {
                 }
 
                 msg_base.doMprompt(mBase, indices[tmp]);
+                switch (msg_base.read_cmd.rcChoice(mBase, indices[tmp])) {
+                    case 0:
+                        //continue on
 
+                    break;
+                    case 1:
+                        //stop
+                        
+                    break;
+                    case 2:
+                        //change direction
+                        interval *= -1;
+                    break;
+                }
             }
 
         }
