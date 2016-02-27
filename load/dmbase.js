@@ -343,7 +343,7 @@ msg_base = {
         readNew : function(startNum) {
             if (bbs.cursub_code == "mail") {
                 console.putmsg("Can't use readNew() on mail\n");
-                throw new dDocException("readNew() exception",
+                throw new docIface.dDocException("readNew() exception",
                     "Can't use readNew() on mail", 1);
             }
 
@@ -361,6 +361,11 @@ msg_base = {
             }
 
             for (tmp = 0; tmp < indices.length; tmp += interval) {
+                if ((interval == -1) && (tmp < 0)) {
+                    throw new docIface.dDocException("readNew() exception",
+                        "Stop from reverse reading required", 4);
+                }
+
                 console.putmsg("In for loop, tmp = " + tmp + "\n");
                 
                 if (tmp < indices.indexOf(startNum)) {
@@ -369,7 +374,7 @@ msg_base = {
 
                 if (!mBase.is_open) {
                     console.putmsg("\nWTF, mBase is not open\n");
-                    throw new dDocException("readNew() exception",
+                    throw new docIface.dDocException("readNew() exception",
                         "mBase not open", 2);
                 }
 
@@ -388,7 +393,9 @@ msg_base = {
                     break;
                     case 1:
                         //stop
-                        
+                        //fuckit let's just use an exception for now
+                        throw new docIface.dDocException("readNew() exception",
+                            "Stop from rcChoice() requested", 3);
                     break;
                     case 2:
                         //change direction
@@ -425,7 +432,8 @@ msg_base = {
           } catch (e) {
               console.putmsg(red + "Ername: " + e.name + "mBase.error: " +
                   e.message + "\n");
-              throw new dDocException("openNewMBase() Error", e.message, 1);
+              throw new docIface.dDocException("openNewMBase() Error",
+                e.message, 1);
           }
 
           if (userSettings.debug.message_scan) {
@@ -450,7 +458,7 @@ msg_base = {
         var mHdr;
 
         if (mb == null) {
-            throw new dDocException("hasUnread() Error",
+            throw new docIface.dDocException("hasUnread() Error",
                 "Error getting valid open base back from openNewMBase()", 1);
         }
 
@@ -551,7 +559,7 @@ msg_base = {
 	var mHdr;
 
 	if ((!mBase.is_open) || (mBase == null)) {
-	  throw new dDocException("deleteMsg() exception",
+	  throw new docIface.dDocException("deleteMsg() exception",
 	    "You cannot consume the cockatrice egg!", 1);
 	}
 
@@ -560,7 +568,7 @@ msg_base = {
 	} catch (e) {
 	  console.putmsg(yellow + "Unable to delete message, sysop " +
 		"has been notified\n");
-	  throw new dDocException("deleteMsg() exception",
+	  throw new docIface.dDocException("deleteMsg() exception",
 	    "Unable to snag message header: " + e.message, 2);
 	}
 
@@ -573,7 +581,7 @@ msg_base = {
 	  } catch (e) {
 	    console.putmsg(yellow + "Unable to delete message, sysop " +
 		"has been notified\n");
-	    throw new dDocException("deleteMsg() exception",
+	    throw new docIface.dDocException("deleteMsg() exception",
 	      "Unable to remove_msg(" + ndx + "):" + e.message, 3);
 	  }
 
@@ -617,8 +625,15 @@ msg_base = {
 	    try {
 		msg_base.read_cmd.readNew();
 	    } catch (e) {
-		console.putmsg(yellow + "Exception reading new: " +
-		      e.toString() + "\n");
+                if ((e.number == 3) || (e.number == 4)) {
+                    //reverse read terminated for legit reason
+                    console.putmsg(green + "Legit exception reading backwards");
+                } else {
+                    //ignore this if it's just the stop from rcChoice() or
+                    //backwards stopping @ 0 messsage
+                    console.putmsg(yellow + "Exception reading new: " +
+                        e.toString() + "\n");
+                }
 	    }
             break;
 	  case 'b':	// scan backwards
