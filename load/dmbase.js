@@ -341,6 +341,12 @@ msg_base = {
 	  return;
         } */
         readNew : function(startNum) {
+            if (bbs.cursub_code == "mail") {
+                console.putmsg("Can't use readNew() on mail\n");
+                throw new dDocException("readNew() exception",
+                    "Can't use readNew() on mail", 1);
+            }
+
             var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
             var indices = msg_base.util.remapMessageIndices(bbs.cursub_code);
 
@@ -350,7 +356,7 @@ msg_base = {
                 throw new docIface.dDocException("readNew() Exception",
                     "No messages found", 1);
             } else if (startNum == undefined) {
-                startNum = msg_area.grp_list.sub_list[mBase.cfg.index].scan_ptr;
+                startNum = msg_area.sub[bbs.cursub_code].scan_ptr;
             }
 
             for (tmp = 0; tmp < indices.length; tmp++) {
@@ -360,17 +366,18 @@ msg_base = {
 
                 if (!mBase.is_open) {
                     console.putmsg("\nWTF, mBase is not open\n");
+                    throw new dDocException("readNew() exception",
+                        "mBase not open", 2);
                 }
 
                 try {
                     msg_base.dispMsg(bbs.cursub_code, indices[tmp], true);
-                    msg_area.grp_list.sub_list[mBase.cfg.index].scan_ptr =
-                        indices[tmp];
+                    msg_area.sub[bbs.cursub_code].scan_ptr = indices[tmp];
                 } catch (e) {
                     console.putmsg("\nError: " + e.message + " in readNew()\n");
                 }
 
-                //msg_base.doMprompt(mBase, indices[tmp]);
+                msg_base.doMprompt(mBase, indices[tmp]);
 
             }
 
