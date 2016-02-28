@@ -341,32 +341,41 @@ msg_base = {
 	  return;
         } */
         readNew : function(startNum) {
-            if (bbs.cursub_code == "mail") {
+            //looks like we're going back to something closer to the old way
+            /*if (bbs.cursub_code == "mail") {
                 console.putmsg("Can't use readNew() on mail\n");
                 throw new docIface.dDocException("readNew() exception",
                     "Can't use readNew() on mail", 1);
-            }
+            }*/
 
             var interval = 1;
-            var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
-            var indices = msg_base.util.remapMessageIndices(bbs.cursub_code);
+            var mBase, indices;
+            //var mBase = msg_base.util.openNewMBase(bbs.cursub_code);
+            //var indices = msg_base.util.remapMessageIndices(bbs.cursub_code);
 
             docIface.setNodeAction(NODE_RMSG);
 
-            if (indices.length == 0) {
+            /*if (indices.length == 0) {
                 throw new docIface.dDocException("readNew() Exception",
                     "No messages found", 1);
             } else if (startNum == undefined) {
                 startNum = msg_area.sub[bbs.cursub_code].scan_ptr;
-            }
+            }*/
 
-            for (tmp = 0; tmp < indices.length; tmp += interval) {
+            for each (uGrpSub in msg_area.grp_list[topebaseno].sub_list) {
+              bbs.cursub = uGrpSub.number;
+              mBase = msg_base.util.openNewMBase(bbs.cursub_code);
+              indices = msg_base.util.remapMessageIndices(bbs.cursub_code);
+              
+              for (tmp = 0; tmp < indices.length; tmp += interval) {
                 if ((interval == -1) && (tmp < 0)) {
                     throw new docIface.dDocException("readNew() exception",
                         "Stop from reverse reading required", 4);
                 }
 
-                console.putmsg("In for loop, tmp = " + tmp + "\n");
+                if (userSettings.debug.message_scan) {
+                    console.putmsg("In for loop, tmp = " + tmp + "\n");
+                }
                 
                 if (tmp < indices.indexOf(startNum)) {
                     continue;
@@ -389,20 +398,29 @@ msg_base = {
                 switch (msg_base.read_cmd.rcChoice(mBase, indices[tmp])) {
                     case 0:
                         //continue on
-
+                        console.putmsg(green + high_intensity + "Next . . .\n");
                     break;
                     case 1:
                         //stop
+                        console.putmsg(red + high_intensity + "Stop.\n");
                         //fuckit let's just use an exception for now
                         throw new docIface.dDocException("readNew() exception",
                             "Stop from rcChoice() requested", 3);
                     break;
                     case 2:
                         //change direction
+                        console.putmsg(green + high_intensity + "Back . . .\n");
                         interval *= -1;
                     break;
                 }
+              }
+
+              mBase.close();
             }
+
+            //nope, not this easy
+            //mBase.close();
+            //docIface.nav.findNew();
 
         }
   },
