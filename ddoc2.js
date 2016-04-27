@@ -20,6 +20,7 @@ load("load/dpoast.js");
 load("load/dexpress.js");
 load("load/dperuser.js");
 load("load/dperroom.js");
+load("load/dtesting.js");
 
 //other includes
 load("/sbbs/exec/load/sbbsdefs.js");
